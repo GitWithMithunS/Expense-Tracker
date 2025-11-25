@@ -2,7 +2,9 @@ import { useContext } from "react"
 import Navbar from "./Navbar"
 import AppContext from "../context/AppContext"
 import Sidebar from "./Sidebar"
-const Dashboard = () => {
+
+
+const Dashboard = ({children}) => {
     
     const {user} = useContext(AppContext);
 
@@ -20,7 +22,7 @@ const Dashboard = () => {
                             <Sidebar/>
                         </div>
 
-                        <div className="grow mx-5">Right side content</div>
+                        <div className="grow mx-5">{children}</div>
                     </div>
                 )}
 
