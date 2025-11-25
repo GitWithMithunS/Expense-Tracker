@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter, Routes , Route } from 'react-router-dom'
+import { BrowserRouter, Routes , Route, Navigate } from 'react-router-dom'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
 import Filter from './pages/Filter'
@@ -15,6 +15,7 @@ const App = () => {
       <Toaster/>
       <BrowserRouter>
         <Routes>
+          <Route path='/' element={<Root />} />
           <Route path='/dashboard' element={<Home />} />
           <Route path='/income' element={<Income />} />
           <Route path='/expense' element={<Expense />} />
@@ -25,6 +26,15 @@ const App = () => {
         </Routes>
       </BrowserRouter>
     </>
+  )
+}
+
+const Root = () => {
+  const isAuthenticated = !!localStorage.getItem("token");
+  return isAuthenticated ? (
+    <Navigate to='/dashboard'/>
+  ) : (
+    <Navigate to='/login' />
   )
 }
 
