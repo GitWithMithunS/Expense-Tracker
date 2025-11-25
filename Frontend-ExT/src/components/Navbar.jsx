@@ -1,7 +1,7 @@
 import React, { useState, useContext, useRef } from 'react'
 import AppContext from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Menu, User, X } from 'lucide-react';
+import { LogOut, Menu, Sidebar, User, X } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 const Navbar = () => {
@@ -23,6 +23,7 @@ const Navbar = () => {
     return (
         <>
             <div className="flex items-center justify-between gap-5 bg-white border border-b border-gray-200/50 backdrop-blur-[2px] py-4 px-4 sm:px-6 lg:px-7 sticky top-0 z-30">
+               
                 {/* left side menu butotn and title */}
                 <div className="flex items-center gap-5">
                     <button
@@ -35,12 +36,13 @@ const Navbar = () => {
                         )}
                     </button>
 
+
                     <div className="flex item-center gap-2">
                         <img src={logo} alt="" className='h-10 w-10' />
                         <span className="text-lg font-medium text-black truncated">Expense Tracker</span>
                     </div>
-
                 </div>
+
 
                 {/* right side profile avatar photo */}
                 <div className="relative" ref={dropdownRef}>
@@ -52,6 +54,7 @@ const Navbar = () => {
                     >
                         <User className="text-purple-500" />
                     </button>
+
 
                     {/* Dropdown menu */}
                     {showDropdown && (
@@ -72,6 +75,7 @@ const Navbar = () => {
                                 </div>
                             </div>
 
+
                             {/* Dropdwon options */}
                             <div className="py-1">
                                 <button
@@ -81,14 +85,16 @@ const Navbar = () => {
                                     <span>Logout</span>
                                 </button>
                             </div>
-
-
                         </div>)}
-
                 </div>
-                        
+
+
                 {/* Mobile side menu */}
-                <span>l</span>
+                {!openSidebar && (
+                    <div className="fixed left-0 right-0 bg-white border-b border-gray-200 lg:hidden z-20 top-[73px]">
+                        <Sidebar/>
+                    </div>
+                )}
 
             </div>
         </>
