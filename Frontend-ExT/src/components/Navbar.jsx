@@ -1,10 +1,11 @@
-import React, { useState, useContext, useRef } from 'react'
+import React, { useState, useContext, useRef, useEffect } from 'react'
 import AppContext from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Menu, Sidebar, User, X } from 'lucide-react';
+import { LogOut, Menu, User, X } from 'lucide-react';
+import Sidebar from './Sidebar';
 import logo from '../assets/logo.png';
 
-const Navbar = () => {
+const Navbar = ({activeMenu}) => {
 
     const [openSidebar, setOpenSidebar] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
@@ -19,6 +20,27 @@ const Navbar = () => {
         setShowDropdown(false);
         navigate('/login');
     }
+
+    
+    useEffect(() => {
+    const handleClickOutside = (e) => {
+        //if dropdwon is not null and doesnt contains the ref elements -> then close
+        if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+            setShowDropdown(false);
+        }
+    };
+
+    if (showDropdown) {
+        document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+    };
+}, [showDropdown]);
+
+
+
 
     return (
         <>
@@ -37,7 +59,7 @@ const Navbar = () => {
                     </button>
 
 
-                    <div className="flex item-center gap-2">
+                    <div className="flex items-center gap-2">
                         <img src={logo} alt="" className='h-10 w-10' />
                         <span className="text-lg font-medium text-black truncated">Expense Tracker</span>
                     </div>
@@ -90,9 +112,9 @@ const Navbar = () => {
 
 
                 {/* Mobile side menu */}
-                {!openSidebar && (
+                {openSidebar && (
                     <div className="fixed left-0 right-0 bg-white border-b border-gray-200 lg:hidden z-20 top-[73px]">
-                        <Sidebar/>
+                        <Sidebar activeMenu={activeMenu}/>
                     </div>
                 )}
 
