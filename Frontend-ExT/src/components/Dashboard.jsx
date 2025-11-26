@@ -8,7 +8,7 @@ const Dashboard = ({children , activeMenu}) => {
     
     const {user} = useContext(AppContext);
 
-    ( () => console.log(user ,"frm dashboard"))(); 
+    // ( () => console.log(user ,"frm dashboard"))(); 
 
     return (
         <>

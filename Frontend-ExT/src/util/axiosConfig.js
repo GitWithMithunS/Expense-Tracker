@@ -1,8 +1,11 @@
 import axios from "axios";
+import { API_ENDPOINTS } from "./apiEnpoints"; 
 
-//  Mock Mode — remove this when backend is ready
-const MOCK_MODE = true;
 
+// Toggle mock mode (keep true during frontend dev)
+export const MOCK_MODE = true;   //to be switched off while integrating backend
+
+// Base Axios instance
 const axiosConfig = axios.create({
   baseURL: "",
   headers: {
@@ -11,26 +14,42 @@ const axiosConfig = axios.create({
   },
 });
 
-// Endpoints that do not need authentication
-const excludeEndopoints = ["/login", "/signup", "/status", "/activate", "/health"];
 
-//  MOCK INTERCEPTOR — returns success for ANY request
+  //  MOCK DATA FOR SPECIFIC ENDPOINTS
+const mockDatabase = {
+  GET_ALL_CATEGORIES: [
+    { id: 1, userId: "user123", icon: "🍔", name: "Food & Dining", type: "expense" },
+    { id: 2, userId: "user123", icon: "🚌", name: "Transport", type: "expense" },
+    { id: 3, userId: "user123", icon: "💼", name: "Salary", type: "income" },
+    { id: 4, userId: "user123", icon: "🛍️", name: "Shopping", type: "expense" },
+    { id: 5, userId: "user123", icon: "📈", name: "Investments", type: "income" },
+  ],
+  LOGIN: { token: "mock-token", user: { name: "Lucario" } },
+  REGISTER: { success: true },
+};
+
+
+  //  MOCK INTERCEPTOR — returns data based on endpoint
 if (MOCK_MODE) {
   axiosConfig.interceptors.request.use((config) => {
-    console.log(" Mock Request:", config.url);
+    console.log(" MOCK API HIT:", config.url);
 
-    // Instead of sending request to backend, we generate a fake response
+    // REPLACE real network call with a dummy adapter
     config.adapter = () => {
       return new Promise((resolve) => {
         setTimeout(() => {
+          const endpointKey = Object.keys(API_ENDPOINTS).find((key) =>
+            config.url.includes(API_ENDPOINTS[key])
+          );
+
           resolve({
-            data: { message: "Mock success response", success: true },
+            data: mockDatabase[endpointKey] || { success: true },
             status: 200,
             statusText: "OK",
             headers: {},
             config,
           });
-        }, 300); // simulate network delay
+        }, 300);
       });
     };
 

@@ -1,89 +1,235 @@
-import React, { useEffect, useState } from 'react'
-import Dashboard from '../components/Dashboard'
-import { LayoutDashboard, Plus } from 'lucide-react'
-import CategoryList from '../components/CategoryList'
-import axiosConfig from '../util/axiosConfig'
-import { API_ENDPOINTS } from '../util/apiEnpoints'
-import toast from 'react-hot-toast'
-import Expense from './Expense'
+import React, { useEffect, useState } from "react";
+import Dashboard from "../components/Dashboard";
+import { Plus } from "lucide-react";
+import CategoryList from "../components/CategoryList";
+import axiosConfig from "../util/axiosConfig";
+import { API_ENDPOINTS } from "../util/apiEnpoints";
+import Model from "../components/Model";
+import AddCategoryForm from "../components/AddCategoryForm";
+import { showErrorToast, showSuccessToast } from "../components/CustomToast";
+import toast from "react-hot-toast";
 
 const Category = () => {
-
-  // useUser();  //backedn not yet connected
-
-  // //scheme for categories
-  // name : String
-  // icon : String
-  // type : string (income / Expense)
-
-  //if anyone can write dummy categories for now
-
   const [loading, setLoading] = useState(false);
   const [categoryData, setCategoryData] = useState([]);
-  const [openAddCategoryModel, setOpenAddCategoryModel] = useState(false);
-  const [openEditCategoryModel, setOpenEditCategoryModel] = useState(false);
+  const [openAddModal, setOpenAddModal] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  //fecthing all data fof categories form backend apis
+  // Dummy delay (fake backend delay)
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); //remove later
+
+  // ------------------------
+  // Fetch all categories
+  // ------------------------
   const fetchCategoryDetails = async () => {
     if (loading) return;
 
+    console.log("Fetching categories...");
     setLoading(true);
 
-    // as we dont have api yet cant fetch
     try {
-      const respone = await axiosConfig.get(API_ENDPOINTS.GET_ALL_CATEGORIES);
-      if (respone.status == 200) {
-        console.log('categories', respone.data);
-        setCategoryData(respone.data);
+      const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_CATEGORIES);
+
+      // TEMPORARY DUMMY CHECK
+      if (!Array.isArray(response.data)) {
+        console.log("Dummy response detected, using fallback demo data.");
+
+        setCategoryData([
+          { id: 1, name: "Food", type: "expense", icon: "🍕" },
+          { id: 2, name: "Salary", type: "income", icon: "💰" },
+          { id: 3, name: "Bills", type: "expense", icon: "🧾" },
+        ]);
+        return;
       }
+
+      console.log("Categories fetched:", response.data);
+      setCategoryData(response.data);
+
     } catch (error) {
-      console.error('Something went wrong while fetching categories ', error);
-      toast.error(error.message);
+      console.log("Fetch Error →", error);
+      toast.error("Failed to fetch categories!");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     fetchCategoryDetails();
   }, []);
 
+  // ------------------------
+  // ADD CATEGORY
+  // ------------------------
+  const handleAddCategory = async (newCategory) => {
+    const { name, type, icon } = newCategory;
 
+    // Duplicate Check
+    const exists = categoryData.some(
+      (c) => c.name.toLowerCase() === name.trim().toLowerCase()
+    );
+
+    if (exists) {
+      showErrorToast("Category already exists!");
+      return;
+    }
+
+    console.log("Adding category →", newCategory);
+    await delay(1000); // simulate API time ->should remove later
+
+    try {
+      // Dummy POST
+      await axiosConfig.post(API_ENDPOINTS.ADD_CATEGORY, {
+        name,
+        type,
+        icon,
+      });
+
+      // Add to Frontend
+      const newItem = {
+        id: Date.now(),
+        userId: "user123",
+        name,
+        type,
+        icon,
+      };
+
+      setCategoryData((prev) => [...prev, newItem]);
+
+      showSuccessToast("Category Added!");
+      fetchCategoryDetails();
+      return "success";
+
+    } catch (error) {
+      console.log("Add Error →", error);
+      showErrorToast("Failed to add category");
+      throw error;
+    }
+  };
+
+
+  // ------------------------
+  // OPEN EDIT MODAL
+  // ------------------------
+  const handleEditCategory = (categoryObj) => {
+    console.log("Editing category:", categoryObj);
+    setSelectedCategory(categoryObj);
+    setOpenEditModal(true);
+  };
+
+  // ------------------------
+  // UPDATE CATEGORY
+  // ------------------------
+  const handleUpdateCategory = async (updatedCategory) => {
+    console.log("Updating category:", updatedCategory);
+    await delay(1000);
+
+    try {
+      // Dummy API
+      await axiosConfig.put(
+        `${API_ENDPOINTS.UPDATE_CATEGORY}/${updatedCategory.id}`,
+        updatedCategory
+      );
+
+      setCategoryData((prev) =>
+        prev.map((item) =>
+          item.id === updatedCategory.id ? updatedCategory : item
+        )
+      );
+
+      showSuccessToast("Category Updated!");
+      return "success";
+    } catch (error) {
+      console.log("Update Error →", error);
+      showErrorToast("Failed to update category");
+      throw error;
+    }
+  };
+
+  // ------------------------
+  // DELETE CATEGORY
+  // ------------------------
+  const handleDeleteCategory = async (categoryObj) => {
+    console.log("Deleting category:", categoryObj);
+
+    await delay(1000);
+
+    try {
+      // Dummy API
+      await axiosConfig.delete(
+        `${API_ENDPOINTS.DELETE_CATEGORY}/${categoryObj.id}`
+      );
+
+      setCategoryData((prev) =>
+        prev.filter((item) => item.id !== categoryObj.id)
+      );
+
+      showSuccessToast("Category Deleted!");
+
+    } catch (error) {
+      console.log("Delete Error →", error);
+      showErrorToast("Failed to delete");
+    }
+  };
 
   return (
-    <>
-      <Dashboard activeMenu='Category'>
-        <div className="my-5 mx-auto">
-          {/* add button to add category */}
-          <div className="flex justify-between items-center mb-5">
-            <h2 className="text-2xl font-semibold">All Categories</h2>
-            <button
-              className="px-4 py-2 rounded-lg flex items-center gap-1
-              bg-green-500/20 backdrop-blur-md border border-green-400/40
-              text-green-800 font-medium shadow-lg
-              hover:bg-green-500/30 hover:shadow-green-400/50
-              transition-all duration-300"
-            >
-              <Plus size={15} />
-              Add Category
-            </button>
-          </div>
+    <Dashboard activeMenu="Category">
+      <div className="my-5 mx-auto">
 
-          {/* Category list */}
-          <CategoryList />
+        {/* Header */}
+        <div className="flex justify-between items-center mb-5">
+          <h2 className="text-2xl font-semibold">All Categories</h2>
 
-
-          {/* Adding category modal */}
-
-
-          {/* Updating category model */}
-
-
+          <button
+            onClick={() => setOpenAddModal(true)}
+            className="px-4 py-2 rounded-lg flex items-center gap-1
+            bg-green-500/20 border border-green-400
+            text-green-800 font-medium shadow-md hover:bg-green-500/30"
+          >
+            <Plus size={15} />
+            Add Category
+          </button>
         </div>
-      </Dashboard>
-    </>
-  )
-}
 
-export default Category
+        {/* List */}
+        <CategoryList
+          categories={categoryData}
+          onEditCategory={handleEditCategory}
+          onDeleteCategory={handleDeleteCategory}
+        />
+
+        {/* ADD MODAL */}
+        <Model
+          isOpen={openAddModal}
+          onClose={() => setOpenAddModal(false)}
+          title="Add Category"
+        >
+          <AddCategoryForm
+            onSubmit={handleAddCategory}
+            onClose={() => setOpenAddModal(false)}
+          />
+        </Model>
+
+        {/* EDIT MODAL */}
+        <Model
+          isOpen={openEditModal}
+          onClose={() => {
+            setOpenEditModal(false);
+            setSelectedCategory(null);
+          }}
+          title="Update Category"
+        >
+          <AddCategoryForm
+            isEditing={true}
+            initialCategoryData={selectedCategory}
+            onSubmit={handleUpdateCategory}
+            onClose={() => setOpenEditModal(false)}
+          />
+        </Model>
+
+      </div>
+    </Dashboard>
+  );
+};
+
+export default Category;
