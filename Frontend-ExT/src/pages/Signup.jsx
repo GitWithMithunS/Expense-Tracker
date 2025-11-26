@@ -1,5 +1,10 @@
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import bgImage from "../assets/auth-bg.png";
+
+
+// const bgImage = "../assets/auth-bg.png";
 
 const Signup = () => {
   const [fullname, setFullname] = useState("");
@@ -13,7 +18,6 @@ const Signup = () => {
   const handleSignup = (e) => {
     e.preventDefault();
 
-    // Basic validations
     if (!fullname || !email || !password || !confirmPassword) {
       setError("All fields are required.");
       return;
@@ -31,89 +35,158 @@ const Signup = () => {
 
     setError("");
 
-    // Fake signup → Replace with your backend API call
     const user = { fullname, email };
     localStorage.setItem("user", JSON.stringify(user));
 
+    // No auto-login → redirect to login
     navigate("/login");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4">
-      <div className="w-full max-w-md bg-gray-800 rounded-xl p-6 shadow-lg">
-        <h2 className="text-2xl font-bold text-white text-center mb-6">
-          Create Account
-        </h2>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Background */}
+      <div
+        className="absolute inset-0 bg-center bg-cover"
+        style={{ backgroundImage: `url(${bgImage})` }}
+      />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
-        {error && (
-          <p className="text-red-400 text-sm mb-4 text-center">{error}</p>
-        )}
+      {/* Floating blur shape */}
+      <motion.div
+        animate={{ y: [-10, 10, -10] }}
+        transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
+        className="hidden md:block absolute left-8 bottom-10 w-44 h-44 rounded-full bg-gradient-to-tr from-indigo-400 to-purple-500 opacity-20 blur-3xl"
+      />
 
-        <form onSubmit={handleSignup} className="space-y-4">
-          {/* Full Name */}
-          <div>
-            <label className="text-gray-300 text-sm">Full Name</label>
-            <input
-              type="text"
-              className="w-full mt-1 px-3 py-2 bg-gray-700 text-white rounded-md outline-none focus:ring-2 focus:ring-blue-500"
-              value={fullname}
-              onChange={(e) => setFullname(e.target.value)}
-            />
+      {/* Glass card */}
+      <motion.div
+        initial={{ scale: 0.98, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.45 }}
+        className="relative z-10 w-full max-w-3xl mx-4 bg-white/10 border border-white/20 backdrop-blur-md rounded-2xl shadow-xl p-8"
+      >
+        <div className="grid md:grid-cols-2 gap-4 items-center">
+          {/* Left Content */}
+          <div className="p-4">
+            {/* 🔥 Correct animated emoji heading */}
+            <motion.h2
+              initial={{ y: -6, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.45 }}
+              className="text-3xl font-semibold text-white mb-4 flex items-center gap-2"
+            >
+              Create Account
+              <motion.span
+                aria-hidden="true"
+                initial={{ scale: 0.85, rotate: -10 }}
+                animate={{
+                  scale: [0.85, 1, 0.95],
+                  rotate: [-10, 10, 0],
+                }}
+                transition={{
+                  duration: 1.2,
+                  repeat: Infinity,
+                  repeatDelay: 2,
+                }}
+                className="inline-block"
+              >
+                ✨
+              </motion.span>
+            </motion.h2>
+
+            <p className="text-sm text-gray-300">
+              Join now to start tracking your income and expenses with beautiful
+              charts.
+              
+            </p>
+            <h2 className ="text-sm text-gray-300"> Track, Save, Smile!!</h2>
+
+            <div className="mt-6 flex gap-2">
+              <div className="px-3 py-1 rounded-full bg-white/10 text-white text-xs">
+                Secure
+              </div>
+              <div className="px-3 py-1 rounded-full bg-white/10 text-white text-xs">
+                Fast
+              </div>
+              <div className="px-3 py-1 rounded-full bg-white/10 text-white text-xs">
+                Private
+              </div>
+            </div>
           </div>
 
-          {/* Email */}
-          <div>
-            <label className="text-gray-300 text-sm">Email</label>
-            <input
-              type="email"
-              className="w-full mt-1 px-3 py-2 bg-gray-700 text-white rounded-md outline-none focus:ring-2 focus:ring-blue-500"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+          {/* Right form */}
+          <div className="p-4">
+            {error && (
+              <p className="text-red-300 text-sm mb-3">{error}</p>
+            )}
+
+            <form onSubmit={handleSignup} className="space-y-3">
+              <div>
+                <label className="text-sm text-gray-200">Full Name</label>
+                <input
+                  type="text"
+                  value={fullname}
+                  onChange={(e) => setFullname(e.target.value)}
+                  className="w-full mt-2 px-3 py-2 rounded-md bg-gray-800/60 text-white outline-none focus:ring-2 focus:ring-purple-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-200">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full mt-2 px-3 py-2 rounded-md bg-gray-800/60 text-white outline-none focus:ring-2 focus:ring-purple-400"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm text-gray-200">Password</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full mt-2 px-3 py-2 rounded-md bg-gray-800/60 text-white outline-none focus:ring-2 focus:ring-purple-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-200">
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full mt-2 px-3 py-2 rounded-md bg-gray-800/60 text-white outline-none focus:ring-2 focus:ring-purple-400"
+                  />
+                </div>
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                className="w-full py-2 rounded-md bg-gradient-to-r from-purple-600 to-indigo-500 text-white font-semibold mt-1"
+              >
+                Sign Up
+              </motion.button>
+            </form>
+
+            <p className="text-gray-300 text-sm text-center mt-3">
+              Already have an account?{" "}
+              <span
+                onClick={() => navigate("/login")}
+                className="text-purple-300 underline cursor-pointer"
+              >
+                Login
+              </span>
+            </p>
           </div>
-
-          {/* Password */}
-          <div>
-            <label className="text-gray-300 text-sm">Password</label>
-            <input
-              type="password"
-              className="w-full mt-1 px-3 py-2 bg-gray-700 text-white rounded-md outline-none focus:ring-2 focus:ring-blue-500"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-
-          {/* Confirm Password */}
-          <div>
-            <label className="text-gray-300 text-sm">Confirm Password</label>
-            <input
-              type="password"
-              className="w-full mt-1 px-3 py-2 bg-gray-700 text-white rounded-md outline-none focus:ring-2 focus:ring-blue-500"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-md text-white font-semibold transition"
-          >
-            Sign Up
-          </button>
-        </form>
-
-        {/* Already have account */}
-        <p className="text-gray-400 text-sm text-center mt-5">
-          Already have an account?{" "}
-          <span
-            onClick={() => navigate("/login")}
-            className="text-blue-400 hover:underline cursor-pointer"
-          >
-            Login
-          </span>
-        </p>
-      </div>
+        </div>
+      </motion.div>
     </div>
   );
 };
