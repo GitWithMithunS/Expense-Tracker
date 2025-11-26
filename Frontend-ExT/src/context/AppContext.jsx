@@ -16,6 +16,8 @@ export const AppContextProvider = ({ children }) => {
 
     const [user , setUser] = useState(defaultUser);  //to be changed to null when interating apis
 
+    
+
     const contextValue = {
         // Define your context values and functions here
         user,
