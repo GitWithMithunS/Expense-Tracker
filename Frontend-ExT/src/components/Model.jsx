@@ -23,7 +23,7 @@ const Model = ({ isOpen, onClose, children, title }) => {
         
         <div
           ref={modalRef}
-          className="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden"
+          className="bg-white rounded-xl shadow-xl border border-gray-200 "
           onMouseDown={(e) => e.stopPropagation()} // prevents modal click from closing
         >
           {/* Header */}
