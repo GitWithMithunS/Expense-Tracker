@@ -8,6 +8,7 @@ import Expense from './pages/Expense'
 import Income from './pages/Income'
 import Home from './pages/Home'
 import { Toaster } from 'react-hot-toast'
+import Bills from './pages/Bills'
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
           <Route path='/expense' element={<Expense />} />
           <Route path='/category' element={<Category />} />
           <Route path='/filter' element={<Filter />} />
+          <Route path='/bills' element={<Bills />} />
           <Route path='/login' element={<Login />} />
           <Route path='/signup' element={<Signup />} />
         </Routes>
