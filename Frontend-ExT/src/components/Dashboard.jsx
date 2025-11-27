@@ -16,12 +16,12 @@ const Dashboard = ({ children, activeMenu }) => {
           <div className="max-[1080px]:hidden">
             <Sidebar activeMenu={activeMenu} />
           </div>
-                       
-                       {/* Noting to be written here */}
 
-          {/* Page Content of every pages*/}
+            {/* Noting more to edit here boi */}
+
+          {/* Page Content */}
           <div className="grow mx-5 my-6">
-            {children}   {/* guys only children here */}
+            {children}   {/*guys Only children here */}
           </div>
         </div>
       )}
