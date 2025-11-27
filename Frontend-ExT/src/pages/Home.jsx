@@ -16,6 +16,10 @@ const Home = () => {
 
   const { state } = useContext(TransactionContext);
 
+  console.log(state.categories);   //just a checker 
+
+  console.log(state.categories);   //just a checker 
+
   // totals
   const totalIncome = state.incomes.reduce((s, i) => s + Number(i.amount), 0);
   const totalExpense = state.expenses.reduce((s, e) => s + Number(e.amount), 0);
