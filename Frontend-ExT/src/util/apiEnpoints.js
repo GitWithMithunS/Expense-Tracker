@@ -9,4 +9,5 @@ export const API_ENDPOINTS = {
   ADD_CATEGORY : "/addcategory",
   INCOME: "/income",
   UPLOAD_IMAGE: "/upload",
+  GET_ALL_TRANSACTIONS: "/transactions",
 };
