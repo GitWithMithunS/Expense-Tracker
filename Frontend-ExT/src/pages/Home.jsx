@@ -17,6 +17,8 @@ const Home = () => {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const { state } = useContext(TransactionContext);
 
+  console.log(state.categories);   //just a checker 
+
   const totalIncome = state.incomes.reduce(
     (sum, item) => sum + Number(item.amount),
     0
