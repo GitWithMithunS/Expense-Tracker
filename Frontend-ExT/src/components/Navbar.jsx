@@ -144,6 +144,7 @@ const Navbar = ({ activeMenu }) => {
           </button>
 
           {/* 👤 PROFILE DROPDOWN */}
+          
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setShowDropdown(!showDropdown)}

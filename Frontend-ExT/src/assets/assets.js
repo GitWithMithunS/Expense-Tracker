@@ -36,5 +36,12 @@ export const SIDE_BAR_DATA = [
     label: "Bills",
     icon: BanknoteArrowDown,
     path: "/bills"
-  }
+  },
+  
+  // {
+  //   id: "07",
+  //   label: "Profile",
+  //   icon: User,
+  //   path: "/profile"
+  // }
 ];

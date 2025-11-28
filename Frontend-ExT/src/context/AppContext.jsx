@@ -7,7 +7,7 @@ export const AppContextProvider = ({ children }) => {
     //our dummy value( to be remove) 
     const defaultUser = {
         id : 1,
-        name : 'micky mouse',
+        name : 'mickey mouse',
         email : 'micky@notavailable.com',
         profileImageUrl : profile,
         password : 'forgot',
