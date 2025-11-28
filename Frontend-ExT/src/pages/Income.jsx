@@ -4,20 +4,21 @@ import { API_ENDPOINTS } from '../util/apiEnpoints';
 import axiosConfig from '../util/axiosConfig';
 import { showErrorToast, showSuccessToast } from '../components/CustomToast';
 
-import IncomeChart from '../components/charts/IncomeChart';
-import IncomeBarChart from '../components/charts/IncomeBarChart';
-import IncomePieChart from '../components/charts/IncomePieChart';
+
+import LineChartComponent from '../components/charts/LineChartComponent';
+import BarChartComponent from '../components/charts/BarChartComponent';
+import PieChartComponent from '../components/charts/PieChartComponent';
 
 import IncomeList from '../components/IncomeList';
 import Model from '../components/Model';
 import AddIncomeForm from '../components/AddIncomeForm';
 import ConfirmDelete from '../components/ConfirmDelete';
-// import { exportIncomeToExcel, generateIncomeExcelBlob } from "../util/excelUtils";
+
 import {
-  exportIncomeToExcel,
-  exportIncomeToCSV,
-  exportIncomeToPDF,
-  generateIncomeExcelBlob,
+  generateExcelBlob,
+  exportToPDF,
+  exportToCSV,
+  exportToExcel,
 } from "../util/excelUtils";
 
 
@@ -26,7 +27,6 @@ const Income = () => {
 
   const [incomeData, setIncomeData] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
   const [openDeleteAlert, setOpenDeleteAlert] = useState({ show: false, data: null });
@@ -41,7 +41,7 @@ const Income = () => {
       console.log(err.response?.data?.message || 'Failed fetching income details');
     }
   };
-  
+
   // Fetch categories
   const fetchIncomeCategories = async () => {
     try {
@@ -63,7 +63,7 @@ const Income = () => {
       await axiosConfig.post(API_ENDPOINTS.ADD_INCOME, data);
       await fetchIncomeDetails();
       showSuccessToast("Income added");
-    } catch(err) {
+    } catch (err) {
       showErrorToast("Failed to add income");
       console.log(err.response?.data?.message || 'Failed adding income in backend');
     }
@@ -74,53 +74,67 @@ const Income = () => {
       await axiosConfig.delete(API_ENDPOINTS.DELETE_INCOME(income.id));
       await fetchIncomeDetails();
       showSuccessToast("Income deleted");
-    } catch(err) {
+    } catch (err) {
       showErrorToast("Failed to delete income");
       console.log(err.response?.data?.message || 'Failed to  delete income in backend');
     }
   };
 
 
+
+
   //functions to handel downlaod and et mail for incomes
-
   const handleDownloadIncomeExcel = () => {
-  exportIncomeToExcel(incomeData);
-  showSuccessToast("Excel downloaded!");
-};
+    if (!incomeData.length) {
+      showErrorToast('Sorry ,No income data to downlaod! Add some income to proceed')
+      return;
+    }
+    exportToExcel(incomeData, 'income');
+    showSuccessToast("Excel downloaded!");
+  };
 
 
-const handleDownloadIncomeCSV = () => {
-  exportIncomeToCSV(incomeData);
-  showSuccessToast("Downloaded CSV!");
-};
+  const handleDownloadIncomeCSV = () => {
+    if (!incomeData.length) {
+      showErrorToast('Sorry ,No income data to downlaod! Add some income to proceed')
+      return;
+    }
+    exportToCSV(incomeData, 'income');
+    showSuccessToast("Downloaded CSV!");
+  };
 
-const handleDownloadIncomePDF = () => {
-  exportIncomeToPDF(incomeData);
-  showSuccessToast("Downloaded PDF!");
-};
+  const handleDownloadIncomePDF = () => {
+    if (!incomeData.length) {
+      showErrorToast('Sorry ,No income data to downlaod! Add some income to proceed')
+      return;
+    }
+    exportToPDF(incomeData, 'income');
+    showSuccessToast("Downloaded PDF!");
+  };
 
-//sending the excel to backend endpoint to mail the user 
-const handleEmailIncomeDetails = async () => {
-  try {
-    const excelBlob = generateIncomeExcelBlob(incomeData);
+  //sending the excel to backend endpoint to mail the user 
+  const handleEmailIncomeDetails = async () => {
+    try {
+      const excelBlob = generateExcelBlob(incomeData, 'income');
 
-    const file = new Blob([excelBlob], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
+      const file = new Blob([excelBlob], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
 
-    const formData = new FormData();
-    formData.append("file", file, "Income_Report.xlsx");
+      const formData = new FormData();
+      formData.append("file", file, "Income_Report.xlsx");
 
-    //  send to backend email API (when you have one)
-    //const response = await axiosConfig.post(API_ENDPOINTS.EMAIL_EXCEL, formData);
-    
-    console.log("Excel ready for email →", file);
-    showSuccessToast("Email sent (Mock Mode)");
-  } catch (err) {
-    showErrorToast("Failed to send email");
-    console.log(err.response?.data?.message || 'Failed to sent excel to backend');
-  }
-};
+      //  send to backend email API (when you have one)
+      //const response = await axiosConfig.post(API_ENDPOINTS.EMAIL_EXCEL, formData);
+
+      console.log("Excel ready for email →", file);
+      showSuccessToast("Email sent (Mock )");
+    } catch (err) {
+      showErrorToast("Failed to send email");
+      console.log(err.response?.data?.message || 'Failed to sent excel to backend');
+    }
+  };
+
 
 
 
@@ -129,36 +143,32 @@ const handleEmailIncomeDetails = async () => {
 
       <div className="my-5 mx-auto space-y-6">
 
-        {/* Full-width line chart */}
-        <IncomeChart
-          incomeData={incomeData}
-          onAddIncome={() => setOpenAddIncomeModal(true)}
+        {/* line chart */}
+        <LineChartComponent
+          data={incomeData}
+          onAdd ={() => setOpenAddIncomeModal(true)}
+          type='income'
         />
 
         {/* Bar + Pie Chart side by side */}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 auto-rows-[1fr]">
-          <IncomeBarChart incomeData={incomeData} />
-          <IncomePieChart incomeData={incomeData} categories={categories} />
+          <BarChartComponent data={incomeData} type="income" />
+
+          <PieChartComponent data={incomeData} categories={categories} type="income" />
         </div>
 
 
 
         {/* Income List below */}
-        {/* <IncomeList
+        <IncomeList
           transactions={incomeData}
           onDelete={(item) => setOpenDeleteAlert({ show: true, data: item })}
-          onDownload={handleDownloadIncomeDetails}
           onEmail={handleEmailIncomeDetails}
-        /> */}
-        <IncomeList
-  transactions={incomeData}
-  onDelete={(item) => setOpenDeleteAlert({ show: true, data: item })}
-  onEmail={handleEmailIncomeDetails}
-  onDownloadExcel={handleDownloadIncomeExcel}
-  onDownloadCSV={handleDownloadIncomeCSV}
-  onDownloadPDF={handleDownloadIncomePDF}
-/>
+          onDownloadExcel={handleDownloadIncomeExcel}
+          onDownloadCSV={handleDownloadIncomeCSV}
+          onDownloadPDF={handleDownloadIncomePDF}
+        />
 
 
         {/* Add Income Modal */}

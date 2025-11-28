@@ -7,6 +7,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import EmptyState from "./EmptyState";
 
 const COLORS = [
   "#6B46C1",
@@ -17,11 +18,29 @@ const COLORS = [
   "#805AD5",
 ];
 
-const IncomePieChart = ({ incomeData, categories }) => {
+const PieChartComponent = ({ data, categories, type = "income" }) => {
+  const title =
+    type === "income"
+      ? "Income Breakdown by Category"
+      : "Expense Breakdown by Category";
+
+  const emptyMsg =
+    type === "income"
+      ? "No income category breakdown available."
+      : "No expense category breakdown available.";
+
+  if (!data.length) {
+    return (
+      <div className="bg-white p-5 rounded-xl shadow-md border border-gray-200 h-80">
+        <EmptyState message={emptyMsg} type="chart" />
+      </div>
+    );
+  }
+
   const chartData = useMemo(() => {
     const map = {};
 
-    incomeData.forEach((item) => {
+    data.forEach((item) => {
       const cat = categories.find((c) => c.id === item.categoryId);
       if (!cat) return;
 
@@ -36,18 +55,13 @@ const IncomePieChart = ({ incomeData, categories }) => {
     });
 
     return Object.values(map);
-  }, [incomeData, categories]);
+  }, [data, categories]);
 
   return (
     <div className="bg-white p-5 rounded-xl shadow-md border border-gray-200 w-full">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        Income Breakdown by Category
-      </h3>
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">{title}</h3>
 
-      {/* Same height as bar chart */}
-      {/* <div className="h-[350px] sm:h-[380px] md:h-[400px]"> */}
       <div className="h-[320px] sm:h-[340px] md:h-[360px] flex items-center justify-center">
-
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -56,8 +70,8 @@ const IncomePieChart = ({ incomeData, categories }) => {
               nameKey="name"
               cx="50%"
               cy="50%"
-              outerRadius="75%"   // Bigger
-              innerRadius="45%"   // Inner hole also bigger
+              outerRadius="75%"
+              innerRadius="45%"
               paddingAngle={2}
               label={{ fontSize: 12 }}
             >
@@ -78,4 +92,4 @@ const IncomePieChart = ({ incomeData, categories }) => {
   );
 };
 
-export default IncomePieChart;
+export default PieChartComponent;
