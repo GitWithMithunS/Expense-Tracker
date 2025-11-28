@@ -9,6 +9,9 @@ import Income from './pages/Income'
 import Home from './pages/Home'
 import { Toaster } from 'react-hot-toast'
 import Bills from './pages/Bills'
+// import Profile from './pages/Profile'
+
+
 
 const App = () => {
   return (
@@ -25,6 +28,7 @@ const App = () => {
           <Route path='/bills' element={<Bills />} />
           <Route path='/login' element={<Login />} />
           <Route path='/signup' element={<Signup />} />
+          
         </Routes>
       </BrowserRouter>
     </>
