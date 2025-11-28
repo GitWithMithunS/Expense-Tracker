@@ -10,4 +10,12 @@ export const API_ENDPOINTS = {
   INCOME: "/income",
   UPLOAD_IMAGE: "/upload",
   GET_ALL_TRANSACTIONS: "/transactions",
+  // UPDATE_CATEGORY:"/updatecategory",
+  UPDATE_CATEGORY: (categoryId) => `/category/${categoryId}`,
+  GET_ALL_INCOME : '/income',
+  ADD_INCOME: 'addincome',
+  UPDATE_INCOME: (incomeId) => `/income/${incomeId}`,
+  DELETE_INCOME: (incomeId) => `/income/${incomeId}`,
+  CATEGORY_BY_TYPE : (type) => `category/${type}`,
+  UPLOAD_IMAGE: "/upload",   //for user profile this is (not billing/valut)
 };

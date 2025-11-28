@@ -26,6 +26,7 @@ const Category = () => {
   //   fetchCategoryDetails();
   // }, []);
   //seting category as soon as their is a change in the state of category from transaction field
+
   useEffect(() => {
     setCategoryData(state.categories);
   }, [state.categories]);
@@ -104,13 +105,13 @@ const Category = () => {
         icon,
       };
 
-      setCategoryData((prev) => [...prev, newItem]);
+      // setCategoryData((prev) => [...prev, newItem]);
 
-      // Update GLOBAL CONTEXT
-      dispatch({
-        type: "ADD_CATEGORY",
-        payload: newItem,
-      });
+      // // Update GLOBAL CONTEXT
+      // dispatch({
+      //   type: "ADD_CATEGORY",
+      //   payload: newItem,
+      // });
 
       showSuccessToast("Category Added!");
       return "success";
@@ -141,7 +142,8 @@ const Category = () => {
 
     try {
       await axiosConfig.put(
-        `${API_ENDPOINTS.UPDATE_CATEGORY}/${updatedCategory.id}`,
+        // `${API_ENDPOINTS.UPDATE_CATEGORY}/${updatedCategory.id}`,
+        API_ENDPOINTS.UPDATE_CATEGORY(updatedCategory.id),
         updatedCategory
       );
 

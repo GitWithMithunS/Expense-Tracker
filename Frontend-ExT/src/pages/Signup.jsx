@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import bgImage from "../assets/auth-bg.png";
+import AppContext from "../context/AppContext";
 
 
 // const bgImage = "../assets/auth-bg.png";
@@ -14,6 +15,8 @@ const Signup = () => {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  
+  const {user} = useContext(AppContext);
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -32,6 +35,7 @@ const Signup = () => {
       setError("Passwords do not match.");
       return;
     }
+
 
     setError("");
 

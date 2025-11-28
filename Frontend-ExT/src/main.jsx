@@ -6,11 +6,11 @@ import { AppContextProvider } from './context/AppContext.jsx'
 import TransactionProvider from "./context/TransactionContext.jsx"
 
 createRoot(document.getElementById('root')).render(
-  <TransactionProvider>
-    <AppContextProvider>
-      <StrictMode>
+  <AppContextProvider>
+    <TransactionProvider>
+      {/* <StrictMode> */}
         <App />
-      </StrictMode>
-    </AppContextProvider>
-  </TransactionProvider>
+      {/* </StrictMode> */}
+    </TransactionProvider>
+  </AppContextProvider>
 )
