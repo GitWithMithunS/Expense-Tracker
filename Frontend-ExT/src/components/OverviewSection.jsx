@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { TransactionContext } from "../context/TransactionContext";
 import {
   PieChart,
@@ -7,6 +7,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { API_ENDPOINTS } from "@/util/apiEnpoints";
+import axiosConfig from "@/util/axiosConfig";
 
 const OverviewSection = () => {
   const { state } = useContext(TransactionContext);
@@ -14,17 +16,34 @@ const OverviewSection = () => {
   // ===============================
   // TOTALS
   // ===============================
-  const totalIncome = state.incomes.reduce(
-    (sum, item) => sum + Number(item.amount || 0),
-    0
-  );
+  const [allTransactions, setAllTransactions] = useState([]);
 
-  const totalExpense = state.expenses.reduce(
-    (sum, item) => sum + Number(item.amount || 0),
-    0
-  );
+useEffect(() => {
+  const fetchAll = async () => {
+    try {
+      const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+      setAllTransactions(response.data);
+    } catch (error) {
+      console.error("Error fetching all transactions:", error);
+    }
+  };
 
-  const balance = totalIncome - totalExpense;
+  fetchAll();
+}, []);
+
+// ===============================
+// TOTALS (Using all transactions)
+// ===============================
+const totalIncome = allTransactions
+  .filter((tx) => tx.type === "income")
+  .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+const totalExpense = allTransactions
+  .filter((tx) => tx.type === "expense")
+  .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+const balance = totalIncome - totalExpense;
+
 
   // ===============================
   // DAILY SPEND LIMIT CALCULATION
@@ -41,30 +60,55 @@ const OverviewSection = () => {
     daysRemaining > 0 ? Math.max(0, balance / daysRemaining) : 0;
 
   // ===============================
-  // RECENT 5 EXPENSES
-  // ===============================
-  const recentFiveExpenses = [...state.expenses]
-    .sort((a, b) => new Date(b.date) - new Date(a.date)) // newest first
-    .slice(0, 5);
+// RECENT 5 EXPENSES (From API Transactions)
+// ===============================
+const [recentFiveExpenses, setRecentFiveExpenses] = useState([]);
+
+useEffect(() => {
+  const fetchExpenses = async () => {
+    try {
+      const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+
+      const allTx = response.data;
+
+      const recent = allTx
+        .filter((tx) => tx.type === "expense")
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+
+      setRecentFiveExpenses(recent);
+
+    } catch (error) {
+      console.error("Pie chart expense fetch error:", error);
+    }
+  };
+
+  fetchExpenses();
+}, []);
+
 
   // ===============================
-  // GROUP BY CATEGORY FOR PIE CHART
-  // ===============================
-  const pieData = useMemo(() => {
-    const grouped = {};
+// GROUP BY CATEGORY FOR PIE CHART
+// ===============================
+const pieData = useMemo(() => {
+  const grouped = {};
 
-    recentFiveExpenses.forEach((exp) => {
-      if (!grouped[exp.category]) grouped[exp.category] = 0;
-      grouped[exp.category] += Number(exp.amount);
-    });
+  recentFiveExpenses.forEach((exp) => {
+    const cat = exp.categoryName || "Others";
 
-    return Object.entries(grouped).map(([name, value]) => ({
-      name,
-      value,
-    }));
-  }, [recentFiveExpenses]);
+    if (!grouped[cat]) grouped[cat] = 0;
 
-  const COLORS = ["#34D399", "#60A5FA", "#F87171", "#FBBF24", "#A78BFA"];
+    grouped[cat] += Number(exp.amount);
+  });
+
+  return Object.entries(grouped).map(([name, value]) => ({
+    name,
+    value,
+  }));
+}, [recentFiveExpenses]);
+
+const COLORS = ["#34D399", "#60A5FA", "#F87171", "#FBBF24", "#A78BFA"];
+
 
   return (
     <div className="w-full mt-10 bg-white p-6 rounded-xl shadow-lg">

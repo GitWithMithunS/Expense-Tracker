@@ -1,10 +1,10 @@
 import axios from "axios";
 import { API_ENDPOINTS } from "./apiEnpoints";
-
-
+ 
+ 
 // Toggle mock mode (keep true during frontend dev)
 export const MOCK_MODE = true;   //to be switched off while integrating backend
-
+ 
 // Base Axios instance
 const axiosConfig = axios.create({
   baseURL: "",
@@ -13,8 +13,8 @@ const axiosConfig = axios.create({
     Accept: "application/json",
   },
 });
-
-
+ 
+ 
 //  MOCK DATA FOR SPECIFIC ENDPOINTS
 const mockDatabase = {
   GET_ALL_CATEGORIES: [
@@ -55,7 +55,7 @@ const mockDatabase = {
     { id: 9, name: "Salary", date: "2025-02-12", amount: 50000, categoryId: 3, icon: "💼" },
     { id: 10, name: "Freelancing", date: "2025-02-24", amount: 15000, categoryId: 3, icon: "🛍️" }
   ],
-
+ 
   LOGIN: [{ token: "mock-token", user: { name: "Lucario" } }, { token: "ajbadubc", name }],
   REGISTER: { success: true },
 };
@@ -63,28 +63,28 @@ const mockDatabase = {
 
 // Helper to deep clone always
 const clone = (data) => JSON.parse(JSON.stringify(data));
-
+ 
 // -------------------------------------------------
 // MOCK INTERCEPTOR
 // -------------------------------------------------
 if (MOCK_MODE) {
   axiosConfig.interceptors.request.use((config) => {
-
+ 
     config.adapter = () => {
       return new Promise((resolve) => {
         setTimeout(() => {
-
+ 
           // -----------------------------------------------------------------
           //  CATEGORY_BY_TYPE → GET /category/income or /category/expense
           // -----------------------------------------------------------------
           if (config.url.includes("category/") && isNaN(config.url.split("category/")[1])) {
-
+ 
             const type = config.url.split("category/")[1];
-
+ 
             const filtered = mockDatabase.GET_ALL_CATEGORIES.filter(
               (cat) => cat.type === type
             );
-
+ 
             return resolve({
               data: clone(filtered),
               status: 200,
@@ -97,46 +97,46 @@ if (MOCK_MODE) {
           //  UPDATE_CATEGORY → PUT /category/:id
           // -----------------------------------------------------------------
           if (/category\/\d+$/.test(config.url) && config.method === "put") {
-
+ 
             const categoryId = Number(config.url.split("category/")[1]);
             const updatedData = JSON.parse(config.data);
-
+ 
             const idx = mockDatabase.GET_ALL_CATEGORIES.findIndex(cat => cat.id === categoryId);
-
+ 
             if (idx !== -1) {
               mockDatabase.GET_ALL_CATEGORIES[idx] = {
                 ...mockDatabase.GET_ALL_CATEGORIES[idx],
                 ...updatedData,
               };
             }
-
+ 
             return resolve({
               data: clone({ success: true, updated: mockDatabase.GET_ALL_CATEGORIES[idx] }),
               status: 200,
               config,
             });
           }
-
+ 
           // -----------------------------------------------------------------
           // 3️ADD_CATEGORY → POST /addcategory
           // -----------------------------------------------------------------
           if (config.url.includes("addcategory") && config.method === "post") {
-
+ 
             const newCatData = JSON.parse(config.data);
-
+ 
             const newId =
               mockDatabase.GET_ALL_CATEGORIES.length > 0
                 ? Math.max(...mockDatabase.GET_ALL_CATEGORIES.map(c => c.id)) + 1
                 : 1;
-
+ 
             const newCategory = {
               id: newId,
               userId: "user123",
               ...newCatData,
             };
-
+ 
             mockDatabase.GET_ALL_CATEGORIES.push(newCategory);
-
+ 
             return resolve({
               data: clone({ success: true, added: newCategory }),
               status: 201,
@@ -159,65 +159,65 @@ if (MOCK_MODE) {
           // -----------------------------------------------------------------
           if (config.url.includes("addincome") && config.method === "post") {
             const incomeData = JSON.parse(config.data);
-
+ 
             const newId =
               mockDatabase.GET_ALL_INCOME.length > 0
                 ? Math.max(...mockDatabase.GET_ALL_INCOME.map((i) => i.id)) + 1
                 : 1;
-
+ 
             const newIncome = { id: newId, ...incomeData };
-
+ 
             mockDatabase.GET_ALL_INCOME.push(newIncome);
-
+ 
             return resolve({
               data: clone({ success: true, added: newIncome }),
               status: 201,
               config,
             });
           }
-
+ 
           // -----------------------------------------------------------------
           //  DELETE_INCOME → DELETE /income/:id
           // -----------------------------------------------------------------
           if (/\/income\/\d+$/.test(config.url) && config.method === "delete") {
-
+ 
             const incomeId = Number(config.url.split("income/")[1]);
-
+ 
             mockDatabase.GET_ALL_INCOME = mockDatabase.GET_ALL_INCOME.filter(
               (inc) => inc.id !== incomeId
             );
-
+ 
             return resolve({
               data: clone({ success: true }),
               status: 200,
               config,
             });
           }
-
+ 
           // -----------------------------------------------------------------
           //  UPDATE_INCOME → PUT /income/:id
           // -----------------------------------------------------------------
           if (/income\/\d+$/.test(config.url) && config.method === "put") {
-
+ 
             const incomeId = Number(config.url.split("income/")[1]);
             const updated = JSON.parse(config.data);
-
+ 
             const idx = mockDatabase.GET_ALL_INCOME.findIndex(inc => inc.id === incomeId);
-
+ 
             if (idx !== -1) {
               mockDatabase.GET_ALL_INCOME[idx] = {
                 ...mockDatabase.GET_ALL_INCOME[idx],
                 ...updated,
               };
             }
-
+ 
             return resolve({
               data: clone({ success: true, updated: mockDatabase.GET_ALL_INCOME[idx] }),
               status: 200,
               config,
             });
           }
-
+ 
           // -----------------------------------------------------------------
           //  NORMAL ENDPOINTS → GET_ALL_CATEGORIES, GET_ALL_INCOME, ETC
           // -----------------------------------------------------------------
@@ -228,24 +228,24 @@ if (MOCK_MODE) {
                 : API_ENDPOINTS[key]
             )
           );
-
+ 
           return resolve({
             data: clone(mockDatabase[endpointKey] ?? { success: true }),
             status: 200,
             config,
           });
-
+ 
         }, 250);
       });
     };
     // axiosConfig.post("/signup", form)
-
-
+ 
+ 
     return config;
   });
 }
-
-
+ 
+ 
 ////actual config to be written yet
 // //request interceptor to add auth token to headers
 // axiosConfig.interceptors.request.use((config) => {
@@ -255,7 +255,5 @@ if (MOCK_MODE) {
 //     }
 //     return config;
 // });
-
-
 
 export default axiosConfig;

@@ -2,26 +2,28 @@ import Dashboard from "../components/Dashboard";
 import BudgetStatus from "../components/BudgetStatus";
 import BudgetManager from "../components/BudgetManager";
 import Calendar from "../components/Calendar";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 // import AddIncomeModal from "../components/AddIncome";
 // import AddExpenseModal from "../components/AddExpense";
 import OverviewSection from "../components/OverviewSection";
 import { TransactionContext } from "../context/TransactionContext";
 import { CreditCard, Wallet } from "lucide-react";
+import axiosConfig from "../util/axiosConfig";
+import { API_ENDPOINTS } from "../util/apiEnpoints";
+import { useNavigate } from "react-router-dom";
+
 
 const Home = () => {
   const [openBudgetManager, setOpenBudgetManager] = useState(false);
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const navigate = useNavigate();
+
+  
 
   const { state } = useContext(TransactionContext);
 
   console.log(state.categories);   //just a checker 
-
-  // totals
-  const totalIncome = state.incomes.reduce((s, i) => s + Number(i.amount), 0);
-  const totalExpense = state.expenses.reduce((s, e) => s + Number(e.amount), 0);
-  const totalBalance = totalIncome - totalExpense;
 
   // newest-first helper  
   const sortNewestFirst = (arr) => {
@@ -33,8 +35,81 @@ const Home = () => {
       .slice(0, 5);
   };
 
-  const recentIncome = sortNewestFirst(state.incomes);
-  const recentExpense = sortNewestFirst(state.expenses);
+  const [recentIncome, setRecentIncome] = useState([]);
+  const [recentExpense, setRecentExpense] = useState([]);
+
+  const [allTransactions, setAllTransactions] = useState([]);
+
+useEffect(() => {
+  const fetchAll = async () => {
+    try {
+      const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+      setAllTransactions(response.data);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
+  };
+
+  fetchAll();
+}, []);
+
+// COMPUTE TOTALS
+const totalIncome = allTransactions
+  .filter(tx => tx.type === "income")
+  .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+const totalExpense = allTransactions
+  .filter(tx => tx.type === "expense")
+  .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+const balance = totalIncome - totalExpense;
+
+
+  useEffect(() => {
+  const fetchIncome = async () => {
+    try {
+      const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+
+      const allTx = response.data;
+
+      // Filter income + sort by latest + take recent 5
+      const recent = allTx
+        .filter((tx) => tx.type === "income")
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+
+      setRecentIncome(recent);
+
+    } catch (error) {
+      console.error("Error fetching income:", error);
+    }
+  };
+
+  fetchIncome();
+}, []);
+
+useEffect(() => {
+  const fetchExpenses = async () => {
+    try {
+      const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+
+      const allTx = response.data;
+
+      // Filter ONLY expense + sort by latest + take 5 recent
+      const recent = allTx
+        .filter((tx) => tx.type === "expense")
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+
+      setRecentExpense(recent);
+
+    } catch (error) {
+      console.error("Error fetching expense:", error);
+    }
+  };
+
+  fetchExpenses();
+}, []);
 
   return (
     <Dashboard activeMenu="Dashboard">
@@ -42,16 +117,17 @@ const Home = () => {
 
         {/* ===== TOTAL BALANCE ===== */}
         <div className="bg-white p-6 rounded-xl border shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-700">Total Balance</h2>
+  <h2 className="text-lg font-semibold text-gray-700">Total Balance</h2>
 
-          <p
-            className={`text-3xl font-bold mt-2 ${
-              totalBalance >= 0 ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            ₹{totalBalance.toLocaleString("en-IN")}
-          </p>
-        </div>
+  <p
+    className={`text-3xl font-bold mt-2 ${
+      balance >= 0 ? "text-green-600" : "text-red-600"
+    }`}
+  >
+    ₹{balance.toLocaleString("en-IN")}
+  </p>
+</div>
+
 
 {/* ===== RECENT INCOME & EXPENSE ===== */}
 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
@@ -72,7 +148,7 @@ const Home = () => {
             key={inc.id}
             className="border-b pb-1 flex justify-between items-center"
           >
-            <span>{inc.source || "Income"}</span>
+            <span>{inc.categoryName}</span>
             <span className="text-green-600 font-semibold">
               ₹{inc.amount}
             </span>
@@ -84,13 +160,14 @@ const Home = () => {
     {/* Fixed footer button */}
     <div className="px-6 py-3 border-t bg-white flex justify-center">
       <button
-        onClick={() => setShowIncomeModal(true)}
-        className="px-4 py-2 bg-emerald-500 text-white rounded-lg shadow 
-                   flex items-center gap-2 hover:bg-emerald-600 transition"
-      >
-        <Wallet className="h-5 w-5" />
-        <span className="text-sm font-medium">Add Income</span>
-      </button>
+  onClick={() => navigate("/income")}
+  className="px-4 py-2 bg-emerald-500 text-white rounded-lg shadow 
+             flex items-center gap-2 hover:bg-emerald-600 transition"
+>
+  <Wallet className="h-5 w-5" />
+  <span className="text-sm font-medium">Add Income</span>
+</button>
+
     </div>
   </div>
 
@@ -101,28 +178,32 @@ const Home = () => {
       <h3 className="text-lg font-semibold mb-3">Expense</h3>
 
       <ul className="space-y-2 text-sm overflow-y-auto flex-1 min-h-0 pr-2">
-        {recentExpense.length === 0 && (
-          <li className="text-gray-500">No expenses yet.</li>
-        )}
+  {recentExpense.length === 0 && (
+    <li className="text-gray-500">No expenses yet.</li>
+  )}
 
-        {recentExpense.map((exp) => (
-          <li
-            key={exp.id}
-            className="border-b pb-1 flex justify-between items-center"
-          >
-            <span>{exp.category}</span>
-            <span className="text-red-600 font-semibold">
-              ₹{exp.amount}
-            </span>
-          </li>
-        ))}
-      </ul>
+  {recentExpense.map((exp) => (
+    <li
+      key={exp.id}
+      className="border-b pb-1 flex justify-between items-center"
+    >
+      {/* CATEGORY NAME */}
+      <span>{exp.categoryName || "Expense"}</span>
+
+      {/* AMOUNT */}
+      <span className="text-red-600 font-semibold">
+        ₹{exp.amount}
+      </span>
+    </li>
+  ))}
+</ul>
+
     </div>
 
     {/* Fixed footer button */}
     <div className="px-6 py-3 border-t bg-white flex justify-center">
       <button
-        onClick={() => setShowExpenseModal(true)}
+        onClick={() => navigate("/expense")}
         className="px-4 py-2 bg-pink-500 text-white rounded-lg shadow 
                    flex items-center gap-2 hover:bg-pink-600 transition"
       >
@@ -164,11 +245,6 @@ const Home = () => {
               <BudgetManager onClose={() => setOpenBudgetManager(false)} />
             )}
           </div>
-        </div>
-
-        {/* CALENDAR */}
-        <div className="bg-white p-6 rounded-xl border shadow-sm">
-          <Calendar />
         </div>
 
       </div>
