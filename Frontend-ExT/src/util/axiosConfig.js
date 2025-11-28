@@ -52,6 +52,8 @@ if (MOCK_MODE) {
         }, 300);
       });
     };
+    axiosConfig.post("/signup", form)
+
 
     return config;
   });
@@ -66,5 +68,7 @@ if (MOCK_MODE) {
 //     }
 //     return config;
 // });
+
+
 
 export default axiosConfig;
