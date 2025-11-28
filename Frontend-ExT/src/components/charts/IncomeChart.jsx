@@ -1,8 +1,10 @@
+import moment from "moment";
 import React from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, BarChart, Bar
 } from "recharts";
+import CustomIncomeTooltip from "./CustomIncomeTooltip";
 
 const IncomeChart = ({ incomeData, onAddIncome }) => {
   return (
@@ -11,7 +13,7 @@ const IncomeChart = ({ incomeData, onAddIncome }) => {
       {/* HEADER WITH BUTTON */}
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-lg font-semibold text-gray-800">
-          Income (Last 30 Days)
+          Income Overview (Last 30 Days)
         </h3>
 
         <button
@@ -30,9 +32,14 @@ const IncomeChart = ({ incomeData, onAddIncome }) => {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={incomeData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#ddd" />
-            <XAxis dataKey="date" />
+            {/* <XAxis dataKey="date" /> */}
+            <XAxis
+              dataKey="date"
+              tickFormatter={(value) => moment(value, "YYYY-MM-DD").format("Do MMM YY")}
+            />
+
             <YAxis />
-            <Tooltip />
+            <Tooltip content={<CustomIncomeTooltip />} />
             <Line
               type="monotone"
               dataKey="amount"
@@ -44,21 +51,23 @@ const IncomeChart = ({ incomeData, onAddIncome }) => {
         </ResponsiveContainer>
       </div>
 
-      {/* BAR CHART */}
+      {/* BAR CHART
       <div className="h-60 sm:h-72 md:h-80 w-full overflow-x-auto mt-10">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={incomeData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#ddd" />
             <XAxis dataKey="date" />
             <YAxis />
-            <Tooltip />
+            <Tooltip content={<CustomIncomeTooltip />} />
             <Bar dataKey="amount" fill="#805ad5" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
-      </div>
+      </div> */}
 
     </div>
   );
 };
 
 export default IncomeChart;
+
+
