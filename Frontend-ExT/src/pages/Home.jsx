@@ -3,8 +3,8 @@ import BudgetStatus from "../components/BudgetStatus";
 import BudgetManager from "../components/BudgetManager";
 import Calendar from "../components/Calendar";
 import { useContext, useState } from "react";
-import AddIncomeModal from "../components/AddIncome";
-import AddExpenseModal from "../components/AddExpense";
+// import AddIncomeModal from "../components/AddIncome";
+// import AddExpenseModal from "../components/AddExpense";
 import OverviewSection from "../components/OverviewSection";
 import { TransactionContext } from "../context/TransactionContext";
 import { CreditCard, Wallet } from "lucide-react";
@@ -15,8 +15,6 @@ const Home = () => {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
 
   const { state } = useContext(TransactionContext);
-
-  console.log(state.categories);   //just a checker 
 
   console.log(state.categories);   //just a checker 
 
