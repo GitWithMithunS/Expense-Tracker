@@ -16,7 +16,7 @@ const Model = ({ isOpen, onClose, children, title }) => {
   return (
     <div
       className="fixed inset-0 z-50 flex justify-center items-center 
-                 bg-black/30 backdrop-blur-sm"
+                 bg-black/30 backdrop-blur-[1px]"
       onMouseDown={handleBackdropClick}
     >
       <div className="relative w-full max-w-xl mx-4">

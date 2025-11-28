@@ -9,6 +9,8 @@ import Model from '../components/Model'
 import { Plus } from 'lucide-react';
 import AddIncomeForm from '../components/AddIncomeForm';
 import IncomeChart from '../components/IncomeChart';
+import ConfirmDelete from '../components/ConfirmDelete';
+import IncomePieChart from '../components/IncomePieChart';
 
 const Income = () => {
 
@@ -80,10 +82,10 @@ const Income = () => {
         const newIncome = response.data.added ?? incomeData;
 
         ////or call backend api to get latest data
-        // await fetchIncomeDetails();
+        await fetchIncomeDetails();
 
         //or  Update state instantly
-        setIncomeData((prev) => [newIncome, ...prev]);
+        // setIncomeData((prev) => [newIncome, ...prev]);
         // setIncomeData((prev) => [...prev, incomeData]);
         showSuccessToast('Congragulation!! , Income added');
       }
@@ -119,10 +121,11 @@ const Income = () => {
     <>
       <Dashboard activeMenu='Income'>
         <div className="my-5 mx-auto">
-              {/* Overview for income with line graph */}
-              <IncomeChart incomeData={incomeData}/>
+          {/* Overview for income with line graph */}
+          <IncomeChart incomeData={incomeData}   onAddIncome={() => setOpenAddIncomeModal(true)}
+ />
           <div className="grid grid-cols-1 gap-6 mt-6">
-            <div>
+            {/* <div>
               <button
                 onClick={() => setOpenAddIncomeModal(true)}
                 className="px-4 py-2 rounded-lg flex items-center gap-1
@@ -132,15 +135,23 @@ const Income = () => {
                 <Plus size={15} />
                 Add Income
               </button>
-            </div>
+            </div> */}
 
 
             <IncomeList
               transactions={incomeData}
-              onDelete={handleDeleteIncome}
+              onDelete={(incomeObj) => setOpenDeleteAlert({ show: true, data: incomeObj })}
+            // onDelete={handleDeleteIncome}
             />
 
+              {/* Pie-chart */}
+<IncomePieChart
+  incomeData={incomeData}
+  categories={categories}
+/>
 
+
+            {/* add income modal */}
             <Model
               isOpen={openAddIncomeModal}
               onClose={() => setOpenAddIncomeModal(false)}
@@ -150,6 +161,24 @@ const Income = () => {
                 onSubmit={handleAddIncome}
                 onClose={() => setOpenAddIncomeModal(false)}
                 incomeCategories={categories}
+              />
+            </Model>
+
+            {/* delete modal */}
+            {/* DELETE CONFIRMATION MODAL */}
+            <Model
+              isOpen={openDeleteAlert.show}
+              onClose={() => setOpenDeleteAlert({ show: false, data: null })}
+              title="Confirm Delete"
+            >
+              <ConfirmDelete
+                item={openDeleteAlert.data}
+                label="income"
+                onCancel={() => setOpenDeleteAlert({ show: false, data: null })}
+                onConfirm={() => {
+                  handleDeleteIncome(openDeleteAlert.data);
+                  setOpenDeleteAlert({ show: false, data: null });
+                }}
               />
             </Model>
 
