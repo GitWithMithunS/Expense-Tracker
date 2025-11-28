@@ -17,5 +17,6 @@ export const API_ENDPOINTS = {
   UPDATE_INCOME: (incomeId) => `/income/${incomeId}`,
   DELETE_INCOME: (incomeId) => `/income/${incomeId}`,
   CATEGORY_BY_TYPE : (type) => `category/${type}`,
+  INCOME_EXEL_DOWNLAOD : '/excel/download.income',
   UPLOAD_IMAGE: "/upload",   //for user profile this is (not billing/valut)
 };

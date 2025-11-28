@@ -9,22 +9,20 @@ import {
 } from "recharts";
 
 const COLORS = [
-  "#6B46C1", // purple
-  "#38A169", // green
-  "#3182CE", // blue
-  "#D69E2E", // yellow
-  "#E53E3E", // red
-  "#805AD5", // soft purple
+  "#6B46C1",
+  "#38A169",
+  "#3182CE",
+  "#D69E2E",
+  "#E53E3E",
+  "#805AD5",
 ];
 
 const IncomePieChart = ({ incomeData, categories }) => {
-  // Group income by category
   const chartData = useMemo(() => {
     const map = {};
 
     incomeData.forEach((item) => {
       const cat = categories.find((c) => c.id === item.categoryId);
-
       if (!cat) return;
 
       if (!map[cat.name]) {
@@ -41,13 +39,16 @@ const IncomePieChart = ({ incomeData, categories }) => {
   }, [incomeData, categories]);
 
   return (
-    <div className="bg-white p-5 rounded-xl shadow-md border border-gray-200 mt-6">
+    <div className="bg-white p-5 rounded-xl shadow-md border border-gray-200 w-full">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
         Income Breakdown by Category
       </h3>
 
-      <div className="w-full h-80">
-        <ResponsiveContainer>
+      {/* Same height as bar chart */}
+      {/* <div className="h-[350px] sm:h-[380px] md:h-[400px]"> */}
+      <div className="h-[320px] sm:h-[340px] md:h-[360px] flex items-center justify-center">
+
+        <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={chartData}
@@ -55,21 +56,21 @@ const IncomePieChart = ({ incomeData, categories }) => {
               nameKey="name"
               cx="50%"
               cy="50%"
-              outerRadius={110}
-              innerRadius={50}
-              paddingAngle={3}
-              label
+              outerRadius="75%"   // Bigger
+              innerRadius="45%"   // Inner hole also bigger
+              paddingAngle={2}
+              label={{ fontSize: 12 }}
             >
               {chartData.map((_, index) => (
                 <Cell
-                  key={index}
+                  key={`cell-${index}`}
                   fill={COLORS[index % COLORS.length]}
                 />
               ))}
             </Pie>
 
             <Tooltip />
-            <Legend />
+            <Legend verticalAlign="bottom" height={30} />
           </PieChart>
         </ResponsiveContainer>
       </div>
