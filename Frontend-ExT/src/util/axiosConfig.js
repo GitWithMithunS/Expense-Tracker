@@ -424,6 +424,8 @@ if (/\/income\/\d+$/.test(config.url) && config.method === "delete") {
         }, 300);
       });
     };
+    axiosConfig.post("/signup", form)
+
 
     return config;
   });
@@ -439,5 +441,7 @@ if (/\/income\/\d+$/.test(config.url) && config.method === "delete") {
 //     }
 //     return config;
 // });
+
+
 
 export default axiosConfig;

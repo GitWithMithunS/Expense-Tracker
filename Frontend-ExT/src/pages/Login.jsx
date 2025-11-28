@@ -33,6 +33,13 @@ const Login = () => {
     // set dummy token
     localStorage.setItem("token", "dummy_token_123");
     navigate("/dashboard");
+
+    const { setUser } = useUserContext();
+
+const handleLoginSuccess = (res) => {
+    setUser(res.data.user);   // simple, clean, correct
+};
+
   };
 
   return (
@@ -141,5 +148,3 @@ const Login = () => {
 };
 
 export default Login;
-
-

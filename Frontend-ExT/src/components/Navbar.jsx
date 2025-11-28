@@ -136,7 +136,7 @@ const Navbar = ({ activeMenu }) => {
 
           {/* 📅 CALENDAR ICON */}
           <button
-            onClick={() => navigate('/dashboard#calendar')}
+            onClick={() => navigate("/calendar")}
             className="w-10 h-10 flex items-center justify-center 
                        bg-gray-100 hover:bg-gray-200 rounded-full transition"
           >
