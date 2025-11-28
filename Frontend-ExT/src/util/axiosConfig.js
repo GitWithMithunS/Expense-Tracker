@@ -422,7 +422,7 @@ if (MOCK_MODE) {
         }, 250);
       });
     };
-    axiosConfig.post("/signup", form)
+    // axiosConfig.post("/signup", form)
 
 
     return config;
