@@ -24,6 +24,7 @@ const mockDatabase = {
     { id: 4, userId: "user123", icon: "🛍️", name: "Shopping", type: "expense" },
     { id: 5, userId: "user123", icon: "📈", name: "Investments", type: "income" },
   ],
+  
   GET_ALL_TRANSACTIONS: [
     { id: 101, userId: "user123", amount: 250, categoryId: 1, categoryName: "Food & Dining", type: "expense", icon: "🍔", paymentMethod: "UPI", date: "2025-01-12", notes: "Lunch with friends" },
     { id: 102, userId: "user123", amount: 1200, categoryId: 4, categoryName: "Shopping", type: "expense", icon: "🛍️", paymentMethod: "card", date: "2025-02-03", notes: "Bought new headphones" },
@@ -43,20 +44,28 @@ const mockDatabase = {
   ],
 
   LOGIN: { token: "mock-token", user: { name: "Lucario" } },
+
   GET_ALL_INCOME: [
-    { id: 1, name: "Salary", date: "2025-01-12", amount: 50000, categoryId: 3, icon: "💼" },
-    { id: 2, name: "Freelancing", date: "2025-01-24", amount: 15000, categoryId: 3, icon: "🛍️" },
-    { id: 3, name: "Investment Return", date: "2025-01-05", amount: 8000, categoryId: 5, icon: "📈" },
-    { id: 4, name: "Salary", date: "2025-02-12", amount: 50000, categoryId: 3, icon: "💼" },
-    { id: 5, name: "Rental Income", date: "2025-01-10", amount: 12000, categoryId: 5, icon: "🏠" },
-    { id: 6, name: "Freelancing", date: "2025-02-02", amount: 20000, categoryId: 3, icon: "🛍️" },
-    { id: 7, name: "Gift", date: "2025-01-18", amount: 5000, categoryId: 5, icon: "🎁" },
-    { id: 8, name: "Business Profit", date: "2025-02-05", amount: 18000, categoryId: 5, icon: "📈" },
-    { id: 9, name: "Salary", date: "2025-02-12", amount: 50000, categoryId: 3, icon: "💼" },
-    { id: 10, name: "Freelancing", date: "2025-02-24", amount: 15000, categoryId: 3, icon: "🛍️" }
+    { id: 1, name: "Salary", date: "2025-01-12", amount: 50000, categoryId: 3, categoryName: "Salary", icon: "💼" },
+    { id: 2, name: "Freelancing", date: "2025-01-24", amount: 15000, categoryId: 3, categoryName: "Salary", icon: "🛍️" },
+    { id: 3, name: "Investment Return", date: "2025-01-05", amount: 8000, categoryId: 5, categoryName: "Investments", icon: "📈" },
+    { id: 4, name: "Salary", date: "2025-02-12", amount: 50000, categoryId: 3, categoryName: "Salary", icon: "💼" },
+    { id: 5, name: "Rental Income", date: "2025-01-10", amount: 12000, categoryId: 5, categoryName: "Investments", icon: "🏠" },
+    { id: 6, name: "Freelancing", date: "2025-02-02", amount: 20000, categoryId: 3, categoryName: "Salary", icon: "🛍️" },
+    { id: 7, name: "Gift", date: "2025-01-18", amount: 5000, categoryId: 5, categoryName: "Investments", icon: "🎁" },
+    { id: 8, name: "Business Profit", date: "2025-02-05", amount: 18000, categoryId: 5, categoryName: "Investments", icon: "📈" },
+    { id: 9, name: "Salary", date: "2025-02-12", amount: 50000, categoryId: 3, categoryName: "Salary", icon: "💼" },
+    { id: 10, name: "Freelancing", date: "2025-02-24", amount: 15000, categoryId: 3, categoryName: "Salary", icon: "🛍️" }
   ],
 
-  LOGIN: [{ token: "mock-token", user: { name: "Lucario" } }, { token: "ajbadubc", name }],
+  GET_ALL_EXPENSE: [
+    { id: 1, name: "Lunch at Cafe", amount: 350, date: "2025-01-14", categoryId: 1, categoryName: "Food & Dining", icon: "🍔" },
+    { id: 2, name: "Bus Ticket", amount: 40, date: "2025-01-16", categoryId: 2, categoryName: "Transport", icon: "🚌" },
+    { id: 3, name: "Grocery Shopping", amount: 1800, date: "2025-01-18", categoryId: 4, categoryName: "Shopping", icon: "🛍️" },
+    { id: 4, name: "Auto Rickshaw Ride", amount: 120, date: "2025-01-20", categoryId: 2, categoryName: "Transport", icon: "🛺" },
+    { id: 5, name: "Dinner Out", amount: 600, date: "2025-01-22", categoryId: 1, categoryName: "Food & Dining", icon: "🍽️" }
+  ],
+
   REGISTER: { success: true },
 };
 
@@ -217,6 +226,82 @@ if (MOCK_MODE) {
               config,
             });
           }
+
+          // -------------------------------------------------
+          // GET_ALL_EXPENSE → GET /expense
+          // -------------------------------------------------
+          if (config.url === API_ENDPOINTS.GET_ALL_EXPENSE && config.method === "get") {
+            return resolve({
+              data: clone(mockDatabase.GET_ALL_EXPENSE),
+              status: 200,
+              config,
+            });
+          }
+
+          // -------------------------------------------------
+          // ADD_EXPENSE → POST /addexpense
+          // -------------------------------------------------
+          if (config.url.includes("addexpense") && config.method === "post") {
+            const expense = JSON.parse(config.data);
+
+            const newId =
+              mockDatabase.GET_ALL_EXPENSE.length > 0
+                ? Math.max(...mockDatabase.GET_ALL_EXPENSE.map((e) => e.id)) + 1
+                : 1;
+
+            const newExpense = { id: newId, ...expense };
+
+            mockDatabase.GET_ALL_EXPENSE.push(newExpense);
+
+            return resolve({
+              data: clone({ success: true, added: newExpense }),
+              status: 201,
+              config,
+            });
+          }
+
+          // -------------------------------------------------
+          // DELETE_EXPENSE → DELETE /expense/:id
+          // -------------------------------------------------
+          if (/\/expense\/\d+$/.test(config.url) && config.method === "delete") {
+
+            const expId = Number(config.url.split("expense/")[1]);
+
+            mockDatabase.GET_ALL_EXPENSE = mockDatabase.GET_ALL_EXPENSE.filter(
+              (exp) => exp.id !== expId
+            );
+
+            return resolve({
+              data: clone({ success: true }),
+              status: 200,
+              config,
+            });
+          }
+
+          // -------------------------------------------------
+          // UPDATE_EXPENSE → PUT /expense/:id
+          // -------------------------------------------------
+          if (/expense\/\d+$/.test(config.url) && config.method === "put") {
+
+            const expId = Number(config.url.split("expense/")[1]);
+            const updated = JSON.parse(config.data);
+
+            const idx = mockDatabase.GET_ALL_EXPENSE.findIndex(e => e.id === expId);
+
+            if (idx !== -1) {
+              mockDatabase.GET_ALL_EXPENSE[idx] = {
+                ...mockDatabase.GET_ALL_EXPENSE[idx],
+                ...updated,
+              };
+            }
+
+            return resolve({
+              data: clone({ success: true, updated: mockDatabase.GET_ALL_EXPENSE[idx] }),
+              status: 200,
+              config,
+            });
+          }
+
 
           // -----------------------------------------------------------------
           //  NORMAL ENDPOINTS → GET_ALL_CATEGORIES, GET_ALL_INCOME, ETC

@@ -27,15 +27,13 @@ const Category = () => {
   // }, []);
   //seting category as soon as their is a change in the state of category from transaction field
 
+  // //to check if trasaction context is updated
   useEffect(() => {
     setCategoryData(state.categories);
-  }, [state.categories]);
-
-
-  //to check if trasaction context is updated
-  useEffect(() => {
     console.log("CONTEXT UPDATED → ", state.categories);
   }, [state.categories]);
+
+
 
 
 
@@ -87,9 +85,9 @@ const Category = () => {
     }
 
     console.log("Adding category →", newCategory);
-
-    await delay(800);
-
+    
+    await delay(1000);
+    
     try {
       await axiosConfig.post(API_ENDPOINTS.ADD_CATEGORY, {
         name,
@@ -104,17 +102,18 @@ const Category = () => {
         type,
         icon,
       };
-
+      
       // setCategoryData((prev) => [...prev, newItem]);
-
+      
       // // Update GLOBAL CONTEXT
       // dispatch({
-      //   type: "ADD_CATEGORY",
-      //   payload: newItem,
-      // });
-
-      showSuccessToast("Category Added!");
-      return "success";
+        //   type: "ADD_CATEGORY",
+        //   payload: newItem,
+        // });
+        
+        showSuccessToast("Category Added!");
+        console.log('category list after adding', categoryData);
+        return "success";
 
     } catch (error) {
       console.log("Add Error →", error);

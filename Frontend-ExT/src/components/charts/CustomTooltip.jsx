@@ -11,7 +11,7 @@ const CustomIncomeTooltip = ({ active, payload, label }) => {
                     min-w-[180px]">
       {/* FORMAT DATE */}
       <p className="font-semibold text-gray-800">
-{moment(label, "YYYY-MM-DD").format("Do MMM YY")}
+        {moment(label, "YYYY-MM-DD").format("Do MMM YY")}
 
         {/* {moment(label).format("Do MMM YY")} */}
       </p>
