@@ -1,114 +1,118 @@
-import React, { useState, useContext } from "react";
-import GlassModal from "./ui/GlassModal";
-import FloatingInput from "./ui/FloatingInput";
-import { TransactionContext } from "../context/TransactionContext";
+/**{ This code contains few errors related to glassModal and floating input so if u are planning
+ * to use this code then first solve that issue
+} */
 
-const AddIncomeModal = ({ onClose }) => {
-  const { dispatch } = useContext(TransactionContext);
+// import React, { useState, useContext } from "react";
+// // import GlassModal from "./ui/GlassModal";
+// // import FloatingInput from "./ui/FloatingInput";
+// import { TransactionContext } from "../context/TransactionContext";
 
-  const [form, setForm] = useState({
-    amount: "",
-    source: "",
-    paymentMethod: "Cash",
-    date: "",
-  });
+// const AddIncomeModal = ({ onClose }) => {
+//   const { dispatch } = useContext(TransactionContext);
 
-  const update = (field, value) =>
-    setForm((prev) => ({ ...prev, [field]: value }));
+//   const [form, setForm] = useState({
+//     amount: "",
+//     source: "",
+//     paymentMethod: "Cash",
+//     date: "",
+//   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+//   const update = (field, value) =>
+//     setForm((prev) => ({ ...prev, [field]: value }));
 
-    // VALIDATION
-    if (!form.amount || Number(form.amount) <= 0) {
-      alert("Amount must be greater than 0");
-      return;
-    }
-    if (!form.date) {
-      alert("Please select a date");
-      return;
-    }
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
 
-    const incomePayload = {
-      id: Date.now(),
-      type: "income",
-      amount: Number(form.amount),
-      source: form.source,
-      paymentMethod: form.paymentMethod,
-      date: form.date,
-    };
+//     // VALIDATION
+//     if (!form.amount || Number(form.amount) <= 0) {
+//       alert("Amount must be greater than 0");
+//       return;
+//     }
+//     if (!form.date) {
+//       alert("Please select a date");
+//       return;
+//     }
 
-    // 🔥 Dispatch ONLY when submit is pressed
-    dispatch({
-      type: "ADD_INCOME",
-      payload: incomePayload,
-    });
+//     const incomePayload = {
+//       id: Date.now(),
+//       type: "income",
+//       amount: Number(form.amount),
+//       source: form.source,
+//       paymentMethod: form.paymentMethod,
+//       date: form.date,
+//     };
 
-    console.log("Saving Income →", incomePayload);
+//     // 🔥 Dispatch ONLY when submit is pressed
+//     dispatch({
+//       type: "ADD_INCOME",
+//       payload: incomePayload,
+//     });
 
-    // CLOSE modal
-    onClose();
-  };
+//     console.log("Saving Income →", incomePayload);
 
-  return (
-    <GlassModal onClose={onClose}>
+//     // CLOSE modal
+//     onClose();
+//   };
 
-      <h2 className="text-2xl text-white font-semibold mb-6 text-center">
-        + Add Income
-      </h2>
+//   return (
+//     <GlassModal onClose={onClose}>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+//       <h2 className="text-2xl text-white font-semibold mb-6 text-center">
+//         + Add Income
+//       </h2>
 
-        <FloatingInput
-          label="Amount (₹)"
-          type="number"
-          required
-          onChange={(v) => update("amount", v)}
-        />
+//       <form onSubmit={handleSubmit} className="space-y-5">
 
-        <FloatingInput
-          label="Source"
-          onChange={(v) => update("source", v)}
-        />
+//         <FloatingInput
+//           label="Amount (₹)"
+//           type="number"
+//           required
+//           onChange={(v) => update("amount", v)}
+//         />
 
-        {/* Payment Method */}
-        <div className="text-white">
-          <label className="block mb-1 opacity-80">Payment Method</label>
-          <select
-            className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/40"
-            value={form.paymentMethod}
-            onChange={(e) => update("paymentMethod", e.target.value)}
-          >
-            <option className="text-black">Cash</option>
-            <option className="text-black">UPI</option>
-            <option className="text-black">Card</option>
-            <option className="text-black">Bank Transfer</option>
-          </select>
-        </div>
+//         <FloatingInput
+//           label="Source"
+//           onChange={(v) => update("source", v)}
+//         />
 
-        {/* Date */}
-        <div className="text-white">
-          <label className="block mb-1 opacity-80">Date</label>
-          <input
-            type="date"
-            className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/40"
-            required
-            onChange={(e) => update("date", e.target.value)}
-          />
-        </div>
+//         {/* Payment Method */}
+//         <div className="text-white">
+//           <label className="block mb-1 opacity-80">Payment Method</label>
+//           <select
+//             className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/40"
+//             value={form.paymentMethod}
+//             onChange={(e) => update("paymentMethod", e.target.value)}
+//           >
+//             <option className="text-black">Cash</option>
+//             <option className="text-black">UPI</option>
+//             <option className="text-black">Card</option>
+//             <option className="text-black">Bank Transfer</option>
+//           </select>
+//         </div>
 
-        <button
-          type="submit"
-          className="w-full py-3 bg-emerald-500 rounded-xl text-white font-semibold
-                     hover:bg-emerald-600 transition-all shadow-lg"
-        >
-          Save Income
-        </button>
+//         {/* Date */}
+//         <div className="text-white">
+//           <label className="block mb-1 opacity-80">Date</label>
+//           <input
+//             type="date"
+//             className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/40"
+//             required
+//             onChange={(e) => update("date", e.target.value)}
+//           />
+//         </div>
 
-      </form>
+//         <button
+//           type="submit"
+//           className="w-full py-3 bg-emerald-500 rounded-xl text-white font-semibold
+//                      hover:bg-emerald-600 transition-all shadow-lg"
+//         >
+//           Save Income
+//         </button>
 
-    </GlassModal>
-  );
-};
+//       </form>
 
-export default AddIncomeModal;
+//     </GlassModal>
+//   );
+// };
+
+// export default AddIncomeModal;
