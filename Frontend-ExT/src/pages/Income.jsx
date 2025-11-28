@@ -1,193 +1,200 @@
 import React, { useEffect, useState } from 'react'
 import Dashboard from '../components/Dashboard'
-import { useUser } from '../hooks/useUser';
 import { API_ENDPOINTS } from '../util/apiEnpoints';
-import { showErrorToast, showSuccessToast } from '../components/CustomToast';
 import axiosConfig from '../util/axiosConfig';
+import { showErrorToast, showSuccessToast } from '../components/CustomToast';
+
+import IncomeChart from '../components/charts/IncomeChart';
+import IncomeBarChart from '../components/charts/IncomeBarChart';
+import IncomePieChart from '../components/charts/IncomePieChart';
+
 import IncomeList from '../components/IncomeList';
-import Model from '../components/Model'
-import { Plus } from 'lucide-react';
+import Model from '../components/Model';
 import AddIncomeForm from '../components/AddIncomeForm';
-import IncomeChart from '../components/IncomeChart';
 import ConfirmDelete from '../components/ConfirmDelete';
-import IncomePieChart from '../components/IncomePieChart';
+// import { exportIncomeToExcel, generateIncomeExcelBlob } from "../util/excelUtils";
+import {
+  exportIncomeToExcel,
+  exportIncomeToCSV,
+  exportIncomeToPDF,
+  generateIncomeExcelBlob,
+} from "../util/excelUtils";
+
+
 
 const Income = () => {
-
-  // useUser();  //for auto login when the page is refreshed or reloaded
 
   const [incomeData, setIncomeData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
-  const [openDeleteAlert, setOpenDeleteAlert] = useState({
-    show: false,
-    data: null,
-  });
+  const [openDeleteAlert, setOpenDeleteAlert] = useState({ show: false, data: null });
 
+  // Fetch income list
   const fetchIncomeDetails = async () => {
-    if (loading) return;
-
-    setLoading(false);
-
-
     try {
       const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_INCOME);
-
-      if (response.status === 200 || response.status === 201) {
-        console.log('Income List', response.data);
-        setIncomeData(response.data);
-      }
-
-    } catch (error) {
-      console.error("Failed to fecth income details ", error);
-      showErrorToast(error.response?.data?.message || "Failed to fetch income details");
-    } finally {
-      setLoading(false);
+      setIncomeData(response.data);
+    } catch (err) {
+      showErrorToast("Failed to load income");
+      console.log(err.response?.data?.message || 'Failed fetching income details');
     }
-  }
+  };
+  
+  // Fetch categories
+  const fetchIncomeCategories = async () => {
+    try {
+      const response = await axiosConfig.get(API_ENDPOINTS.CATEGORY_BY_TYPE("income"));
+      setCategories(response.data);
+    } catch (err) {
+      showErrorToast("Failed to load categories");
+      console.log(err.response?.data?.message || 'Failed fetching income categories');
+    }
+  };
 
   useEffect(() => {
     fetchIncomeDetails();
     fetchIncomeCategories();
-  }, [])
+  }, []);
 
-
-  const fetchIncomeCategories = async () => {
+  const handleAddIncome = async (data) => {
     try {
-
-      const response = await axiosConfig.get(API_ENDPOINTS.CATEGORY_BY_TYPE('income'));
-
-      if (response.status === 200 || response.status === 201) {
-        console.log('Income categories fetched', response.data);
-        setCategories(response.data);
-      }
-
-    } catch (error) {
-      console.error("Failed to fecth income categories ", error);
-      showErrorToast(error.response?.data?.message || "Failed to fetch income categories");
-    } finally {
-      setLoading(false);
+      await axiosConfig.post(API_ENDPOINTS.ADD_INCOME, data);
+      await fetchIncomeDetails();
+      showSuccessToast("Income added");
+    } catch(err) {
+      showErrorToast("Failed to add income");
+      console.log(err.response?.data?.message || 'Failed adding income in backend');
     }
+  };
 
+  const handleDeleteIncome = async (income) => {
+    try {
+      await axiosConfig.delete(API_ENDPOINTS.DELETE_INCOME(income.id));
+      await fetchIncomeDetails();
+      showSuccessToast("Income deleted");
+    } catch(err) {
+      showErrorToast("Failed to delete income");
+      console.log(err.response?.data?.message || 'Failed to  delete income in backend');
+    }
+  };
+
+
+  //functions to handel downlaod and et mail for incomes
+
+  const handleDownloadIncomeExcel = () => {
+  exportIncomeToExcel(incomeData);
+  showSuccessToast("Excel downloaded!");
+};
+
+
+const handleDownloadIncomeCSV = () => {
+  exportIncomeToCSV(incomeData);
+  showSuccessToast("Downloaded CSV!");
+};
+
+const handleDownloadIncomePDF = () => {
+  exportIncomeToPDF(incomeData);
+  showSuccessToast("Downloaded PDF!");
+};
+
+//sending the excel to backend endpoint to mail the user 
+const handleEmailIncomeDetails = async () => {
+  try {
+    const excelBlob = generateIncomeExcelBlob(incomeData);
+
+    const file = new Blob([excelBlob], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    const formData = new FormData();
+    formData.append("file", file, "Income_Report.xlsx");
+
+    //  send to backend email API (when you have one)
+    //const response = await axiosConfig.post(API_ENDPOINTS.EMAIL_EXCEL, formData);
+    
+    console.log("Excel ready for email →", file);
+    showSuccessToast("Email sent (Mock Mode)");
+  } catch (err) {
+    showErrorToast("Failed to send email");
+    console.log(err.response?.data?.message || 'Failed to sent excel to backend');
   }
-
-
-  const handleAddIncome = async (incomeData) => {
-    try {
-      const response = await axiosConfig.post(API_ENDPOINTS.ADD_INCOME, incomeData);
-
-      if (response.status === 200 || response.status === 201) {
-        // Use backend-generated item
-        const newIncome = response.data.added ?? incomeData;
-
-        ////or call backend api to get latest data
-        await fetchIncomeDetails();
-
-        //or  Update state instantly
-        // setIncomeData((prev) => [newIncome, ...prev]);
-        // setIncomeData((prev) => [...prev, incomeData]);
-        showSuccessToast('Congragulation!! , Income added');
-      }
-
-
-
-    } catch (err) {
-      showErrorToast(err.response?.data?.message || "Failed to add income");
-    }
-  };
-
-  const handleDeleteIncome = async (incomeObj) => {
-    try {
-      const response = await axiosConfig.delete(
-        API_ENDPOINTS.DELETE_INCOME(incomeObj.id)
-      );
-
-      if (response.status === 200 || response.status === 201) {
-        setIncomeData((prev) =>
-          prev.filter((item) => item.id !== incomeObj.id)
-        );
-
-        showSuccessToast("Income deleted successfully!");
-      }
-    } catch (err) {
-      showErrorToast(err.response?.data?.message || "Failed to delete income");
-    }
-  };
+};
 
 
 
   return (
-    <>
-      <Dashboard activeMenu='Income'>
-        <div className="my-5 mx-auto">
-          {/* Overview for income with line graph */}
-          <IncomeChart incomeData={incomeData}   onAddIncome={() => setOpenAddIncomeModal(true)}
- />
-          <div className="grid grid-cols-1 gap-6 mt-6">
-            {/* <div>
-              <button
-                onClick={() => setOpenAddIncomeModal(true)}
-                className="px-4 py-2 rounded-lg flex items-center gap-1
-            bg-green-500/20 border border-green-400
-            text-green-800 font-medium shadow-md hover:bg-green-500/30"
-              >
-                <Plus size={15} />
-                Add Income
-              </button>
-            </div> */}
+    <Dashboard activeMenu="Income">
+
+      <div className="my-5 mx-auto space-y-6">
+
+        {/* Full-width line chart */}
+        <IncomeChart
+          incomeData={incomeData}
+          onAddIncome={() => setOpenAddIncomeModal(true)}
+        />
+
+        {/* Bar + Pie Chart side by side */}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 auto-rows-[1fr]">
+          <IncomeBarChart incomeData={incomeData} />
+          <IncomePieChart incomeData={incomeData} categories={categories} />
+        </div>
 
 
-            <IncomeList
-              transactions={incomeData}
-              onDelete={(incomeObj) => setOpenDeleteAlert({ show: true, data: incomeObj })}
-            // onDelete={handleDeleteIncome}
-            />
 
-              {/* Pie-chart */}
-<IncomePieChart
-  incomeData={incomeData}
-  categories={categories}
+        {/* Income List below */}
+        {/* <IncomeList
+          transactions={incomeData}
+          onDelete={(item) => setOpenDeleteAlert({ show: true, data: item })}
+          onDownload={handleDownloadIncomeDetails}
+          onEmail={handleEmailIncomeDetails}
+        /> */}
+        <IncomeList
+  transactions={incomeData}
+  onDelete={(item) => setOpenDeleteAlert({ show: true, data: item })}
+  onEmail={handleEmailIncomeDetails}
+  onDownloadExcel={handleDownloadIncomeExcel}
+  onDownloadCSV={handleDownloadIncomeCSV}
+  onDownloadPDF={handleDownloadIncomePDF}
 />
 
 
-            {/* add income modal */}
-            <Model
-              isOpen={openAddIncomeModal}
-              onClose={() => setOpenAddIncomeModal(false)}
-              title="Add Income"
-            >
-              <AddIncomeForm
-                onSubmit={handleAddIncome}
-                onClose={() => setOpenAddIncomeModal(false)}
-                incomeCategories={categories}
-              />
-            </Model>
+        {/* Add Income Modal */}
+        <Model
+          isOpen={openAddIncomeModal}
+          onClose={() => setOpenAddIncomeModal(false)}
+          title="Add Income"
+        >
+          <AddIncomeForm
+            onSubmit={handleAddIncome}
+            onClose={() => setOpenAddIncomeModal(false)}
+            incomeCategories={categories}
+          />
+        </Model>
 
-            {/* delete modal */}
-            {/* DELETE CONFIRMATION MODAL */}
-            <Model
-              isOpen={openDeleteAlert.show}
-              onClose={() => setOpenDeleteAlert({ show: false, data: null })}
-              title="Confirm Delete"
-            >
-              <ConfirmDelete
-                item={openDeleteAlert.data}
-                label="income"
-                onCancel={() => setOpenDeleteAlert({ show: false, data: null })}
-                onConfirm={() => {
-                  handleDeleteIncome(openDeleteAlert.data);
-                  setOpenDeleteAlert({ show: false, data: null });
-                }}
-              />
-            </Model>
+        {/* Delete Confirmation Modal */}
+        <Model
+          isOpen={openDeleteAlert.show}
+          onClose={() => setOpenDeleteAlert({ show: false, data: null })}
+          title="Confirm Delete"
+        >
+          <ConfirmDelete
+            item={openDeleteAlert.data}
+            label="income"
+            onCancel={() => setOpenDeleteAlert({ show: false, data: null })}
+            onConfirm={() => {
+              handleDeleteIncome(openDeleteAlert.data);
+              setOpenDeleteAlert({ show: false, data: null });
+            }}
+          />
+        </Model>
 
+      </div>
 
-          </div>
-        </div>
-      </Dashboard>
-    </>
-  )
-}
+    </Dashboard>
+  );
+};
 
-export default Income
+export default Income;
