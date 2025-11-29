@@ -2,6 +2,7 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import AppContext from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 // import { Calendar } from "@/components/ui/calendar"
+import { sendSupportEmail } from '@/util/EmailJs';
 
 // Icons
 import {
@@ -12,19 +13,29 @@ import {
   Bell,
   CalendarDays,
   CheckCircle,
-  Trash2
+  Trash2,
+  HelpCircle
 } from 'lucide-react';
 
 import Sidebar from './Sidebar';
 import logo from '../../assets/logo.png';
 import { TransactionContext } from "../../context/TransactionContext";
 import NotificationMenu from './NotificationMenu';
+import Model from './Model';
+import ContactUsForm from '../support/ContactUsForm';
+import { showErrorToast, showSuccessToast, showWarningToast } from './CustomToast';
 
 const Navbar = ({ activeMenu }) => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotif, setShowNotif] = useState(false);
   const [showMore, setShowMore] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const [priority, setPriority] = useState("Low");
+
+
 
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
@@ -103,12 +114,54 @@ const Navbar = ({ activeMenu }) => {
     setShowNotif(false);
   };
 
+
+  //emailjs
+  const handleSupportFormSubmit = async (e) => {
+  e.preventDefault();
+
+  const name = e.target.name.value.trim();
+  const email = e.target.email.value.trim();
+  const phone = e.target.phone.value.trim();
+  const message = e.target.message.value.trim();
+  const issueType = e.target.issueType.value; // from dropdown
+
+  if (!name || !email || !message) {
+    showWarningToast("All fields are required.");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    await sendSupportEmail({  name,  email,  phone,  message,  issueType,  priority,});
+
+    showSuccessToast("Support message sent!");
+    setShowSupport(false);
+    console.log('Mail Sent => ' ,{name , email,phone,message,issueType});
+
+  } catch (err) {
+    console.error(err);
+    showErrorToast("Failed to send message. Try again.");
+  } finally {
+    setLoading(false);
+    setShowDropdown(false);
+  }
+};
+
+
+
+
+
   const unreadCount = notifList.filter(n => !n.read).length;
+
+
+
 
   return (
     <>
       <div className="flex items-center justify-between gap-5 bg-white border border-b border-gray-200/50 
                       backdrop-blur-[2px] py-4 px-4 sm:px-6 lg:px-7 sticky top-0 z-30">
+
 
         {/* LEFT SIDE — MENU + LOGO */}
         <div className="flex items-center gap-5">
@@ -127,14 +180,17 @@ const Navbar = ({ activeMenu }) => {
           </div>
         </div>
 
+
+
+
         {/* RIGHT SIDE — NOTIFS, CALENDAR, PROFILE */}
         <div className="flex items-center gap-4">
 
-          {/* 🍔 NOTIFICATION DROPDOWN */}
+          {/*  NOTIFICATION DROPDOWN */}
           <NotificationMenu />
 
 
-          {/* 📅 CALENDAR ICON */}
+          {/*  CALENDAR ICON */}
           <button
             onClick={() => navigate("/calendar")}
             className="w-10 h-10 flex items-center justify-center 
@@ -143,8 +199,10 @@ const Navbar = ({ activeMenu }) => {
             <CalendarDays className="w-5 h-5 text-purple-500" />
           </button>
 
-          {/* 👤 PROFILE DROPDOWN */}
-          
+
+
+          {/*  PROFILE DROPDOWN */}
+
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setShowDropdown(!showDropdown)}
@@ -175,12 +233,21 @@ const Navbar = ({ activeMenu }) => {
                   </div>
                 </div>
 
+                {/* Help */}
+                <button
+                  onClick={() => setShowSupport(true)}
+                  className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  <HelpCircle className="w-4 h-4 text-purple-500" />
+                  Help / Contact Us
+                </button>
+
                 {/* Logout */}
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
-                  <LogOut className="w-4 h-4 text-gray-500" />
+                  <LogOut className="w-4 h-4 text-purple-500" />
                   Logout
                 </button>
 
@@ -197,8 +264,29 @@ const Navbar = ({ activeMenu }) => {
             <Sidebar activeMenu={activeMenu} />
           </div>
         )}
-
       </div>
+
+
+
+      {/* Supprot form */}
+      {showSupport && (
+        <Model
+          isOpen={showSupport}
+          onClose={() => setShowSupport(false)}
+          title="Contact Support"
+        >
+          <ContactUsForm
+            user={user}
+            loading={loading}
+            setShowSupport={setShowSupport}
+            handleSupportFormSubmit={handleSupportFormSubmit}
+            priority={priority}
+            setPriority={setPriority}
+          />
+
+        </Model>
+
+      )}
     </>
   );
 };

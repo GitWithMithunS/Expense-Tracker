@@ -3,7 +3,7 @@ import Dashboard from "../../src/components/common/Dashboard";
 import axiosConfig from "../util/axiosConfig";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
 import { TrendingUp, TrendingDown, Calendar, Plus } from "lucide-react";
-import AddBudgetMasterForm from "../components/AddBudgetForm";
+import AddBudgetMasterForm from "../components/home/AddBudgetForm";
 
 const Budget = () => {
   // ----------------------------------------
