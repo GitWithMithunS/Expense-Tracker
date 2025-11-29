@@ -7,7 +7,7 @@ import { useContext, useEffect, useState } from "react";
 // import AddExpenseModal from "../components/AddExpense";
 import OverviewSection from "../components/OverviewSection";
 import { TransactionContext } from "../context/TransactionContext";
-import { CreditCard, Wallet } from "lucide-react";
+import { CreditCard, TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import axiosConfig from "../util/axiosConfig";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
 import { useNavigate } from "react-router-dom";
@@ -18,8 +18,6 @@ const Home = () => {
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const navigate = useNavigate();
-
-  
 
   const { state } = useContext(TransactionContext);
 
@@ -116,7 +114,7 @@ useEffect(() => {
       <div className="space-y-8">
 
         {/* ===== TOTAL BALANCE ===== */}
-        <div className="bg-white p-6 rounded-xl border shadow-sm">
+        <div className="bg-white p-6 rounded-xl shadow-lg border border-blue-300">
   <h2 className="text-lg font-semibold text-gray-700">Total Balance</h2>
 
   <p
@@ -133,85 +131,149 @@ useEffect(() => {
 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
 
   {/* INCOME BOX */}
-  <div className="bg-white rounded-xl shadow-lg border h-80 flex flex-col overflow-hidden">
+  <div className="bg-white rounded-xl shadow-lg border flex flex-col overflow-hidden p-4 border-green-300">
 
-    <div className="p-6 flex-1 flex flex-col min-h-0">
-      <h3 className="text-lg font-semibold mb-3">Income</h3>
-
-      <ul className="space-y-2 text-sm overflow-y-auto flex-1 min-h-0 pr-2">
-        {recentIncome.length === 0 && (
-          <li className="text-gray-500">No income yet.</li>
-        )}
-
-        {recentIncome.map((inc) => (
-          <li
-            key={inc.id}
-            className="border-b pb-1 flex justify-between items-center"
-          >
-            <span>{inc.categoryName}</span>
-            <span className="text-green-600 font-semibold">
-              ₹{inc.amount}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-
-    {/* Fixed footer button */}
-    <div className="px-6 py-3 border-t bg-white flex justify-center">
-      <button
-  onClick={() => navigate("/income")}
-  className="px-4 py-2 bg-emerald-500 text-white rounded-lg shadow 
-             flex items-center gap-2 hover:bg-emerald-600 transition"
->
-  <Wallet className="h-5 w-5" />
-  <span className="text-sm font-medium">Add Income</span>
-</button>
-
-    </div>
+  {/* 🔵 Add Income Button at the Top */}
+  <div className="flex justify-end mb-4">
+    <button
+          onClick={() => navigate("/income")}
+          className="flex items-center gap-2 px-6 py-2.5 bg-green-100 text-green-700 
+                     border border-green-300 rounded-lg shadow-sm hover:bg-green-200 
+                     transition-all duration-200 active:scale-95"
+        >
+          <TrendingUp size={18} className="text-green-700" />
+          <span className="font-semibold">Add Income</span>
+        </button>
   </div>
+
+  {/* 💰 Income List */}
+  <ul className="space-y-3 pr-2">
+
+    {recentIncome.length === 0 && (
+      <li className="text-gray-500">No income yet.</li>
+    )}
+
+    {recentIncome.map((inc) => (
+      <li
+        key={inc.id}
+        className="flex items-center justify-between p-4 rounded-xl
+                   bg-white border border-gray-200 shadow-sm hover:shadow-md
+                   transition-all"
+      >
+        {/* LEFT SIDE */}
+        <div className="flex items-center gap-4">
+
+          {/* Category Emoji */}
+          <div className="w-12 h-12 flex items-center justify-center 
+                          bg-gray-100 rounded-full text-2xl shadow-sm">
+            <span>{inc.icon || "💰"}</span>
+          </div>
+
+          {/* Name + Date */}
+          <div className="flex flex-col">
+            <p className="text-gray-900 font-semibold text-sm">
+              {inc.categoryName}
+            </p>
+            <p className="text-gray-500 text-xs">
+              {new Date(inc.date).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })}
+            </p>
+          </div>
+        </div>
+
+        {/* RIGHT SIDE — Amount Badge */}
+        <div
+          className="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm
+                     flex items-center gap-2 bg-green-100 text-green-700 
+                     border border-green-300"
+        >
+          ₹{inc.amount}
+          <TrendingUp size={16} className="text-green-700" />
+        </div>
+      </li>
+    ))}
+
+  </ul>
+
+</div>
+
 
   {/* EXPENSE BOX */}
-  <div className="bg-white rounded-xl shadow-lg border h-80 flex flex-col overflow-hidden">
+  <div className="bg-white rounded-xl shadow-lg border flex flex-col overflow-hidden p-4 border-red-300">
 
-    <div className="p-6 flex-1 flex flex-col min-h-0">
-      <h3 className="text-lg font-semibold mb-3">Expense</h3>
-
-      <ul className="space-y-2 text-sm overflow-y-auto flex-1 min-h-0 pr-2">
-  {recentExpense.length === 0 && (
-    <li className="text-gray-500">No expenses yet.</li>
-  )}
-
-  {recentExpense.map((exp) => (
-    <li
-      key={exp.id}
-      className="border-b pb-1 flex justify-between items-center"
+  {/* 🔴 Add Expense Button at the Top */}
+  <div className="flex justify-end mb-4">
+    <button
+      onClick={() => navigate("/expense")}
+      className="flex items-center gap-2 px-6 py-2.5 bg-red-100 text-red-700
+                 border border-red-300 rounded-lg shadow-sm hover:bg-red-200
+                 transition-all duration-200 active:scale-95"
     >
-      {/* CATEGORY NAME */}
-      <span>{exp.categoryName || "Expense"}</span>
-
-      {/* AMOUNT */}
-      <span className="text-red-600 font-semibold">
-        ₹{exp.amount}
-      </span>
-    </li>
-  ))}
-</ul>
-
-    </div>
-
-    {/* Fixed footer button */}
-    <div className="px-6 py-3 border-t bg-white flex justify-center">
-      <button
-        onClick={() => navigate("/expense")}
-        className="px-4 py-2 bg-pink-500 text-white rounded-lg shadow 
-                   flex items-center gap-2 hover:bg-pink-600 transition"
-      >
-        <CreditCard className="h-5 w-5" />
-        <span className="text-sm font-medium">Add Expense</span>
-      </button>
-    </div>
+      <TrendingDown size={18} className="text-red-700" />
+      <span className="font-semibold">Add Expense</span>
+    </button>
   </div>
+
+  {/* 🔻 Expense List */}
+  <ul className="space-y-3 pr-2">
+
+    {recentExpense.length === 0 && (
+      <li className="text-gray-500">No expenses yet.</li>
+    )}
+
+    {recentExpense.map((exp) => (
+      <li
+        key={exp.id}
+        className="flex items-center justify-between p-4 rounded-xl
+                   bg-white border border-gray-200 shadow-sm hover:shadow-md
+                   transition-all"
+      >
+
+        {/* LEFT SIDE */}
+        <div className="flex items-center gap-4">
+
+          {/* Category Emoji */}
+          <div className="w-12 h-12 flex items-center justify-center 
+                          bg-gray-100 rounded-full text-2xl shadow-sm">
+            <span>{exp.icon || "💸"}</span>
+          </div>
+
+          {/* Name + Date */}
+          <div className="flex flex-col">
+            <p className="text-gray-900 font-semibold text-sm">
+              {exp.categoryName}
+            </p>
+            <p className="text-gray-500 text-xs">
+              {new Date(exp.date).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })}
+            </p>
+          </div>
+        </div>
+
+        {/* RIGHT SIDE — Amount Badge */}
+        <div
+          className="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm
+                     flex items-center gap-2 bg-red-100 text-red-700 
+                     border border-red-300"
+        >
+          ₹{exp.amount}
+          <TrendingDown size={16} className="text-red-700" />
+        </div>
+
+      </li>
+    ))}
+
+  </ul>
+
+</div>
+
+
 
 </div>
 

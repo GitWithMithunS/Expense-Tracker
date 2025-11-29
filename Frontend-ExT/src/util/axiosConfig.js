@@ -65,6 +65,113 @@ const mockDatabase = {
     { id: 4, name: "Auto Rickshaw Ride", amount: 120, date: "2025-01-20", categoryId: 2, categoryName: "Transport", icon: "🛺" },
     { id: 5, name: "Dinner Out", amount: 600, date: "2025-01-22", categoryId: 1, categoryName: "Food & Dining", icon: "🍽️" }
   ],
+
+  GET_BUDGET_DATA: {
+  userId: "user123",
+
+  // ------------------------
+  // 1️⃣ Monthly Budget (Main)
+  // ------------------------
+  month: "Dec",
+  totalBudget: 25000,
+  totalSpent: 14550,    // optional, auto or backend-calculated
+  remainingBudget: 10450,
+
+  // ------------------------
+  // 2️⃣ Category-wise Budgets
+  // ------------------------
+  categories: [
+    {
+      categoryId: 1,
+      name: "Food & Dining",
+      icon: "🍔",
+      limit: 5000,
+      spent: 3200
+    },
+    {
+      categoryId: 2,
+      name: "Transport",
+      icon: "🚌",
+      limit: 2000,
+      spent: 1350
+    },
+    {
+      categoryId: 4,
+      name: "Shopping",
+      icon: "🛍️",
+      limit: 7000,
+      spent: 3000
+    },
+    {
+      categoryId: 5,
+      name: "Investments",
+      icon: "📈",
+      limit: 10000,
+      spent: 7500
+    }
+  ],
+
+  // ------------------------
+  // 3️⃣ Savings Goals
+  // ------------------------
+  goals: [
+    {
+      id: 1,
+      goalName: "Buy New Laptop",
+      target: 80000,
+      saved: 20000,
+      deadline: "2025-06-10",
+      priority: "high"
+    },
+    {
+      id: 2,
+      goalName: "Goa Trip",
+      target: 25000,
+      saved: 7000,
+      deadline: "2025-04-20",
+      priority: "medium"
+    },
+    {
+      id: 3,
+      goalName: "Emergency Fund",
+      target: 100000,
+      saved: 45000,
+      deadline: null,
+      priority: "low"
+    }
+  ],
+
+  // ------------------------
+  // 4️⃣ Upcoming Bill Reminders
+  // ------------------------
+  bills: [
+    {
+      id: 1,
+      billName: "Electricity Bill",
+      amount: 1200,
+      dueDate: "2025-02-18",
+      categoryId: 2,
+      isPaid: false
+    },
+    {
+      id: 2,
+      billName: "WiFi Recharge",
+      amount: 899,
+      dueDate: "2025-02-12",
+      categoryId: 1,
+      isPaid: true
+    },
+    {
+      id: 3,
+      billName: "Credit Card Bill",
+      amount: 4500,
+      dueDate: "2025-02-25",
+      categoryId: 4,
+      isPaid: false
+    }
+  ]
+},
+
   REGISTER: { success: true },
 };
 

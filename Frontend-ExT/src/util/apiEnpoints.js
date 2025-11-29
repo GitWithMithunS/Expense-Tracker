@@ -30,4 +30,7 @@ export const API_ENDPOINTS = {
 
 
   UPLOAD_IMAGE: "/upload",   //for user profile this is (not billing/valut)
+
+  GET_BUDGET_DATA: "/budgetdata", //this is to fetch budget data
+
 };
