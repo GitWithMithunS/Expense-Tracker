@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Bell, CheckCircle, Trash2 } from "lucide-react";
 import { useContext } from "react";
-import { TransactionContext } from "../context/TransactionContext";
+import { TransactionContext } from "../../context/TransactionContext";
 
 const NotificationMenu = () => {
   const { state } = useContext(TransactionContext);

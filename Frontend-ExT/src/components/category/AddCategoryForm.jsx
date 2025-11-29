@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import EmojiPickerComponent from "./EmojiPickerComponent";
-import { showWarningToast } from "./CustomToast";
+import EmojiPickerComponent from "../common/EmojiPickerComponent";
+import { showWarningToast } from "../common/CustomToast";
 import { Loader } from "lucide-react";
 
 const AddCategoryForm = ({ onSubmit, onClose, initialCategoryData, isEditing }) => {

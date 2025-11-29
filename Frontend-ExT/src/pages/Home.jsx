@@ -1,11 +1,11 @@
-import Dashboard from "../components/Dashboard";
-import BudgetStatus from "../components/BudgetStatus";
-import BudgetManager from "../components/BudgetManager";
-import Calendar from "../components/Calendar";
+import Dashboard from "../../../Dashboard";
+import BudgetStatus from "../components/home/BudgetStatus";
+import BudgetManager from "../components/home/BudgetManager";
+import Calendar from "../components/common/Calendar";
 import { useContext, useEffect, useState } from "react";
 // import AddIncomeModal from "../components/AddIncome";
 // import AddExpenseModal from "../components/AddExpense";
-import OverviewSection from "../components/OverviewSection";
+import OverviewSection from "../components/home/OverviewSection";
 import { TransactionContext } from "../context/TransactionContext";
 import { CreditCard, TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import axiosConfig from "../util/axiosConfig";
@@ -38,76 +38,76 @@ const Home = () => {
 
   const [allTransactions, setAllTransactions] = useState([]);
 
-useEffect(() => {
-  const fetchAll = async () => {
-    try {
-      const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
-      setAllTransactions(response.data);
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-    }
-  };
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+        setAllTransactions(response.data);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    };
 
-  fetchAll();
-}, []);
+    fetchAll();
+  }, []);
 
-// COMPUTE TOTALS
-const totalIncome = allTransactions
-  .filter(tx => tx.type === "income")
-  .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+  // COMPUTE TOTALS
+  const totalIncome = allTransactions
+    .filter(tx => tx.type === "income")
+    .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
 
-const totalExpense = allTransactions
-  .filter(tx => tx.type === "expense")
-  .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+  const totalExpense = allTransactions
+    .filter(tx => tx.type === "expense")
+    .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
 
-const balance = totalIncome - totalExpense;
+  const balance = totalIncome - totalExpense;
 
 
   useEffect(() => {
-  const fetchIncome = async () => {
-    try {
-      const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+    const fetchIncome = async () => {
+      try {
+        const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
 
-      const allTx = response.data;
+        const allTx = response.data;
 
-      // Filter income + sort by latest + take recent 5
-      const recent = allTx
-        .filter((tx) => tx.type === "income")
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 5);
+        // Filter income + sort by latest + take recent 5
+        const recent = allTx
+          .filter((tx) => tx.type === "income")
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+          .slice(0, 5);
 
-      setRecentIncome(recent);
+        setRecentIncome(recent);
 
-    } catch (error) {
-      console.error("Error fetching income:", error);
-    }
-  };
+      } catch (error) {
+        console.error("Error fetching income:", error);
+      }
+    };
 
-  fetchIncome();
-}, []);
+    fetchIncome();
+  }, []);
 
-useEffect(() => {
-  const fetchExpenses = async () => {
-    try {
-      const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+  useEffect(() => {
+    const fetchExpenses = async () => {
+      try {
+        const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
 
-      const allTx = response.data;
+        const allTx = response.data;
 
-      // Filter ONLY expense + sort by latest + take 5 recent
-      const recent = allTx
-        .filter((tx) => tx.type === "expense")
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 5);
+        // Filter ONLY expense + sort by latest + take 5 recent
+        const recent = allTx
+          .filter((tx) => tx.type === "expense")
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+          .slice(0, 5);
 
-      setRecentExpense(recent);
+        setRecentExpense(recent);
 
-    } catch (error) {
-      console.error("Error fetching expense:", error);
-    }
-  };
+      } catch (error) {
+        console.error("Error fetching expense:", error);
+      }
+    };
 
-  fetchExpenses();
-}, []);
+    fetchExpenses();
+  }, []);
 
   return (
     <Dashboard activeMenu="Dashboard">
