@@ -22,6 +22,32 @@ const Home = () => {
 
   const { state } = useContext(TransactionContext);
 
+  const [recentIncome, setRecentIncome] = useState([]);
+  const [recentExpense, setRecentExpense] = useState([]);
+
+  const [allTransactions, setAllTransactions] = useState([]);
+
+  // COMPUTE TOTALS
+  const totalIncome = allTransactions
+    .filter(tx => tx.type === "income")
+    .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+  const totalExpense = allTransactions
+    .filter(tx => tx.type === "expense")
+    .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+  const balance = totalIncome - totalExpense;
+
+  const today = new Date().getDate();
+  const totalDaysInMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth() + 1,
+    0
+  ).getDate();
+   const daysRemaining = totalDaysInMonth - today;
+  const dailySpendLimit =
+  daysRemaining > 0 ? Math.max(0, balance / daysRemaining) : 0;
+
   console.log(state.categories);   //just a checker 
 
   // newest-first helper  
@@ -34,10 +60,7 @@ const Home = () => {
       .slice(0, 5);
   };
 
-  const [recentIncome, setRecentIncome] = useState([]);
-  const [recentExpense, setRecentExpense] = useState([]);
-
-  const [allTransactions, setAllTransactions] = useState([]);
+  
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -51,17 +74,6 @@ const Home = () => {
 
     fetchAll();
   }, []);
-
-  // COMPUTE TOTALS
-  const totalIncome = allTransactions
-    .filter(tx => tx.type === "income")
-    .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
-
-  const totalExpense = allTransactions
-    .filter(tx => tx.type === "expense")
-    .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
-
-  const balance = totalIncome - totalExpense;
 
 
   useEffect(() => {
@@ -114,6 +126,49 @@ const Home = () => {
     <Dashboard activeMenu="Dashboard">
       <div className="space-y-8">
 
+        {/* ====================================================== */}
+        {/* SUMMARY BAR (Income | Expense | Daily Spend Limit)    */}
+        {/* ====================================================== */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+
+          {/* Total Income */}
+          <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+            <p className="text-sm text-gray-600">Total Income</p>
+            <h2 className="text-2xl font-bold text-emerald-600 mt-1">
+              ₹{totalIncome.toLocaleString("en-IN")}
+            </h2>
+
+            <p className="text-xs text-gray-500 mt-1">
+              Total income added this month
+            </p>
+          </div>
+
+          {/* Total Expense */}
+          <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+            <p className="text-sm text-gray-600">Total Expense</p>
+            <h2 className="text-2xl font-bold text-red-600 mt-1">
+              ₹{totalExpense.toLocaleString("en-IN")}
+            </h2>
+
+            <p className="text-xs text-gray-500 mt-1">
+              Total money spent this month
+            </p>
+          </div>
+
+          {/* Daily Spending Limit */}
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <p className="text-sm text-gray-600">You can spend per day</p>
+            <h2 className="text-2xl font-bold text-blue-600 mt-1">
+              ₹{dailySpendLimit.toFixed(0).toLocaleString("en-IN")}
+            </h2>
+
+            <p className="text-xs text-gray-500 mt-1">
+              Based on your remaining balance and {daysRemaining} days left
+            </p>
+          </div>
+
+        </div>
+
         {/* ===== TOTAL BALANCE ===== */}
         <div className="bg-white p-6 rounded-xl shadow-lg border border-blue-300">
   <h2 className="text-lg font-semibold text-gray-700">Total Balance</h2>
@@ -135,7 +190,7 @@ const Home = () => {
   <div className="bg-white rounded-xl shadow-lg border flex flex-col overflow-hidden p-4 border-green-300">
 
   {/* 🔵 Add Income Button at the Top */}
-  <div className="flex justify-end mb-4">
+  {/* <div className="flex justify-end mb-4">
     <button
           onClick={() => navigate("/income")}
           className="flex items-center gap-2 px-6 py-2.5 bg-green-100 text-green-700 
@@ -145,7 +200,28 @@ const Home = () => {
           <TrendingUp size={18} className="text-green-700" />
           <span className="font-semibold">Add Income</span>
         </button>
-  </div>
+  </div> */}
+
+  <div className="flex items-center justify-between mb-4">
+
+  {/* Left Side Title */}
+  <span className="text-gray-700 font-semibold text-xl">
+    Income
+  </span>
+
+  {/* Right Side Button */}
+  <button
+    onClick={() => navigate("/income")}
+    className="flex items-center gap-2 px-6 py-2.5 bg-green-100 text-green-700 
+               border border-green-300 rounded-lg shadow-sm hover:bg-green-200 
+               transition-all duration-200 active:scale-95"
+  >
+    <TrendingUp size={18} className="text-green-700" />
+    <span className="font-semibold">Add Income</span>
+  </button>
+
+</div>
+
 
   {/* 💰 Income List */}
   <ul className="space-y-3 pr-2">
@@ -206,7 +282,12 @@ const Home = () => {
   <div className="bg-white rounded-xl shadow-lg border flex flex-col overflow-hidden p-4 border-red-300">
 
   {/* 🔴 Add Expense Button at the Top */}
-  <div className="flex justify-end mb-4">
+  <div className="flex items-center justify-between mb-4">
+
+  {/* Left Side Title */}
+  <span className="text-gray-700 font-semibold text-xl">
+    Expense
+  </span>
     <button
       onClick={() => navigate("/expense")}
       className="flex items-center gap-2 px-6 py-2.5 bg-red-100 text-red-700

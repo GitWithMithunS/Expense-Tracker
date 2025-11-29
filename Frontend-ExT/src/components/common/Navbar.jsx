@@ -2,7 +2,7 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import AppContext from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 // import { Calendar } from "@/components/ui/calendar"
-
+import Calendar from './Calendar';
 // Icons
 import {
   LogOut,
@@ -19,6 +19,7 @@ import Sidebar from './Sidebar';
 import logo from '../../assets/logo.png';
 import { TransactionContext } from "../../context/TransactionContext";
 import NotificationMenu from './NotificationMenu';
+import CalendarPopup from './Calendar';
 
 const Navbar = ({ activeMenu }) => {
   const [openSidebar, setOpenSidebar] = useState(false);
@@ -32,6 +33,7 @@ const Navbar = ({ activeMenu }) => {
   const { user } = useContext(AppContext);
   const { state } = useContext(TransactionContext);
   const navigate = useNavigate();
+  const [showCal, setShowCal] = useState(false);
 
   // Logout
   const handleLogout = () => {
@@ -136,9 +138,9 @@ const Navbar = ({ activeMenu }) => {
 
           {/* 📅 CALENDAR ICON */}
           <button
-            onClick={() => navigate("/calendar")}
+            onClick={() => setShowCal(true)}
             className="w-10 h-10 flex items-center justify-center 
-                       bg-gray-100 hover:bg-gray-200 rounded-full transition"
+                      bg-gray-100 hover:bg-gray-200 rounded-full transition"
           >
             <CalendarDays className="w-5 h-5 text-purple-500" />
           </button>
@@ -197,6 +199,13 @@ const Navbar = ({ activeMenu }) => {
             <Sidebar activeMenu={activeMenu} />
           </div>
         )}
+
+        {showCal && (
+  <CalendarPopup open={showCal} onClose={() => setShowCal(false)} />
+)}
+
+
+
 
       </div>
     </>
