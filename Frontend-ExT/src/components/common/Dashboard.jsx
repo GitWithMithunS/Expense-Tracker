@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
-import Navbar from "./Frontend-ExT/src/components/common/Navbar";
-import Sidebar from "./Frontend-ExT/src/components/common/Sidebar";
-import AppContext from "./Frontend-ExT/src/context/AppContext";
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
+import AppContext from "../../context/AppContext";
 
 const Dashboard = ({ children, activeMenu }) => {
   const { user } = useContext(AppContext);

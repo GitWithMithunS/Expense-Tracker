@@ -5,5 +5,5 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src", "../Dashboard.jsx"]
+  "include": ["src", "src/components/common/Dashboard.jsx"]
 }

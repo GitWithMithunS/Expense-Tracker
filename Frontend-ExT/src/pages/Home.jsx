@@ -1,4 +1,4 @@
-import Dashboard from "../../../Dashboard";
+import Dashboard from "../components/common/Dashboard";
 import BudgetStatus from "../components/home/BudgetStatus";
 import BudgetManager from "../components/home/BudgetManager";
 import Calendar from "../components/common/Calendar";
