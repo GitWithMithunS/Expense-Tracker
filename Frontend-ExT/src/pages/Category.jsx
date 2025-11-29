@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import Dashboard from "../../../Dashboard";
+import Dashboard from "../components/common/Dashboard";
 import { Plus } from "lucide-react";
 import CategoryList from "../components/category/CategoryList";
 import axiosConfig from "../util/axiosConfig";

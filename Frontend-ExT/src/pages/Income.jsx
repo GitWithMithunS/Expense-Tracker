@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import Dashboard from '../../../Dashboard'
+import Dashboard from '../components/common/Dashboard'
 import { API_ENDPOINTS } from '../util/apiEnpoints';
 import axiosConfig from '../util/axiosConfig';
 import { showErrorToast, showSuccessToast } from '../components/common/CustomToast';

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import Dashboard from "../../../Dashboard";
+import Dashboard from "../components/common/Dashboard";
 import AppContext from "../context/AppContext";
 
 import bill1 from "../assets/bill1.png";
