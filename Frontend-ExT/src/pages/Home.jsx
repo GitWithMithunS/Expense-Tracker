@@ -1,4 +1,4 @@
-import Dashboard from "../../../Dashboard";
+// import Dashboard from "../../../Dashboard";
 import BudgetStatus from "../components/home/BudgetStatus";
 import BudgetManager from "../components/home/BudgetManager";
 import Calendar from "../components/common/Calendar";
@@ -11,6 +11,7 @@ import { CreditCard, TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import axiosConfig from "../util/axiosConfig";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
 import { useNavigate } from "react-router-dom";
+import Dashboard from "../components/common/Dashboard";
 
 
 const Home = () => {

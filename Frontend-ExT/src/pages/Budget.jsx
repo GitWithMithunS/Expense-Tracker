@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import Dashboard from "../components/Dashboard";
+import Dashboard from "../../src/components/common/Dashboard";
 import axiosConfig from "../util/axiosConfig";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
 import { TrendingUp, TrendingDown, Calendar, Plus } from "lucide-react";
