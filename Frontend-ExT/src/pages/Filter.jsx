@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
-import Dashboard from "../components/Dashboard";
+import Dashboard from "../../../Dashboard";
 
 import axiosConfig from "../util/axiosConfig"; 
 import { API_ENDPOINTS } from "../util/apiEnpoints";

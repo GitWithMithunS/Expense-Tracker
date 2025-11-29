@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import Dashboard from "../components/Dashboard";
+import Dashboard from "../../../Dashboard";
 import { Plus } from "lucide-react";
-import CategoryList from "../components/CategoryList";
+import CategoryList from "../components/category/CategoryList";
 import axiosConfig from "../util/axiosConfig";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
-import Model from "../components/Model";
-import AddCategoryForm from "../components/AddCategoryForm";
-import { showErrorToast, showSuccessToast } from "../components/CustomToast";
+import Model from "../components/common/Model";
+import AddCategoryForm from "../components/category/AddCategoryForm";
+import { showErrorToast, showSuccessToast } from "../components/common/CustomToast";
 import toast from "react-hot-toast";
 import { TransactionContext } from "../context/TransactionContext";
 
@@ -213,7 +213,7 @@ const Category = () => {
           <button
             onClick={() => setOpenAddModal(true)}
             className="px-4 py-2 rounded-lg flex items-center gap-1
-            bg-green-500/20 border border-green-400
+            bg-green-500/20 border border-green-300
             text-green-800 font-medium shadow-md hover:bg-green-500/30"
           >
             <Plus size={15} />

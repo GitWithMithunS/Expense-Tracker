@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
-import Dashboard from "../components/Dashboard";
+import Dashboard from "../../../Dashboard";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
 import axiosConfig from "../util/axiosConfig";
-import { showErrorToast, showSuccessToast } from "../components/CustomToast";
+import { showErrorToast, showSuccessToast } from "../components/common/CustomToast";
 
 import LineChartComponent from '../components/charts/LineChartComponent';
 import BarChartComponent from '../components/charts/BarChartComponent';
 import PieChartComponent from '../components/charts/PieChartComponent';
 
-import ExpenseList from "../components/ExpenseList";
-import Model from "../components/Model";
-import AddExpenseForm from "../components/AddExpenseForm";
-import ConfirmDelete from "../components/ConfirmDelete";
+import ExpenseList from "../components/expense/ExpenseList";
+import Model from "../components/common/Model";
+import AddExpenseForm from "../components/expense/AddExpenseForm";
+import ConfirmDelete from "../components/common/ConfirmDelete";
 
 import {
   generateExcelBlob,

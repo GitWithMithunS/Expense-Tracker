@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
-import EmojiPickerComponent from "./EmojiPickerComponent";
+import EmojiPickerComponent from "../common/EmojiPickerComponent";
 import { Loader } from "lucide-react";
-import { showWarningToast } from "./CustomToast";
+import { showWarningToast } from "../common/CustomToast";
 
-const AddIncomeForm = ({
+const AddExpenseForm = ({
   onSubmit,
   onClose,
-  initialIncomeData,
+  initialExpenseData,
   isEditing,
-  incomeCategories,
+  expenseCategories,
 }) => {
-  const [income, setIncome] = useState({
+
+  const [expense, setExpense] = useState({
     name: "",
     amount: "",
     date: "",
@@ -21,15 +22,15 @@ const AddIncomeForm = ({
   const [loading, setLoading] = useState(false);
 
   const handleChange = (key, value) => {
-    setIncome((prev) => ({ ...prev, [key]: value }));
+    setExpense((prev) => ({ ...prev, [key]: value }));
   };
 
   // Prefill data when editing
   useEffect(() => {
-    if (isEditing && initialIncomeData) {
-      setIncome(initialIncomeData);
+    if (isEditing && initialExpenseData) {
+      setExpense(initialExpenseData);
     } else {
-      setIncome({
+      setExpense({
         name: "",
         amount: "",
         date: "",
@@ -37,37 +38,37 @@ const AddIncomeForm = ({
         icon: "",
       });
     }
-  }, [isEditing, initialIncomeData]);
+  }, [isEditing, initialExpenseData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!income.name.trim()) {
-      showWarningToast("Please enter income name");
+    if (!expense.name.trim()) {
+      showWarningToast("Please enter expense name");
       return;
     }
-    if (!income.amount || income.amount <= 0) {
+    if (!expense.amount || expense.amount <= 0) {
       showWarningToast("Amount must be greater than zero");
       return;
     }
-    if (!income.date) {
+    if (!expense.date) {
       showWarningToast("Please select date");
       return;
     }
-    if (!income.categoryId) {
+    if (!expense.categoryId) {
       showWarningToast("Please select a category");
       return;
     }
 
-    const today = new Date().toISOString().split('T')[0];
-    if(income.date>today){
-        showWarningToast('Date cannot be in the future');
-        return;
+    const today = new Date().toISOString().split("T")[0];
+    if (expense.date > today) {
+      showWarningToast("Date cannot be in the future");
+      return;
     }
 
     try {
       setLoading(true);
-      await onSubmit(income);
+      await onSubmit(expense);
       setLoading(false);
       onClose?.();
     } catch (error) {
@@ -82,8 +83,8 @@ const AddIncomeForm = ({
       {/* ICON PICKER */}
       <div className="flex items-center gap-4">
         <EmojiPickerComponent
-          selectedEmoji={income.icon}
-          className="bg-green-500"
+          selectedEmoji={expense.icon}
+          className="bg-red-500"
           onSelect={(emoji) => handleChange("icon", emoji)}
         />
         <span className="text-sm text-gray-700">Pick Icon</span>
@@ -91,14 +92,13 @@ const AddIncomeForm = ({
 
       {/* NAME */}
       <div>
-        <label className="text-sm font-medium">Income Source</label>
+        <label className="text-sm font-medium">Expense Name</label>
         <input
           type="text"
-          className="w-full p-2 border rounded-lg transition 
-                     border-gray-300 
+          className="w-full p-2 border rounded-lg transition border-gray-300 
                      focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
-          placeholder="e.g., Salary, Freelancing"
-          value={income.name}
+          placeholder="e.g., Grocery, Fuel, Shopping"
+          value={expense.name}
           onChange={(e) => handleChange("name", e.target.value)}
         />
       </div>
@@ -109,62 +109,45 @@ const AddIncomeForm = ({
         <input
           type="number"
           min="1"
-          className="w-full p-2 border rounded-lg transition 
-                     border-gray-300 
+          className="w-full p-2 border rounded-lg transition border-gray-300 
                      focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
-          placeholder="e.g., 50000"
-          value={income.amount}
+          placeholder="e.g., 500"
+          value={expense.amount}
           onChange={(e) => handleChange("amount", Number(e.target.value))}
         />
       </div>
 
       {/* CATEGORY SELECT */}
-<div className="relative w-full overflow-hidden">
-  <label className="text-sm font-medium">Income Category</label>
+      <div className="relative w-full overflow-hidden">
+        <label className="text-sm font-medium">Expense Category</label>
 
-  <select
-    className="
-      block w-full 
-      p-2 border rounded-lg transition 
-      border-gray-300 
-      focus:ring-1 focus:ring-purple-500 
-      focus:border-purple-500
-      bg-white
-      text-sm
-    "
-    style={{ maxWidth: "100%" }}
-    value={income.categoryId}
-    onChange={(e) => handleChange("categoryId", Number(e.target.value))}
-  >
-    <option value="">Select Category</option>
+        <select
+          className="block w-full p-2 border rounded-lg transition border-gray-300 
+                     focus:ring-1 focus:ring-purple-500 focus:border-purple-500 bg-white text-sm"
+          value={expense.categoryId}
+          onChange={(e) => handleChange("categoryId", Number(e.target.value))}
+        >
+          <option value="">Select Category</option>
 
-    {incomeCategories?.map((cat) => (
-      <option
-        key={cat.id}
-        value={cat.id}
-        className="truncate"
-      >
-        {cat.icon} {cat.name}
-      </option>
-    ))}
-  </select>
-</div>
-
-
+          {expenseCategories?.map((cat) => (
+            <option key={cat.id} value={cat.id} className="truncate">
+              {cat.icon} {cat.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {/* DATE */}
       <div>
         <label className="text-sm font-medium">Date</label>
         <input
           type="date"
-          className="w-full p-2 border rounded-lg transition 
-                     border-gray-300 
+          className="w-full p-2 border rounded-lg transition border-gray-300 
                      focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
-          value={income.date}
+          value={expense.date}
           onChange={(e) => handleChange("date", e.target.value)}
         />
       </div>
-
 
       {/* SUBMIT BUTTON */}
       <button
@@ -178,11 +161,11 @@ const AddIncomeForm = ({
             ? "Updating..."
             : "Adding..."
           : isEditing
-          ? "Update Income"
-          : "Add Income"}
+          ? "Update Expense"
+          : "Add Expense"}
       </button>
     </form>
   );
 };
 
-export default AddIncomeForm;
+export default AddExpenseForm;

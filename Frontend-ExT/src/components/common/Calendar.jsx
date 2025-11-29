@@ -6,7 +6,7 @@ import {
   PlusIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import { TransactionContext } from "../context/TransactionContext";
+import { TransactionContext } from "../../context/TransactionContext";
 
 const monthNames = [
   "January","February","March","April","May","June",
