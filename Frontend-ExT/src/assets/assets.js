@@ -1,4 +1,4 @@
-import { BanknoteArrowDown, Coins, FunnelPlus, Layers, LayoutDashboard, List, Wallet } from "lucide-react";
+import { BanknoteArrowDown, Coins, DollarSign, FunnelPlus, Layers, LayoutDashboard, List, Wallet } from "lucide-react";
 
 export const SIDE_BAR_DATA = [
   {
@@ -38,10 +38,10 @@ export const SIDE_BAR_DATA = [
     path: "/bills"
   },
   
-  // {
-  //   id: "07",
-  //   label: "Profile",
-  //   icon: User,
-  //   path: "/profile"
-  // }
+  {
+    id: "07",
+    label: "Budget",
+    icon: DollarSign,
+    path: "/budget"
+  }
 ];
