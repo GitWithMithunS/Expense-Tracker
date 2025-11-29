@@ -1,10 +1,10 @@
-import { Download, Mail } from "lucide-react";
+import { Box, Download, Mail, Package } from "lucide-react";
 import React, { useState, useEffect } from "react";
-import TransactionInfoCard from "./TransactionInfoCard";
+import TransactionInfoCard from "../common/TransactionInfoCard";
 import moment from "moment";
-import EmptyState from "./charts/EmptyState";
+import EmptyState from "../charts/EmptyState";
 
-const ExpenseList = ({
+const IncomeList = ({
   transactions,
   onDelete,
   onEmail,
@@ -15,7 +15,7 @@ const ExpenseList = ({
 
   const [showDownloadMenu, setShowDownloadMenu] = useState(false);
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicked outside
   useEffect(() => {
     const handleClickOutside = () => setShowDownloadMenu(false);
     window.addEventListener("click", handleClickOutside);
@@ -23,12 +23,13 @@ const ExpenseList = ({
     return () => window.removeEventListener("click", handleClickOutside);
   }, []);
 
+
   return (
     <div className="card p-4 bg-white border border-gray-200 rounded-xl shadow-sm">
 
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
-        <h4 className="text-lg font-semibold text-gray-800">Expense List</h4>
+        <h4 className="text-lg font-semibold text-gray-800">Income Sources</h4>
 
         <div className="flex items-center gap-3">
 
@@ -101,29 +102,27 @@ const ExpenseList = ({
 
       {/* List */}
       {(transactions && transactions.length !== 0) ?
-        (
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
-            {transactions.map((expense) => (
+        (<div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
+          {Array.isArray(transactions) &&
+            transactions.map((income) => (
               <TransactionInfoCard
-                key={expense.id}
-                title={expense.name}
-                icon={expense.icon}
-                date={moment(expense.date).format("Do MMM YYYY")}
-                amount={expense.amount}
-                categoryName={expense.categoryName}
-
-                type="expense"
-                onDelete={() => onDelete(expense)}
+                key={income.id}
+                title={income.name}
+                icon={income.icon}
+                date={moment(income.date).format("Do MMM YYYY")}
+                amount={income.amount}
+                categoryName={income.categoryName}
+                type="income"
+                onDelete={() => onDelete(income)}
               />
             ))}
-          </div>
-        ) : (
+        </div>) : (
           <div className="card p-4 bg-white border border-gray-200 rounded-xl shadow-sm">
-            <EmptyState message="No expense entries yet." />
+            <EmptyState message="No income entries yet." />
           </div>
         )}
     </div>
   );
 };
 
-export default ExpenseList;
+export default IncomeList;

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
-import AppContext from '../context/AppContext';
+import AppContext from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 // import { Calendar } from "@/components/ui/calendar"
 
@@ -16,8 +16,8 @@ import {
 } from 'lucide-react';
 
 import Sidebar from './Sidebar';
-import logo from '../assets/logo.png';
-import { TransactionContext } from "../context/TransactionContext";
+import logo from '../../assets/logo.png';
+import { TransactionContext } from "../../context/TransactionContext";
 import NotificationMenu from './NotificationMenu';
 
 const Navbar = ({ activeMenu }) => {
