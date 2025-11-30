@@ -2,6 +2,7 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import AppContext from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 // import { Calendar } from "@/components/ui/calendar"
+import Calendar from './Calendar';
 import { sendSupportEmail } from '@/util/EmailJs';
 
 // Icons
@@ -21,6 +22,7 @@ import Sidebar from './Sidebar';
 import logo from '../../assets/logo.png';
 import { TransactionContext } from "../../context/TransactionContext";
 import NotificationMenu from './NotificationMenu';
+import CalendarPopup from './Calendar';
 import Model from './Model';
 import ContactUsForm from '../support/ContactUsForm';
 import { showErrorToast, showSuccessToast, showWarningToast } from './CustomToast';
@@ -43,6 +45,7 @@ const Navbar = ({ activeMenu }) => {
   const { user } = useContext(AppContext);
   const { state } = useContext(TransactionContext);
   const navigate = useNavigate();
+  const [showCal, setShowCal] = useState(false);
 
   // Logout
   const handleLogout = () => {
@@ -268,6 +271,14 @@ const handlelogoclick = () => {
             <Sidebar activeMenu={activeMenu} />
           </div>
         )}
+
+        {showCal && (
+  <CalendarPopup open={showCal} onClose={() => setShowCal(false)} />
+)}
+
+
+
+
       </div>
 
 
