@@ -67,24 +67,72 @@ const OverviewSection = () => {
     { name: "Balance", value: balance > 0 ? balance : 0 },
   ];
 
-  const COLORS = ["#34D399", "#F87171" , "#60A5FA",];
+  const COLORS = ["#34D399", "#F87171", "#60A5FA",];
 
   return (
-    <div className="w-full mt-10 bg-white p-6 rounded-xl shadow-lg">
+    <div className="w-full bg-white p-6 rounded-xl shadow-lg">
+      <h3 className="text-xl font-semibold mb-6">Financial Overview</h3>
+
+      {/* ====================================================== */}
+      {/* SUMMARY BAR (Income | Expense | Daily Spend Limit)    */}
+      {/* ====================================================== */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+
+        {/* Total Income */}
+        <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+          <p className="text-sm text-gray-600">Total Income</p>
+          <h2 className="text-2xl font-bold text-emerald-600 mt-1">
+            ₹{totalIncome.toLocaleString("en-IN")}
+          </h2>
+
+          <p className="text-xs text-gray-500 mt-1">
+            Total income added this month
+          </p>
+        </div>
+
+        {/* Total Expense */}
+        <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+          <p className="text-sm text-gray-600">Total Expense</p>
+          <h2 className="text-2xl font-bold text-red-600 mt-1">
+            ₹{totalExpense.toLocaleString("en-IN")}
+          </h2>
+
+          <p className="text-xs text-gray-500 mt-1">
+            Total money spent this month
+          </p>
+        </div>
+
+        {/* Daily Spending Limit */}
+        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+          <p className="text-sm text-gray-600">You can spend per day</p>
+          <h2 className="text-2xl font-bold text-blue-600 mt-1">
+            ₹{dailySpendLimit.toFixed(0).toLocaleString("en-IN")}
+          </h2>
+
+          <p className="text-xs text-gray-500 mt-1">
+            Based on your remaining balance and {daysRemaining} days left
+          </p>
+        </div>
+
+      </div>
+
 
       {/* ====================================================== */}
       {/* PIE CHART SECTION                                     */}
       {/* ====================================================== */}
-      <h3 className="text-xl font-semibold mb-6">Financial Overview</h3>
+      {/* <h3 className="text-xl font-semibold mb-6">Financial Overview</h3> */}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* LEFT: PIE CHART */}
-        <div className="bg-white p-2 rounded-xl shadow-lg border border-purple-300 flex items-center">
+        <div className="bg-white p-2 rounded-xl shadow-lg border border-purple-300 flex flex-col justify-center">
+
+          <h3 className="mb-26 pl-4 text-lg font-semibold mb-4">Pie Chart Spread</h3>
+
           {pieData.length === 0 ? (
             <p className="text-gray-500">No financial data available.</p>
           ) : (
-            <div className="w-full h-84 bg-white flex items-center justify-center">
+            <div className="w-full h-94 bg-white flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie

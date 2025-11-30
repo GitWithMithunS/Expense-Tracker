@@ -124,50 +124,12 @@ const Home = () => {
 
   return (
     <Dashboard activeMenu="Dashboard">
-      <div className="space-y-8">
+      <div className="my-5 mx-auto space-y-6">
 
-        {/* ====================================================== */}
-        {/* SUMMARY BAR (Income | Expense | Daily Spend Limit)    */}
-        {/* ====================================================== */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        
 
-          {/* Total Income */}
-          <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
-            <p className="text-sm text-gray-600">Total Income</p>
-            <h2 className="text-2xl font-bold text-emerald-600 mt-1">
-              ₹{totalIncome.toLocaleString("en-IN")}
-            </h2>
+                <div><OverviewSection /></div>
 
-            <p className="text-xs text-gray-500 mt-1">
-              Total income added this month
-            </p>
-          </div>
-
-          {/* Total Expense */}
-          <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-            <p className="text-sm text-gray-600">Total Expense</p>
-            <h2 className="text-2xl font-bold text-red-600 mt-1">
-              ₹{totalExpense.toLocaleString("en-IN")}
-            </h2>
-
-            <p className="text-xs text-gray-500 mt-1">
-              Total money spent this month
-            </p>
-          </div>
-
-          {/* Daily Spending Limit */}
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <p className="text-sm text-gray-600">You can spend per day</p>
-            <h2 className="text-2xl font-bold text-blue-600 mt-1">
-              ₹{dailySpendLimit.toFixed(0).toLocaleString("en-IN")}
-            </h2>
-
-            <p className="text-xs text-gray-500 mt-1">
-              Based on your remaining balance and {daysRemaining} days left
-            </p>
-          </div>
-
-        </div>
 
         {/* ===== TOTAL BALANCE ===== */}
         <div className="bg-white p-6 rounded-xl shadow-lg border border-blue-300">
@@ -280,7 +242,7 @@ const Home = () => {
           {/* EXPENSE BOX */}
           <div className="bg-white rounded-xl shadow-lg border flex flex-col overflow-hidden p-4 border-red-300">
 
-            {/* 🔴 Add Expense Button at the Top */}
+            {/*  Add Expense Button at the Top */}
             <div className="flex items-center justify-between mb-4">
 
               {/* Left Side Title */}
@@ -363,7 +325,6 @@ const Home = () => {
         {showIncomeModal && <AddIncomeModal onClose={() => setShowIncomeModal(false)} />}
         {showExpenseModal && <AddExpenseModal onClose={() => setShowExpenseModal(false)} />}
 
-        <div><OverviewSection /></div>
 
         {/* BUDGET SECTION */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
