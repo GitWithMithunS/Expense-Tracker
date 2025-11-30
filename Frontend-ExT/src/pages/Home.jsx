@@ -116,167 +116,166 @@ const Home = () => {
 
         {/* ===== TOTAL BALANCE ===== */}
         <div className="bg-white p-6 rounded-xl shadow-lg border border-blue-300">
-  <h2 className="text-lg font-semibold text-gray-700">Total Balance</h2>
+          <h2 className="text-lg font-semibold text-gray-700">Total Balance</h2>
 
-  <p
-    className={`text-3xl font-bold mt-2 ${
-      balance >= 0 ? "text-green-600" : "text-red-600"
-    }`}
-  >
-    ₹{balance.toLocaleString("en-IN")}
-  </p>
-</div>
+          <p
+            className={`text-3xl font-bold mt-2 ${balance >= 0 ? "text-green-600" : "text-red-600"
+              }`}
+          >
+            ₹{balance.toLocaleString("en-IN")}
+          </p>
+        </div>
 
 
-{/* ===== RECENT INCOME & EXPENSE ===== */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        {/* ===== RECENT INCOME & EXPENSE ===== */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
 
-  {/* INCOME BOX */}
-  <div className="bg-white rounded-xl shadow-lg border flex flex-col overflow-hidden p-4 border-green-300">
+          {/* INCOME BOX */}
+          <div className="bg-white rounded-xl shadow-lg border flex flex-col overflow-hidden p-4 border-green-300">
 
-  {/* 🔵 Add Income Button at the Top */}
-  <div className="flex justify-end mb-4">
-    <button
-          onClick={() => navigate("/income")}
-          className="flex items-center gap-2 px-6 py-2.5 bg-green-100 text-green-700 
+            {/* Add Income Button at the Top */}
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={() => navigate("/income")}
+                className="cursor-pointer flex items-center gap-2 px-6 py-2.5 bg-green-100 text-green-700 
                      border border-green-300 rounded-lg shadow-sm hover:bg-green-200 
                      transition-all duration-200 active:scale-95"
-        >
-          <TrendingUp size={18} className="text-green-700" />
-          <span className="font-semibold">Add Income</span>
-        </button>
-  </div>
+              >
+                <TrendingUp size={18} className="text-green-700" />
+                <span className="font-semibold">Add Income</span>
+              </button>
+            </div>
 
-  {/* 💰 Income List */}
-  <ul className="space-y-3 pr-2">
+            {/*  Income List */}
+            <ul className="space-y-3 pr-2">
 
-    {recentIncome.length === 0 && (
-      <li className="text-gray-500">No income yet.</li>
-    )}
+              {recentIncome.length === 0 && (
+                <li className="text-gray-500">No income yet.</li>
+              )}
 
-    {recentIncome.map((inc) => (
-      <li
-        key={inc.id}
-        className="flex items-center justify-between p-4 rounded-xl
+              {recentIncome.map((inc) => (
+                <li
+                  key={inc.id}
+                  className="flex items-center justify-between p-4 rounded-xl
                    bg-white border border-gray-200 shadow-sm hover:shadow-md
                    transition-all"
-      >
-        {/* LEFT SIDE */}
-        <div className="flex items-center gap-4">
+                >
+                  {/* LEFT SIDE */}
+                  <div className="flex items-center gap-4">
 
-          {/* Category Emoji */}
-          <div className="w-12 h-12 flex items-center justify-center 
+                    {/* Category Emoji */}
+                    <div className="w-12 h-12 flex items-center justify-center 
                           bg-gray-100 rounded-full text-2xl shadow-sm">
-            <span>{inc.icon || "💰"}</span>
-          </div>
+                      <span>{inc.icon || "💰"}</span>
+                    </div>
 
-          {/* Name + Date */}
-          <div className="flex flex-col">
-            <p className="text-gray-900 font-semibold text-sm">
-              {inc.categoryName}
-            </p>
-            <p className="text-gray-500 text-xs">
-              {new Date(inc.date).toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              })}
-            </p>
-          </div>
-        </div>
+                    {/* Name + Date */}
+                    <div className="flex flex-col">
+                      <p className="text-gray-900 font-semibold text-sm">
+                        {inc.categoryName}
+                      </p>
+                      <p className="text-gray-500 text-xs">
+                        {new Date(inc.date).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </div>
 
-        {/* RIGHT SIDE — Amount Badge */}
-        <div
-          className="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm
+                  {/* RIGHT SIDE — Amount Badge */}
+                  <div
+                    className="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm
                      flex items-center gap-2 bg-green-100 text-green-700 
                      border border-green-300"
-        >
-          ₹{inc.amount}
-          <TrendingUp size={16} className="text-green-700" />
-        </div>
-      </li>
-    ))}
+                  >
+                    ₹{inc.amount}
+                    <TrendingUp size={16} className="text-green-700" />
+                  </div>
+                </li>
+              ))}
 
-  </ul>
+            </ul>
 
-</div>
+          </div>
 
 
-  {/* EXPENSE BOX */}
-  <div className="bg-white rounded-xl shadow-lg border flex flex-col overflow-hidden p-4 border-red-300">
+          {/* EXPENSE BOX */}
+          <div className="bg-white rounded-xl shadow-lg border flex flex-col overflow-hidden p-4 border-red-300">
 
-  {/* 🔴 Add Expense Button at the Top */}
-  <div className="flex justify-end mb-4">
-    <button
-      onClick={() => navigate("/expense")}
-      className="flex items-center gap-2 px-6 py-2.5 bg-red-100 text-red-700
+            {/*  Add Expense Button at the Top */}
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={() => navigate("/expense")}
+                className="cursor-pointer flex items-center gap-2 px-6 py-2.5 bg-red-100 text-red-700
                  border border-red-300 rounded-lg shadow-sm hover:bg-red-200
                  transition-all duration-200 active:scale-95"
-    >
-      <TrendingDown size={18} className="text-red-700" />
-      <span className="font-semibold">Add Expense</span>
-    </button>
-  </div>
+              >
+                <TrendingDown size={18} className="text-red-700" />
+                <span className="font-semibold">Add Expense</span>
+              </button>
+            </div>
 
-  {/* 🔻 Expense List */}
-  <ul className="space-y-3 pr-2">
+            {/* 🔻 Expense List */}
+            <ul className="space-y-3 pr-2">
 
-    {recentExpense.length === 0 && (
-      <li className="text-gray-500">No expenses yet.</li>
-    )}
+              {recentExpense.length === 0 && (
+                <li className="text-gray-500">No expenses yet.</li>
+              )}
 
-    {recentExpense.map((exp) => (
-      <li
-        key={exp.id}
-        className="flex items-center justify-between p-4 rounded-xl
+              {recentExpense.map((exp) => (
+                <li
+                  key={exp.id}
+                  className="flex items-center justify-between p-4 rounded-xl
                    bg-white border border-gray-200 shadow-sm hover:shadow-md
                    transition-all"
-      >
+                >
 
-        {/* LEFT SIDE */}
-        <div className="flex items-center gap-4">
+                  {/* LEFT SIDE */}
+                  <div className="flex items-center gap-4">
 
-          {/* Category Emoji */}
-          <div className="w-12 h-12 flex items-center justify-center 
+                    {/* Category Emoji */}
+                    <div className="w-12 h-12 flex items-center justify-center 
                           bg-gray-100 rounded-full text-2xl shadow-sm">
-            <span>{exp.icon || "💸"}</span>
-          </div>
+                      <span>{exp.icon || "💸"}</span>
+                    </div>
 
-          {/* Name + Date */}
-          <div className="flex flex-col">
-            <p className="text-gray-900 font-semibold text-sm">
-              {exp.categoryName}
-            </p>
-            <p className="text-gray-500 text-xs">
-              {new Date(exp.date).toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              })}
-            </p>
-          </div>
-        </div>
+                    {/* Name + Date */}
+                    <div className="flex flex-col">
+                      <p className="text-gray-900 font-semibold text-sm">
+                        {exp.categoryName}
+                      </p>
+                      <p className="text-gray-500 text-xs">
+                        {new Date(exp.date).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </div>
 
-        {/* RIGHT SIDE — Amount Badge */}
-        <div
-          className="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm
+                  {/* RIGHT SIDE — Amount Badge */}
+                  <div
+                    className="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm
                      flex items-center gap-2 bg-red-100 text-red-700 
                      border border-red-300"
-        >
-          ₹{exp.amount}
-          <TrendingDown size={16} className="text-red-700" />
+                  >
+                    ₹{exp.amount}
+                    <TrendingDown size={16} className="text-red-700" />
+                  </div>
+
+                </li>
+              ))}
+
+            </ul>
+
+          </div>
+
+
+
         </div>
-
-      </li>
-    ))}
-
-  </ul>
-
-</div>
-
-
-
-</div>
 
 
         {/* MODALS */}

@@ -77,7 +77,7 @@ const TransactionInfoCard = ({
                 {/* Delete Button */}
                 <button
                     onClick={() => onDelete()}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity 
+                    className="cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity 
                         text-gray-500 hover:text-red-600 ml-auto mr-2"
                 >
                     <Trash size={18} />
