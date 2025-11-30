@@ -13,8 +13,8 @@ const LineChartComponent = ({ data, type = "income", onAdd }) => {
 
   const btnClass =
     type === "income"
-      ? "px-4 py-2 rounded-lg flex items-center gap-1 bg-green-500/30 border border-green-300 text-green-800 font-medium shadow-md hover:bg-green-500/40"
-      : "px-4 py-2 rounded-lg flex items-center gap-1 bg-red-500/30 border border-red-200 text-red-800 font-medium shadow-md hover:bg-red-500/40";
+      ? "cursor-pointer px-4 py-2 rounded-lg flex items-center gap-1 bg-green-500/30 border border-green-300 text-green-800 font-medium shadow-md hover:bg-green-500/40"
+      : "cursor-pointer px-4 py-2 rounded-lg flex items-center gap-1 bg-red-500/30 border border-red-200 text-red-800 font-medium shadow-md hover:bg-red-500/40";
   const btnLabel = type === "income" ? "+ Add Income" : "+ Add Expense";
   const emptyMsg = type === "income"
     ? "No income chart data available. Add your first income."

@@ -47,7 +47,7 @@ const CategoryList = ({ categories, onEditCategory, onDeleteCategory }) => {
                 {/* Edit */}
                 <button
                   onClick={() => onEditCategory?.(category)}
-                  className="text-gray-500 hover:text-blue-600"
+                  className="cursor-pointer text-gray-500 hover:text-blue-600"
                 >
                   <Pencil size={18} />
                 </button>
@@ -55,7 +55,7 @@ const CategoryList = ({ categories, onEditCategory, onDeleteCategory }) => {
                 {/* Delete */}
                 <button
                   onClick={() => onDeleteCategory?.(category)}
-                  className="text-gray-500 hover:text-red-600"
+                  className="cursor-pointer text-gray-500 hover:text-red-600"
                 >
                   <Trash size={18} />
                 </button>

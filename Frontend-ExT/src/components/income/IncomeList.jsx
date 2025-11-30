@@ -36,7 +36,7 @@ const IncomeList = ({
           {/* Email Button */}
           <button
             onClick={onEmail}
-            className="px-3 py-1.5 rounded-lg flex items-center gap-1
+            className="cursor-pointer px-3 py-1.5 rounded-lg flex items-center gap-1
                bg-green-500/20 border border-green-400
                text-green-800 font-medium shadow-sm
                hover:bg-green-500/30 transition-all"
@@ -49,7 +49,7 @@ const IncomeList = ({
           <div className="relative" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setShowDownloadMenu((prev) => !prev)}
-              className="px-3 py-1.5 rounded-lg flex items-center gap-1
+              className="cursor-pointer px-3 py-1.5 rounded-lg flex items-center gap-1
                  bg-blue-500/20 border border-blue-400
                  text-blue-800 font-medium shadow-sm
                  hover:bg-blue-500/30 transition-all"
@@ -69,7 +69,7 @@ const IncomeList = ({
                     setShowDownloadMenu(false);
                     onDownloadExcel();
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 border-b"
+                  className="cursor-pointer w-full text-left px-4 py-2 hover:bg-gray-100 border-b"
                 >
                   Excel (.xlsx)
                 </button>
@@ -79,7 +79,7 @@ const IncomeList = ({
                     setShowDownloadMenu(false);
                     onDownloadCSV();
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 border-b"
+                  className="cursor-pointer w-full text-left px-4 py-2 hover:bg-gray-100 border-b"
                 >
                   CSV (.csv)
                 </button>
@@ -89,7 +89,7 @@ const IncomeList = ({
                     setShowDownloadMenu(false);
                     onDownloadPDF();
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                  className="cursor-pointer w-full text-left px-4 py-2 hover:bg-gray-100"
                 >
                   PDF (.pdf)
                 </button>

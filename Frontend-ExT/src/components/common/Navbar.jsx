@@ -151,6 +151,10 @@ const Navbar = ({ activeMenu }) => {
   }
 };
 
+const handlelogoclick = () => {
+  navigate('/dashboard');
+}
+
 
 
 
@@ -167,17 +171,17 @@ const Navbar = ({ activeMenu }) => {
 
 
         {/* LEFT SIDE — MENU + LOGO */}
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-5 ">
           <button
             onClick={() => setOpenSidebar(!openSidebar)}
-            className="block lg:hidden text-black hover:bg-gray-100 p-1 rounded transition"
+            className="block cursor-pointer lg:hidden text-black hover:bg-gray-100 p-1 rounded transition"
           >
             {openSidebar ? <X /> : <Menu />}
           </button>
 
           <div className="flex items-center gap-2">
-            <img src={logo} alt="Logo" className="h-10 w-10" />
-            <span className="text-lg font-medium text-black truncate">
+            <img src={logo} alt="Logo" onClick={handlelogoclick} className="h-10 w-10 cursor-pointer" />
+            <span className="text-lg font-medium text-black truncate ">
               Expense Tracker
             </span>
           </div>
@@ -195,9 +199,9 @@ const Navbar = ({ activeMenu }) => {
 
           {/*  CALENDAR ICON */}
           <button
-            onClick={() => setShowCal(true)}
-            className="w-10 h-10 flex items-center justify-center 
-                      bg-gray-100 hover:bg-gray-200 rounded-full transition"
+            onClick={() => navigate("/calendar")}
+            className="w-10 cursor-pointer h-10 flex items-center justify-center 
+                       bg-gray-100 hover:bg-gray-200 rounded-full transition"
           >
             <CalendarDays className="w-5 h-5 text-purple-500" />
           </button>
@@ -209,7 +213,7 @@ const Navbar = ({ activeMenu }) => {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 
+              className="cursor-pointer flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 
                          rounded-full transition focus:outline-none focus:ring-2 focus:ring-purple-400"
             >
               <User className="text-purple-500" />
@@ -239,7 +243,7 @@ const Navbar = ({ activeMenu }) => {
                 {/* Help */}
                 <button
                   onClick={() => setShowSupport(true)}
-                  className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="cursor-pointer flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   <HelpCircle className="w-4 h-4 text-purple-500" />
                   Help / Contact Us
@@ -248,7 +252,7 @@ const Navbar = ({ activeMenu }) => {
                 {/* Logout */}
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="cursor-pointer flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   <LogOut className="w-4 h-4 text-purple-500" />
                   Logout
