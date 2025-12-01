@@ -125,14 +125,14 @@ const OverviewSection = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* LEFT: PIE CHART */}
-        <div className="bg-white p-2 rounded-xl shadow-lg border border-purple-300 flex flex-col justify-center">
+        <div className="bg-white p-2 rounded-xl shadow-lg border border-purple-300 flex flex-col">
 
-          <h3 className="mb-26 pl-4 text-lg font-semibold mb-4">Pie Chart Spread</h3>
+          <h3 className="relative mb-20 mt-4 pl-4 text-lg font-semibold mb-4">Pie Chart Spread</h3>
 
           {pieData.length === 0 ? (
             <p className="text-gray-500">No financial data available.</p>
           ) : (
-            <div className="w-full h-94 bg-white flex items-center justify-center">
+            <div className="w-full h-94  bg-white flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
