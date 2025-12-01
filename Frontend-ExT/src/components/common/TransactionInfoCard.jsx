@@ -1,14 +1,16 @@
 import { UtensilsCrossed, TrendingUp, TrendingDown, Trash } from "lucide-react";
 import React from "react";
 
-const TransactionInfoCard = ({ 
-    icon, 
-    title, 
-    date, 
-    amount, 
-    type, 
-    onDelete, 
-    categoryName 
+const TransactionInfoCard = ({
+    icon,
+    title,
+    date,
+    amount,
+    type,
+    onDelete,
+    categoryName,
+    page
+
 }) => {
 
     const amountStyle =
@@ -26,6 +28,10 @@ const TransactionInfoCard = ({
         );
 
     const formattedAmount = amount.toLocaleString("en-IN");
+
+    const deleteStyle = page === 'home' ? "opacity-0  transition-opacity text-gray-500 hover:text-yellow-600 ml-auto mr-2" :
+        "opacity-0 group-hover:opacity-100 transition-opacity text-gray-500 hover:text-red-600 ml-auto mr-2"
+
 
     return (
         <div className="relative group">
@@ -45,13 +51,13 @@ const TransactionInfoCard = ({
             )}
 
             {/* Category name shown on mobile only */}
-{categoryName && (
-  <p className="text-purple-700 text-xs mt-1 block md:hidden">
-    {categoryName}
-  </p>
-)}
+            {categoryName && page!=='home' && (
+                <p className="text-purple-700 text-xs mt-1 block md:hidden">
+                    {categoryName}
+                </p>
+            )}
 
-            
+
 
             <div
                 className="relative flex items-center gap-4 p-4 rounded-lg
@@ -70,15 +76,14 @@ const TransactionInfoCard = ({
 
                 {/* Details */}
                 <div className="flex flex-col">
-                    <p className="text-gray-800 font-semibold text-sm ">{title}</p>
+                    <p className="text-gray-800 font-semibold text-sm ">{ (page==='home') ? categoryName : title}</p>
                     <p className="text-gray-500 mt-0.5 text-xs">{date}</p>
                 </div>
 
                 {/* Delete Button */}
                 <button
                     onClick={() => onDelete()}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity 
-                        text-gray-500 hover:text-red-600 ml-auto mr-2"
+                    className={deleteStyle}
                 >
                     <Trash size={18} />
                 </button>

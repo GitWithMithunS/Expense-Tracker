@@ -178,14 +178,14 @@ const Expense = () => {
         {/* LINE CHART */}
         <LineChartComponent
           data={expenseData} // reuse chart with expenseData
-          onAdd ={() => setOpenAddExpenseModal(true)}
+          onAdd={() => setOpenAddExpenseModal(true)}
           type="expense"
         />
 
         {/* BAR + PIE */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 auto-rows-[1fr]">
           <BarChartComponent data={expenseData} type="expense" />
-          <PieChartComponent data={expenseData} categories={categories} type="expense" />
+          {/* <PieChartComponent data={expenseData} categories={categories} type="expense" /> */}
         </div>
 
         {/* EXPENSE LIST */}
