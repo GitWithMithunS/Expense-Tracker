@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { X, ChevronLeft, ChevronRight, ChevronsLeft } from "lucide-react";
 
 /**
@@ -141,6 +141,8 @@ export default function CalendarPopup({ open = false, onClose = () => {} }) {
   // day modal
   const [selectedDate, setSelectedDate] = useState(null);
 
+
+
   // mock data (replace with API later)
   const baseTransactions = useMemo(() => MOCK_TRANSACTIONS, []);
   const subscriptions = useMemo(() => MOCK_SUBSCRIPTIONS, []);
@@ -240,20 +242,34 @@ export default function CalendarPopup({ open = false, onClose = () => {} }) {
   function openDay(dateStr) { setSelectedDate(dateStr); }
   function closeDay() { setSelectedDate(null); }
 
+    // use ref
+  const cal_ref = useRef(null);
+
+
+  const handleBackdropClick = (e) => {
+    if (modalRef.current && !modalRef.current.contains(e.target)) {
+      console.log("Backdrop clicked → closing modal");
+      onClose?.();
+    }
+  };
+
   /* ---------- UI ---------- */
   if(!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+    <div className="fixed inset-0 z-[90] flex items-center justify-center"
+      onMouseDown={handleBackdropClick}
+    >
       {/* backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
+      <div className=" absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
 
       {/* modal card */}
-      <div className="relative w-full max-w-5xl mx-4 rounded-xl shadow-xl bg-white border border-gray-200 overflow-hidden"
-           style={{ minHeight: 420 }}>
+      <div className=" relative w-full max-w-5xl mx-4 rounded-xl shadow-xl bg-white border border-gray-200 overflow-hidden"
+           ref={cal_ref}
+           style={{ minHeight: 420 }}  >
         {/* Close */}
         <button
-          className="absolute top-4 right-4 z-20 text-gray-600 hover:text-black p-1"
+          className=" absolute top-1 right-1 z-20 text-gray-600 hover:text-black p-1"
           onClick={onClose}
         >
           <X size={20} />

@@ -46,6 +46,7 @@ const Income = () => {
   const fetchIncomeCategories = async () => {
     try {
       const response = await axiosConfig.get(API_ENDPOINTS.CATEGORY_BY_TYPE("income"));
+      console.log("from fetch all category" , response.data)
       setCategories(response.data);
     } catch (err) {
       showErrorToast("Failed to load categories");

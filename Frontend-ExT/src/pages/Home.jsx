@@ -1,17 +1,16 @@
-// import Dashboard from "../../../Dashboard";
 import BudgetStatus from "../components/home/BudgetStatus";
 import BudgetManager from "../components/home/BudgetManager";
 import Calendar from "../components/common/Calendar";
 import { useContext, useEffect, useState } from "react";
-// import AddIncomeModal from "../components/AddIncome";
-// import AddExpenseModal from "../components/AddExpense";
 import OverviewSection from "../components/home/OverviewSection";
 import { TransactionContext } from "../context/TransactionContext";
-import { CreditCard, TrendingDown, TrendingUp, Wallet } from "lucide-react";
+import { CreditCard, DollarSign, TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import axiosConfig from "../util/axiosConfig";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
 import { useNavigate } from "react-router-dom";
 import Dashboard from "../components/common/Dashboard";
+import TransactionInfoCard from "@/components/common/TransactionInfoCard";
+import moment from "moment";
 
 
 const Home = () => {
@@ -39,28 +38,12 @@ const Home = () => {
   const balance = totalIncome - totalExpense;
 
   const today = new Date().getDate();
-  const totalDaysInMonth = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth() + 1,
-    0
-  ).getDate();
-  const daysRemaining = totalDaysInMonth - today;
-  const dailySpendLimit =
-    daysRemaining > 0 ? Math.max(0, balance / daysRemaining) : 0;
+  const totalDaysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+
+  const daysRemaining = Math.max(1, totalDaysInMonth - today); 
+  const dailySpendLimit = balance > 0 ? balance / daysRemaining : 0;
 
   console.log(state.categories);   //just a checker 
-
-  // newest-first helper  
-  const sortNewestFirst = (arr) => {
-    return [...arr]
-      .sort((a, b) => {
-        if (a.date && b.date) return new Date(b.date) - new Date(a.date);
-        return (b.id || 0) - (a.id || 0);
-      })
-      .slice(0, 5);
-  };
-
-
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -150,19 +133,7 @@ const Home = () => {
           {/* INCOME BOX */}
           <div className="bg-white rounded-xl shadow-lg border flex flex-col overflow-hidden p-4 border-green-300">
 
-            {/* 🔵 Add Income Button at the Top */}
-            {/* <div className="flex justify-end mb-4">
-    <button
-          onClick={() => navigate("/income")}
-          className="flex items-center gap-2 px-6 py-2.5 bg-green-100 text-green-700 
-                     border border-green-300 rounded-lg shadow-sm hover:bg-green-200 
-                     transition-all duration-200 active:scale-95"
-        >
-          <TrendingUp size={18} className="text-green-700" />
-          <span className="font-semibold">Add Income</span>
-        </button>
-  </div> */}
-
+            {/* Add Income Button at the Top */}
             <div className="flex items-center justify-between mb-4">
 
               {/* Left Side Title */}
@@ -173,7 +144,7 @@ const Home = () => {
               {/* Right Side Button */}
               <button
                 onClick={() => navigate("/income")}
-                className="cursor-pointer flex items-center gap-2 px-6 py-2.5 bg-green-100 text-green-700 
+                className="flex items-center gap-2 px-6 py-2.5 bg-green-100 text-green-700 
                border border-green-300 rounded-lg shadow-sm hover:bg-green-200 
                transition-all duration-200 active:scale-95"
               >
@@ -184,54 +155,26 @@ const Home = () => {
             </div>
 
 
-            {/*  Income List */}
+            {/* 💰 Income List */}
             <ul className="space-y-3 pr-2">
 
               {recentIncome.length === 0 && (
                 <li className="text-gray-500">No income yet.</li>
               )}
 
-              {recentIncome.map((inc) => (
-                <li
-                  key={inc.id}
-                  className="flex items-center justify-between p-4 rounded-xl
-                   bg-white border border-gray-200 shadow-sm hover:shadow-md
-                   transition-all"
-                >
-                  {/* LEFT SIDE */}
-                  <div className="flex items-center gap-4">
+              {recentIncome.map((expense) => (
+                <TransactionInfoCard
+                  key={expense.id}
+                  title={expense.name}
+                  icon={expense.icon}
+                  date={moment(expense.date).format("Do MMM YYYY")}
+                  amount={expense.amount}
+                  page='home'
+                  type='income'
+                  categoryName={expense.categoryName}
 
-                    {/* Category Emoji */}
-                    <div className="w-12 h-12 flex items-center justify-center 
-                          bg-gray-100 rounded-full text-2xl shadow-sm">
-                      <span>{inc.icon || "💰"}</span>
-                    </div>
-
-                    {/* Name + Date */}
-                    <div className="flex flex-col">
-                      <p className="text-gray-900 font-semibold text-sm">
-                        {inc.categoryName}
-                      </p>
-                      <p className="text-gray-500 text-xs">
-                        {new Date(inc.date).toLocaleDateString("en-GB", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* RIGHT SIDE — Amount Badge */}
-                  <div
-                    className="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm
-                     flex items-center gap-2 bg-green-100 text-green-700 
-                     border border-green-300"
-                  >
-                    ₹{inc.amount}
-                    <TrendingUp size={16} className="text-green-700" />
-                  </div>
-                </li>
+                  onDelete={() => onDelete(expense)}
+                />
               ))}
 
             </ul>
@@ -251,7 +194,7 @@ const Home = () => {
               </span>
               <button
                 onClick={() => navigate("/expense")}
-                className="cursor-pointer flex items-center gap-2 px-6 py-2.5 bg-red-100 text-red-700
+                className="flex items-center gap-2 px-6 py-2.5 bg-red-100 text-red-700
                  border border-red-300 rounded-lg shadow-sm hover:bg-red-200
                  transition-all duration-200 active:scale-95"
               >
@@ -260,56 +203,27 @@ const Home = () => {
               </button>
             </div>
 
-            {/* 🔻 Expense List */}
+            {/*  Expense List */}
             <ul className="space-y-3 pr-2">
 
               {recentExpense.length === 0 && (
                 <li className="text-gray-500">No expenses yet.</li>
               )}
 
-              {recentExpense.map((exp) => (
-                <li
-                  key={exp.id}
-                  className="flex items-center justify-between p-4 rounded-xl
-                   bg-white border border-gray-200 shadow-sm hover:shadow-md
-                   transition-all"
-                >
+              {/* transaction listing */}
 
-                  {/* LEFT SIDE */}
-                  <div className="flex items-center gap-4">
-
-                    {/* Category Emoji */}
-                    <div className="w-12 h-12 flex items-center justify-center 
-                          bg-gray-100 rounded-full text-2xl shadow-sm">
-                      <span>{exp.icon || "💸"}</span>
-                    </div>
-
-                    {/* Name + Date */}
-                    <div className="flex flex-col">
-                      <p className="text-gray-900 font-semibold text-sm">
-                        {exp.categoryName}
-                      </p>
-                      <p className="text-gray-500 text-xs">
-                        {new Date(exp.date).toLocaleDateString("en-GB", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* RIGHT SIDE — Amount Badge */}
-                  <div
-                    className="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm
-                     flex items-center gap-2 bg-red-100 text-red-700 
-                     border border-red-300"
-                  >
-                    ₹{exp.amount}
-                    <TrendingDown size={16} className="text-red-700" />
-                  </div>
-
-                </li>
+              {recentExpense.map((expense) => (
+                <TransactionInfoCard
+                  key={expense.id}
+                  title={expense.name}
+                  icon={expense.icon}
+                  date={moment(expense.date).format("Do MMM YYYY")}
+                  amount={expense.amount}
+                  categoryName={expense.categoryName}
+                  page='home'
+                  type="expense"
+                  onDelete={() => onDelete(expense)}
+                />
               ))}
 
             </ul>

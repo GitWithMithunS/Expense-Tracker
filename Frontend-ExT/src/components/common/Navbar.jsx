@@ -45,7 +45,7 @@ const Navbar = ({ activeMenu }) => {
   const { user } = useContext(AppContext);
   const { state } = useContext(TransactionContext);
   const navigate = useNavigate();
-  const [showCal, setShowCal] = useState(false);
+  const [showCal, setShowCal] = useState(false);   //calender state
 
   // Logout
   const handleLogout = () => {
@@ -120,40 +120,40 @@ const Navbar = ({ activeMenu }) => {
 
   //emailjs
   const handleSupportFormSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const name = e.target.name.value.trim();
-  const email = e.target.email.value.trim();
-  const phone = e.target.phone.value.trim();
-  const message = e.target.message.value.trim();
-  const issueType = e.target.issueType.value; // from dropdown
+    const name = e.target.name.value.trim();
+    const email = e.target.email.value.trim();
+    const phone = e.target.phone.value.trim();
+    const message = e.target.message.value.trim();
+    const issueType = e.target.issueType.value; // from dropdown
 
-  if (!name || !email || !message) {
-    showWarningToast("All fields are required.");
-    return;
+    if (!name || !email || !message) {
+      showWarningToast("All fields are required.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await sendSupportEmail({ name, email, phone, message, issueType, priority, });
+
+      showSuccessToast("Support message sent!");
+      setShowSupport(false);
+      console.log('Mail Sent => ', { name, email, phone, message, issueType });
+
+    } catch (err) {
+      console.error(err);
+      showErrorToast("Failed to send message. Try again.");
+    } finally {
+      setLoading(false);
+      setShowDropdown(false);
+    }
+  };
+
+  const handlelogoclick = () => {
+    navigate('/dashboard');
   }
-
-  setLoading(true);
-
-  try {
-    await sendSupportEmail({  name,  email,  phone,  message,  issueType,  priority,});
-
-    showSuccessToast("Support message sent!");
-    setShowSupport(false);
-    console.log('Mail Sent => ' ,{name , email,phone,message,issueType});
-
-  } catch (err) {
-    console.error(err);
-    showErrorToast("Failed to send message. Try again.");
-  } finally {
-    setLoading(false);
-    setShowDropdown(false);
-  }
-};
-
-const handlelogoclick = () => {
-  navigate('/dashboard');
-}
 
 
 
@@ -199,7 +199,7 @@ const handlelogoclick = () => {
 
           {/*  CALENDAR ICON */}
           <button
-            onClick={() => navigate("/calendar")}
+            onClick={() => setShowCal(true)}
             className="w-10 cursor-pointer h-10 flex items-center justify-center 
                        bg-gray-100 hover:bg-gray-200 rounded-full transition"
           >
@@ -272,10 +272,10 @@ const handlelogoclick = () => {
           </div>
         )}
 
-        {showCal && (
-  <CalendarPopup open={showCal} onClose={() => setShowCal(false)} />
-)}
 
+
+
+      
 
 
 
@@ -302,6 +302,13 @@ const handlelogoclick = () => {
         </Model>
 
       )}
+
+
+        {/* calender */}
+        {showCal && (
+          <CalendarPopup open={showCal} onClose={() => setShowCal(false)} />
+        )}
+
     </>
   );
 };
