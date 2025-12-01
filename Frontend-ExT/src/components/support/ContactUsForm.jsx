@@ -70,7 +70,7 @@ const ContactUsForm = ({
                 key={p}
                 type="button"
                 onClick={() => setPriority(p)}
-                className={`px-3 py-1 rounded-lg border text-sm transition ${
+                className={`cursor-pointer px-3 py-1 rounded-lg border text-sm transition ${
                   priority === p
                     ? "bg-purple-600 text-white border-purple-600"
                     : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
@@ -100,7 +100,7 @@ const ContactUsForm = ({
         <button
           type="button"
           onClick={() => setShowSupport(false)}
-          className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100"
+          className="cursor-pointer px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100"
         >
           Cancel
         </button>
@@ -108,7 +108,7 @@ const ContactUsForm = ({
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+          className="cursor-pointer px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
         >
           {loading ? "Sending..." : "Submit"}
         </button>

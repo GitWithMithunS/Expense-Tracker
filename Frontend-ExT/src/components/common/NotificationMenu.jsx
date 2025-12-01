@@ -59,7 +59,7 @@ const NotificationMenu = () => {
       {/* Notification Button */}
       <button
         onClick={() => setShowNotif(!showNotif)}
-        className="relative w-10 h-10 flex items-center justify-center 
+        className="relative cursor-pointer w-10 h-10 flex items-center justify-center 
                    bg-gray-100 hover:bg-gray-200 rounded-full transition"
       >
         <Bell className="w-5 h-5 text-purple-500" />
