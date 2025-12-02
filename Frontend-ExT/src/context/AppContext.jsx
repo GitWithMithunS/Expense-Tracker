@@ -4,7 +4,7 @@ import profile from "../assets/profile.png"
 const AppContext = createContext();
 export const AppContextProvider = ({ children }) => {
     
-    //our dummy value( to be remove) 
+    // //our dummy value( to be remove) 
     const defaultUser = {
         id : 1,
         name : 'mickey mouse',

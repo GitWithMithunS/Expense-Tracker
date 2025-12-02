@@ -13,19 +13,23 @@ import { TrendingDown, TrendingUp } from "lucide-react";
 
 const OverviewSection = () => {
   const [transactions, setTransactions] = useState([]);
+  const {state} = useContext(TransactionContext);
+  // useEffect(() => {
+  //   const fetchTx = async () => {
+  //     try {
+  //       const res = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+  //       setTransactions(res.data || []);
+  //     } catch (err) {
+  //       console.error("Error fetching transactions:", err);
+  //     }
+  //   };
+
+  //   fetchTx();
+  // }, []);
 
   useEffect(() => {
-    const fetchTx = async () => {
-      try {
-        const res = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
-        setTransactions(res.data || []);
-      } catch (err) {
-        console.error("Error fetching transactions:", err);
-      }
-    };
-
-    fetchTx();
-  }, []);
+    setTransactions(state.transactions);
+  }, [state])
 
   // TOTALS
   const totalIncome = transactions

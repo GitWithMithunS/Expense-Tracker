@@ -1,20 +1,82 @@
 import axios from "axios";
 import { API_ENDPOINTS } from "./apiEnpoints";
- 
- 
-// Toggle mock mode (keep true during frontend dev)
-export const MOCK_MODE = true;   //to be switched off while integrating backend
- 
+
+
 // Base Axios instance
 const axiosConfig = axios.create({
-  baseURL: "",
+  baseURL: "http://localhost:8080",
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
- 
- 
+
+
+const excludeEndpoints = ['/auth/login', '/auth/register', '/health', '/status']
+
+
+//actual config to be written yet
+//request interceptor to add auth token to headers
+axiosConfig.interceptors.request.use(
+  (config) => {
+    const shouldskipToken = excludeEndpoints.some((endpoints) => {
+      config.url?.includes(endpoints)
+    });
+
+    if (!shouldskipToken) {
+      const accessToken = localStorage.getItem("token");
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`
+      }
+    }
+
+    const token = localStorage.getItem('token');
+    if (token && !excludeEndpoints.includes(config.url)) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    console.log('some error occured in the axios response',)
+    return Promise.reject((error));
+  });
+
+
+//axios interceptor
+axiosConfig.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response) {
+      if (error.response.status === 401) {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      } else if (error.response.status === 500) {
+        console.error("Server error. Please try again later");
+      }
+    }
+
+    if (error.code === 'ECONNABORTED') {
+      console.error("Request timeout. Please try again.");
+      console.log('some error occured in the axios request', error)
+    }
+
+    return Promise.reject(error);
+  })
+
+
+// export default axiosConfig;
+
+
+
+// Toggle mock mode (keep true during frontend dev)
+export const MOCK_MODE = false;   //to be switched off while integrating backend
+
+
+
+
 //  MOCK DATA FOR SPECIFIC ENDPOINTS
 const mockDatabase = {
   GET_ALL_CATEGORIES: [
@@ -24,7 +86,7 @@ const mockDatabase = {
     { id: 4, userId: "user123", icon: "🛍️", name: "Shopping", type: "expense" },
     { id: 5, userId: "user123", icon: "📈", name: "Investments", type: "income" },
   ],
-  
+
   GET_ALL_TRANSACTIONS: [
     { id: 101, userId: "user123", amount: 250, categoryId: 1, categoryName: "Food & Dining", type: "expense", icon: "🍔", paymentMethod: "UPI", date: "2025-01-12", notes: "Lunch with friends" },
     { id: 102, userId: "user123", amount: 1200, categoryId: 4, categoryName: "Shopping", type: "expense", icon: "🛍️", paymentMethod: "card", date: "2025-02-03", notes: "Bought new headphones" },
@@ -67,110 +129,110 @@ const mockDatabase = {
   ],
 
   GET_BUDGET_DATA: {
-  userId: "user123",
+    userId: "user123",
 
-  // ------------------------
-  // 1️⃣ Monthly Budget (Main)
-  // ------------------------
-  month: "Dec",
-  totalBudget: 25000,
-  totalSpent: 14550,    // optional, auto or backend-calculated
-  remainingBudget: 10450,
+    // ------------------------
+    // 1️⃣ Monthly Budget (Main)
+    // ------------------------
+    month: "Dec",
+    totalBudget: 25000,
+    totalSpent: 14550,    // optional, auto or backend-calculated
+    remainingBudget: 10450,
 
-  // ------------------------
-  // 2️⃣ Category-wise Budgets
-  // ------------------------
-  categories: [
-    {
-      categoryId: 1,
-      name: "Food & Dining",
-      icon: "🍔",
-      limit: 5000,
-      spent: 3200
-    },
-    {
-      categoryId: 2,
-      name: "Transport",
-      icon: "🚌",
-      limit: 2000,
-      spent: 1350
-    },
-    {
-      categoryId: 4,
-      name: "Shopping",
-      icon: "🛍️",
-      limit: 7000,
-      spent: 3000
-    },
-    {
-      categoryId: 5,
-      name: "Investments",
-      icon: "📈",
-      limit: 10000,
-      spent: 7500
-    }
-  ],
+    // ------------------------
+    // 2️⃣ Category-wise Budgets
+    // ------------------------
+    categories: [
+      {
+        categoryId: 1,
+        name: "Food & Dining",
+        icon: "🍔",
+        limit: 5000,
+        spent: 3200
+      },
+      {
+        categoryId: 2,
+        name: "Transport",
+        icon: "🚌",
+        limit: 2000,
+        spent: 1350
+      },
+      {
+        categoryId: 4,
+        name: "Shopping",
+        icon: "🛍️",
+        limit: 7000,
+        spent: 3000
+      },
+      {
+        categoryId: 5,
+        name: "Investments",
+        icon: "📈",
+        limit: 10000,
+        spent: 7500
+      }
+    ],
 
-  // ------------------------
-  // 3️⃣ Savings Goals
-  // ------------------------
-  goals: [
-    {
-      id: 1,
-      goalName: "Buy New Laptop",
-      target: 80000,
-      saved: 20000,
-      deadline: "2025-06-10",
-      priority: "high"
-    },
-    {
-      id: 2,
-      goalName: "Goa Trip",
-      target: 25000,
-      saved: 7000,
-      deadline: "2025-04-20",
-      priority: "medium"
-    },
-    {
-      id: 3,
-      goalName: "Emergency Fund",
-      target: 100000,
-      saved: 45000,
-      deadline: null,
-      priority: "low"
-    }
-  ],
+    // ------------------------
+    // 3️⃣ Savings Goals
+    // ------------------------
+    goals: [
+      {
+        id: 1,
+        goalName: "Buy New Laptop",
+        target: 80000,
+        saved: 20000,
+        deadline: "2025-06-10",
+        priority: "high"
+      },
+      {
+        id: 2,
+        goalName: "Goa Trip",
+        target: 25000,
+        saved: 7000,
+        deadline: "2025-04-20",
+        priority: "medium"
+      },
+      {
+        id: 3,
+        goalName: "Emergency Fund",
+        target: 100000,
+        saved: 45000,
+        deadline: null,
+        priority: "low"
+      }
+    ],
 
-  // ------------------------
-  // 4️⃣ Upcoming Bill Reminders
-  // ------------------------
-  bills: [
-    {
-      id: 1,
-      billName: "Electricity Bill",
-      amount: 1200,
-      dueDate: "2025-02-18",
-      categoryId: 2,
-      isPaid: false
-    },
-    {
-      id: 2,
-      billName: "WiFi Recharge",
-      amount: 899,
-      dueDate: "2025-02-12",
-      categoryId: 1,
-      isPaid: true
-    },
-    {
-      id: 3,
-      billName: "Credit Card Bill",
-      amount: 4500,
-      dueDate: "2025-02-25",
-      categoryId: 4,
-      isPaid: false
-    }
-  ]
-},
+    // ------------------------
+    // 4️⃣ Upcoming Bill Reminders
+    // ------------------------
+    bills: [
+      {
+        id: 1,
+        billName: "Electricity Bill",
+        amount: 1200,
+        dueDate: "2025-02-18",
+        categoryId: 2,
+        isPaid: false
+      },
+      {
+        id: 2,
+        billName: "WiFi Recharge",
+        amount: 899,
+        dueDate: "2025-02-12",
+        categoryId: 1,
+        isPaid: true
+      },
+      {
+        id: 3,
+        billName: "Credit Card Bill",
+        amount: 4500,
+        dueDate: "2025-02-25",
+        categoryId: 4,
+        isPaid: false
+      }
+    ]
+  },
 
   REGISTER: { success: true },
 };
@@ -178,28 +240,28 @@ const mockDatabase = {
 
 // Helper to deep clone always
 const clone = (data) => JSON.parse(JSON.stringify(data));
- 
+
 // -------------------------------------------------
 // MOCK INTERCEPTOR
 // -------------------------------------------------
 if (MOCK_MODE) {
   axiosConfig.interceptors.request.use((config) => {
- 
+
     config.adapter = () => {
       return new Promise((resolve) => {
         setTimeout(() => {
- 
+
           // -----------------------------------------------------------------
           //  CATEGORY_BY_TYPE → GET /category/income or /category/expense
           // -----------------------------------------------------------------
           if (config.url.includes("category/") && isNaN(config.url.split("category/")[1])) {
- 
+
             const type = config.url.split("category/")[1];
- 
+
             const filtered = mockDatabase.GET_ALL_CATEGORIES.filter(
               (cat) => cat.type === type
             );
- 
+
             return resolve({
               data: clone(filtered),
               status: 200,
@@ -212,46 +274,46 @@ if (MOCK_MODE) {
           //  UPDATE_CATEGORY → PUT /category/:id
           // -----------------------------------------------------------------
           if (/category\/\d+$/.test(config.url) && config.method === "put") {
- 
+
             const categoryId = Number(config.url.split("category/")[1]);
             const updatedData = JSON.parse(config.data);
- 
+
             const idx = mockDatabase.GET_ALL_CATEGORIES.findIndex(cat => cat.id === categoryId);
- 
+
             if (idx !== -1) {
               mockDatabase.GET_ALL_CATEGORIES[idx] = {
                 ...mockDatabase.GET_ALL_CATEGORIES[idx],
                 ...updatedData,
               };
             }
- 
+
             return resolve({
               data: clone({ success: true, updated: mockDatabase.GET_ALL_CATEGORIES[idx] }),
               status: 200,
               config,
             });
           }
- 
+
           // -----------------------------------------------------------------
           // 3️ADD_CATEGORY → POST /addcategory
           // -----------------------------------------------------------------
           if (config.url.includes("addcategory") && config.method === "post") {
- 
+
             const newCatData = JSON.parse(config.data);
- 
+
             const newId =
               mockDatabase.GET_ALL_CATEGORIES.length > 0
                 ? Math.max(...mockDatabase.GET_ALL_CATEGORIES.map(c => c.id)) + 1
                 : 1;
- 
+
             const newCategory = {
               id: newId,
               userId: "user123",
               ...newCatData,
             };
- 
+
             mockDatabase.GET_ALL_CATEGORIES.push(newCategory);
- 
+
             return resolve({
               data: clone({ success: true, added: newCategory }),
               status: 201,
@@ -274,58 +336,58 @@ if (MOCK_MODE) {
           // -----------------------------------------------------------------
           if (config.url.includes("addincome") && config.method === "post") {
             const incomeData = JSON.parse(config.data);
- 
+
             const newId =
               mockDatabase.GET_ALL_INCOME.length > 0
                 ? Math.max(...mockDatabase.GET_ALL_INCOME.map((i) => i.id)) + 1
                 : 1;
- 
+
             const newIncome = { id: newId, ...incomeData };
- 
+
             mockDatabase.GET_ALL_INCOME.push(newIncome);
- 
+
             return resolve({
               data: clone({ success: true, added: newIncome }),
               status: 201,
               config,
             });
           }
- 
+
           // -----------------------------------------------------------------
           //  DELETE_INCOME → DELETE /income/:id
           // -----------------------------------------------------------------
           if (/\/income\/\d+$/.test(config.url) && config.method === "delete") {
- 
+
             const incomeId = Number(config.url.split("income/")[1]);
- 
+
             mockDatabase.GET_ALL_INCOME = mockDatabase.GET_ALL_INCOME.filter(
               (inc) => inc.id !== incomeId
             );
- 
+
             return resolve({
               data: clone({ success: true }),
               status: 200,
               config,
             });
           }
- 
+
           // -----------------------------------------------------------------
           //  UPDATE_INCOME → PUT /income/:id
           // -----------------------------------------------------------------
           if (/income\/\d+$/.test(config.url) && config.method === "put") {
- 
+
             const incomeId = Number(config.url.split("income/")[1]);
             const updated = JSON.parse(config.data);
- 
+
             const idx = mockDatabase.GET_ALL_INCOME.findIndex(inc => inc.id === incomeId);
- 
+
             if (idx !== -1) {
               mockDatabase.GET_ALL_INCOME[idx] = {
                 ...mockDatabase.GET_ALL_INCOME[idx],
                 ...updated,
               };
             }
- 
+
             return resolve({
               data: clone({ success: true, updated: mockDatabase.GET_ALL_INCOME[idx] }),
               status: 200,
@@ -419,32 +481,24 @@ if (MOCK_MODE) {
                 : API_ENDPOINTS[key]
             )
           );
- 
+
           return resolve({
             data: clone(mockDatabase[endpointKey] ?? { success: true }),
             status: 200,
             config,
           });
- 
+
         }, 250);
       });
     };
     // axiosConfig.post("/signup", form)
- 
- 
+
+
     return config;
   });
 }
- 
- 
-////actual config to be written yet
-// //request interceptor to add auth token to headers
-// axiosConfig.interceptors.request.use((config) => {
-//     const token = localStorage.getItem('token');
-//     if (token && !excludeEndopoints.includes(config.url)) {
-//         config.headers['Authorization'] = `Bearer ${token}`;
-//     }
-//     return config;
-// });
+
+
+
 
 export default axiosConfig;

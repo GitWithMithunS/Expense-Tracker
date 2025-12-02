@@ -24,8 +24,8 @@ const CategoryList = ({ categories, onEditCategory, onDeleteCategory }) => {
               {/* Icon */}
               <div className="w-12 h-12 flex items-center justify-center 
                               bg-gray-100 rounded-full text-2xl shadow-sm">
-                {category.icon ? (
-                  <span>{category.icon}</span>
+                {category.emoji ? (
+                  <span>{category.emoji}</span>
                 ) : (
                   <Layers2 className="text-purple-700" size={24} />
                 )}

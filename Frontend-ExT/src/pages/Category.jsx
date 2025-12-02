@@ -13,115 +13,72 @@ import { TransactionContext } from "../context/TransactionContext";
 const Category = () => {
   const { state, dispatch } = useContext(TransactionContext);
 
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [categoryData, setCategoryData] = useState([]);
   const [openAddModal, setOpenAddModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  // //to fetch all categories hitting endpoint when page is reloded
-  // useEffect(() => {
-  //   fetchCategoryDetails();
-  // }, []);
-  //seting category as soon as their is a change in the state of category from transaction field
 
   // //to check if trasaction context is updated
   useEffect(() => {
     setCategoryData(state.categories);
-    console.log("CONTEXT UPDATED → ", state.categories);
-  }, [state.categories]);
+    console.log("Category currently in category page form context → ", state.categories);
+  }, [state]);
 
-
-
-
-
-  // // ------------------------
-  // // FETCH ALL CATEGORIES  -> not required for now
-  // // ------------------------
-  // const fetchCategoryDetails = async () => {
-  //   if (loading) return;
-
-  //   console.log("Fetching categories...");
-  //   setLoading(true);
-
-  //   try {
-  //     const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_CATEGORIES);
-
-  //     console.log("Categories fetched:", response.data);
-  //     setCategoryData(response.data);
-
-  //     // UPDATE GLOBAL CONTEXT
-  //     dispatch({
-  //       type: "SET_CATEGORIES",
-  //       payload: response.data,
-  //     });
-
-  //   } catch (error) {
-  //     console.log("Fetch Error →", error);
-  //     toast.error("Failed to fetch categories!");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
 
 
   // ------------------------
   // ADD CATEGORY
   // ------------------------
-  
   const handleAddCategory = async (newCategory) => {
-    const { name, type, icon } = newCategory;
-
+    const { name, type, emoji } = newCategory;
+    console.log('newcategory : ', newCategory);
+    
+    // Check duplicates in UI state
     const exists = categoryData.some(
       (c) => c.name.toLowerCase() === name.trim().toLowerCase()
     );
-
+    
     if (exists) {
       showErrorToast("Category already exists!");
       return;
     }
-
-    console.log("Adding category →", newCategory);
-    
-    await delay(1000);
     
     try {
-      await axiosConfig.post(API_ENDPOINTS.ADD_CATEGORY, {
+      // 1. Send to backend
+      const res = await axiosConfig.post(API_ENDPOINTS.CREATE_CATEGORY, {
         name,
         type,
-        icon,
+        // emoji,
+        emoji
       });
-
-      const newItem = {
-        id: Date.now(),
-        userId: "user123",
-        name,
-        type,
-        icon,
-      };
       
-      // setCategoryData((prev) => [...prev, newItem]);
+      const savedCategory = res.data; // backend returns the saved category object
       
-      // // Update GLOBAL CONTEXT
-      // dispatch({
-        //   type: "ADD_CATEGORY",
-        //   payload: newItem,
-        // });
-        
-        showSuccessToast("Category Added!");
-        console.log('category list after adding', categoryData);
-        return "success";
+      // 2. Update local state
+      setCategoryData((prev) => [...prev, savedCategory]);
+      
+      // 3. Update global TransactionContext
+      dispatch({
+        type: "ADD_CATEGORY",
+        payload: savedCategory,
+      });
+      console.log('newcategory  from backend as response: ', savedCategory);
 
+      showSuccessToast("Category added successfully!");
+      return "success";
     } catch (error) {
-      console.log("Add Error →", error);
+      console.log("Add category error:", error);
       showErrorToast("Failed to add category");
     }
   };
 
-  
+
+
   // ------------------------
   // EDIT CATEGORY
   // ------------------------
@@ -136,71 +93,65 @@ const Category = () => {
   // UPDATE CATEGORY
   // ------------------------
   const handleUpdateCategory = async (updatedCategory) => {
-    console.log("Updating category:", updatedCategory);
+  const { id, name, type, emoji } = updatedCategory;
 
-    await delay(800);
+  try {
+    // 1. Update on backend
+    const res = await axiosConfig.put(
+      API_ENDPOINTS.UPDATE_CATEGORY(updatedCategory.id),
+      { name, type, emoji }
+    );
 
-    try {
-      await axiosConfig.put(
-        // `${API_ENDPOINTS.UPDATE_CATEGORY}/${updatedCategory.id}`,
-        API_ENDPOINTS.UPDATE_CATEGORY(updatedCategory.id),
-        updatedCategory
-      );
+    const savedCategory = res.data;
 
-      setCategoryData((prev) =>
-        prev.map((item) =>
-          item.id === updatedCategory.id ? updatedCategory : item
-        )
-      );
+    // 2. Update local UI list
+    setCategoryData((prev) =>
+      prev.map((item) => (item.id === id ? savedCategory : item))
+    );
 
-      // UPDATE GLOBAL CONTEXT
-      dispatch({
-        type: "UPDATE_CATEGORY",
-        payload: updatedCategory,
-      });
-      console.log(state)
+    // 3. Update global TransactionContext
+    dispatch({
+      type: "UPDATE_CATEGORY",
+      payload: savedCategory,
+    });
 
-      showSuccessToast("Category Updated!");
-      return "success";
+    showSuccessToast("Category updated successfully!");
+    return "success";
 
-    } catch (error) {
-      console.log("Update Error →", error);
-      showErrorToast("Failed to update category");
-    }
-  };
+  } catch (error) {
+    console.log("Update Error →", error);
+    showErrorToast("Failed to update category");
+  }
+};
 
 
 
-  // ------------------------
-  // DELETE CATEGORY
-  // ------------------------
-  const handleDeleteCategory = async (categoryObj) => {
-    console.log("Deleting category:", categoryObj);
+//-----------------------------------------------
+// DELETE CATEGORY
+//-----------------------------------------------
+const handleDeleteCategory = async (categoryObj) => {
+  try {
+    // 1. Delete from backend
+    await axiosConfig.delete(API_ENDPOINTS.DELETE_CATEGORY(categoryObj.id));
 
-    await delay(700);
+    // 2. Remove locally
+    setCategoryData((prev) =>
+      prev.filter((item) => item.id !== categoryObj.id)
+    );
 
-    try {
-      await axiosConfig.delete(
-        `${API_ENDPOINTS.DELETE_CATEGORY}/${categoryObj.id}`
-      );
+    // 3. Update TransactionContext
+    dispatch({
+      type: "DELETE_CATEGORY",
+      payload: categoryObj.id,
+    });
 
-      setCategoryData((prev) =>
-        prev.filter((item) => item.id !== categoryObj.id)
-      );
+    showSuccessToast("Category deleted successfully!");
 
-      // UPDATE GLOBAL CONTEXT
-      dispatch({
-        type: "DELETE_CATEGORY",
-        payload: categoryObj.id,
-      });
-
-      showSuccessToast("Category Deleted!");
-
-    } catch (error) {
-      console.log("Delete Error →", error);
-      showErrorToast("Failed to delete");
-    }
-  };
+  } catch (error) {
+    console.log("Delete Error →", error);
+    showErrorToast("Failed to delete category");
+  }
+};
 
   return (
     <Dashboard activeMenu="Category">

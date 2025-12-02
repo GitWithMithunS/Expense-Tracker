@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Dashboard from "../components/common/Dashboard";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
 import axiosConfig from "../util/axiosConfig";
@@ -19,16 +19,19 @@ import {
   exportToCSV,
   exportToExcel,
 } from "../util/excelUtils";
+import { TransactionContext } from "@/context/TransactionContext";
 
 const Expense = () => {
   const [expenseData, setExpenseData] = useState([]);
   const [categories, setCategories] = useState([]);
-
+  
   const [openAddExpenseModal, setOpenAddExpenseModal] = useState(false);
   const [openDeleteAlert, setOpenDeleteAlert] = useState({
     show: false,
     data: null,
   });
+  const {expenses } = useContext(TransactionContext);
+  // setExpenseData(expenses);
 
   /* --------------------------------------------
     FETCH ALL EXPENSES
