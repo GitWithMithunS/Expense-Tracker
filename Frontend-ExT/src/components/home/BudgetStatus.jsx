@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axiosConfig from "../../util/axiosConfig";
 import { API_ENDPOINTS } from "../../util/apiEnpoints";
 import { PieChart, ChevronDown, ChevronUp } from "lucide-react";
+import EmptyState from "../charts/EmptyState";
 
 const BudgetStatus = () => {
   const [open, setOpen] = useState(false);
@@ -11,40 +12,40 @@ const BudgetStatus = () => {
   const [totalSpent, setTotalSpent] = useState(0);
   const [categories, setCategories] = useState([]);
 
-  useEffect(() => {
-    const fetchBudgetData = async () => {
-      try {
-        const res = await axiosConfig.get(API_ENDPOINTS.GET_BUDGET_DATA);
-        const data = res.data;
-        console.log("budget data loaded",res.data)
+  // useEffect(() => {
+  //   const fetchBudgetData = async () => {
+  //     try {
+  //       const res = await axiosConfig.get(API_ENDPOINTS.GET_BUDGET_DATA);
+  //       const data = res.data;
+  //       console.log("budget data loaded",res.data)
 
-        setTotalBudget(data.totalBudget);
-        setTotalSpent(data.totalSpent);
+  //       setTotalBudget(data.totalBudget);
+  //       setTotalSpent(data.totalSpent);
 
-        const convertedCategories = (data.categories || []).map((cat) => {
-          const percent = Math.round((cat.spent / cat.limit) * 100);
+  //       const convertedCategories = (data.categories || []).map((cat) => {
+  //         const percent = Math.round((cat.spent / cat.limit) * 100);
 
-          return {
-            category: cat.category,
-            percent,
-          };
-        });
+  //         return {
+  //           category: cat.category,
+  //           percent,
+  //         };
+  //       });
 
-        setCategories(convertedCategories);
-      } catch (error) {
-        console.error("Budget Status fetch error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       setCategories(convertedCategories);
+  //     } catch (error) {
+  //       console.error("Budget Status fetch error:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchBudgetData();
-  }, []);
+  //   fetchBudgetData();
+  // }, []);
 
   if (loading) {
     return (
-      <div className="w-full bg-white shadow-md rounded-xl p-8 text-center">
-        Loading budget status…
+      <div className="w-full bg-white mt-22 shadow-md rounded-xl p-8 text-center">
+        <EmptyState message="Add budget to view status." type="list" />
       </div>
     );
   }

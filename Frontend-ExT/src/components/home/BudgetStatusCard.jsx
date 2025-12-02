@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import RadarChartComponent from "../charts/RadarChartComponent";
 import axiosConfig from "../../util/axiosConfig";
 import { API_ENDPOINTS } from "../../util/apiEnpoints";
+import EmptyState from "../charts/EmptyState";
 
 const BudgetStatusCard = () => {
   const [transactions, setTransactions] = useState([]);
@@ -9,31 +10,31 @@ const BudgetStatusCard = () => {
   const [loading, setLoading] = useState(true);
   const [chartData , setChartData] = useState([]);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Fetch all transactions
-        const txRes = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+  // useEffect(() => {
+  //   const loadData = async () => {
+  //     try {
+  //       // Fetch all transactions
+  //       const txRes = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
 
-        const val =  getchartData();
-        setChartData(val);
+  //       const val =  getchartData();
+  //       setChartData(val);
 
-        // Fetch category limits
-        const budgetRes = await axiosConfig.get(API_ENDPOINTS.GET_BUDGET_DATA);
-        console.log( 'transaction data(tx) for rader chart' ,txRes);
-        console.log( 'transaction data(budgetRes) for rader chart' ,budgetRes);
-        setTransactions(txRes.data || []);
-        setCategories(budgetRes.data.categories || []);
+  //       // Fetch category limits
+  //       const budgetRes = await axiosConfig.get(API_ENDPOINTS.GET_BUDGET_DATA);
+  //       console.log( 'transaction data(tx) for rader chart' ,txRes);
+  //       console.log( 'transaction data(budgetRes) for rader chart' ,budgetRes);
+  //       setTransactions(txRes.data || []);
+  //       setCategories(budgetRes.data.categories || []);
 
-      } catch (err) {
-        console.error("Radar Chart fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //     } catch (err) {
+  //       console.error("Radar Chart fetch error:", err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    loadData();
-  }, []);
+  //   loadData();
+  // }, []);
 
 
   // const getchartData = () => {
@@ -61,7 +62,7 @@ const BudgetStatusCard = () => {
       </p>
 
       {loading ? (
-        <div className="text-center py-10 text-gray-500">Loading chart…</div>
+        <div className="text-center py-10 text-gray-500"><EmptyState message="Add budget to view radar chart." type="list" /></div>
       ) : (
         <RadarChartComponent
           data={transactions.filter(t => t.type === "expense")}  // Only expenses
