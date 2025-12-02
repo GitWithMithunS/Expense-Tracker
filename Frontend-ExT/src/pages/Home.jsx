@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 import Dashboard from "../components/common/Dashboard";
 import TransactionInfoCard from "@/components/common/TransactionInfoCard";
 import moment from "moment";
+import BudgetStatusCard from "@/components/home/BudgetStatusCard";
+import EmptyState from "@/components/charts/EmptyState";
 
 
 const Home = () => {
@@ -40,7 +42,7 @@ const Home = () => {
   const today = new Date().getDate();
   const totalDaysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
 
-  const daysRemaining = Math.max(1, totalDaysInMonth - today); 
+  const daysRemaining = Math.max(1, totalDaysInMonth - today);
   const dailySpendLimit = balance > 0 ? balance / daysRemaining : 0;
 
   console.log(state.categories);   //just a checker 
@@ -59,59 +61,59 @@ const Home = () => {
   }, []);
 
 
-  useEffect(() => {
-    const fetchIncome = async () => {
-      try {
-        const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+  // useEffect(() => {
+  //   const fetchIncome = async () => {
+  //     try {
+  //       const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
 
-        const allTx = response.data;
+  //       const allTx = response.data;
 
-        // Filter income + sort by latest + take recent 5
-        const recent = allTx
-          .filter((tx) => tx.type === "income")
-          .sort((a, b) => new Date(b.date) - new Date(a.date))
-          .slice(0, 5);
+  //       // Filter income + sort by latest + take recent 5
+  //       const recent = allTx
+  //         .filter((tx) => tx.type === "income")
+  //         .sort((a, b) => new Date(b.date) - new Date(a.date))
+  //         .slice(0, 5);
 
-        setRecentIncome(recent);
+  //       setRecentIncome(recent);
 
-      } catch (error) {
-        console.error("Error fetching income:", error);
-      }
-    };
+  //     } catch (error) {
+  //       console.error("Error fetching income:", error);
+  //     }
+  //   };
 
-    fetchIncome();
-  }, []);
+  //   fetchIncome();
+  // }, []);
 
-  useEffect(() => {
-    const fetchExpenses = async () => {
-      try {
-        const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+  // useEffect(() => {
+  //   const fetchExpenses = async () => {
+  //     try {
+  //       const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
 
-        const allTx = response.data;
+  //       const allTx = response.data;
 
-        // Filter ONLY expense + sort by latest + take 5 recent
-        const recent = allTx
-          .filter((tx) => tx.type === "expense")
-          .sort((a, b) => new Date(b.date) - new Date(a.date))
-          .slice(0, 5);
+  //       // Filter ONLY expense + sort by latest + take 5 recent
+  //       const recent = allTx
+  //         .filter((tx) => tx.type === "expense")
+  //         .sort((a, b) => new Date(b.date) - new Date(a.date))
+  //         .slice(0, 5);
 
-        setRecentExpense(recent);
+  //       setRecentExpense(recent);
 
-      } catch (error) {
-        console.error("Error fetching expense:", error);
-      }
-    };
+  //     } catch (error) {
+  //       console.error("Error fetching expense:", error);
+  //     }
+  //   };
 
-    fetchExpenses();
-  }, []);
+  //   fetchExpenses();
+  // }, []);
 
   return (
     <Dashboard activeMenu="Dashboard">
       <div className="my-5 mx-auto space-y-6">
 
-        
 
-                <div><OverviewSection /></div>
+
+        <div><OverviewSection /></div>
 
 
         {/* ===== TOTAL BALANCE ===== */}
@@ -119,7 +121,7 @@ const Home = () => {
           <h2 className="text-lg font-semibold text-gray-700">Total Balance</h2>
 
           <p
-            className={`text-3xl font-bold mt-2 ${balance >= 0 ? "text-green-600" : "text-red-600"
+            className={`text-3xl font-bold mt-2 ${balance > 0 ? "text-green-600" : "text-red-600"
               }`}
           >
             ₹{balance.toLocaleString("en-IN")}
@@ -146,7 +148,7 @@ const Home = () => {
                 onClick={() => navigate("/income")}
                 className="flex items-center gap-2 px-6 py-2.5 bg-green-100 text-green-700 
                border border-green-300 rounded-lg shadow-sm hover:bg-green-200 
-               transition-all duration-200 active:scale-95"
+               transition-all duration-200 active:scale-95 cursor-pointer"
               >
                 <TrendingUp size={18} className="text-green-700" />
                 <span className="font-semibold">Add Income</span>
@@ -159,7 +161,7 @@ const Home = () => {
             <ul className="space-y-3 pr-2">
 
               {recentIncome.length === 0 && (
-                <li className="text-gray-500">No income yet.</li>
+                <EmptyState message="Add your first income." type="list" />
               )}
 
               {recentIncome.map((expense) => (
@@ -196,7 +198,7 @@ const Home = () => {
                 onClick={() => navigate("/expense")}
                 className="flex items-center gap-2 px-6 py-2.5 bg-red-100 text-red-700
                  border border-red-300 rounded-lg shadow-sm hover:bg-red-200
-                 transition-all duration-200 active:scale-95"
+                 transition-all duration-200 active:scale-95 cursor-pointer"
               >
                 <TrendingDown size={18} className="text-red-700" />
                 <span className="font-semibold">Add Expense</span>
@@ -207,7 +209,7 @@ const Home = () => {
             <ul className="space-y-3 pr-2">
 
               {recentExpense.length === 0 && (
-                <li className="text-gray-500">No expenses yet.</li>
+                <EmptyState message="Add your first expense." type="list" />
               )}
 
               {/* transaction listing */}
@@ -246,23 +248,10 @@ const Home = () => {
             <BudgetStatus />
           </div>
 
-          <div className="bg-white p-6 rounded-xl border shadow-sm">
-            <h3 className="text-xl font-semibold mb-3">Budget Manager</h3>
-            <p className="text-gray-600 mb-4">
-              Plan your monthly budget and divide it across categories.
-            </p>
-
-            <button
-              onClick={() => setOpenBudgetManager(true)}
-              className="px-5 py-3 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition"
-            >
-              Set Monthly Budget
-            </button>
-
-            {openBudgetManager && (
-              <BudgetManager onClose={() => setOpenBudgetManager(false)} />
-            )}
-          </div>
+          {/* <div className="bg-white p-6 rounded-xl border shadow-sm">
+            <BudgetStatusCard />
+          </div> */}
+          <BudgetStatusCard />
         </div>
 
       </div>

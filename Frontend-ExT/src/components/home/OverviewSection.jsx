@@ -10,22 +10,24 @@ import {
 import { API_ENDPOINTS } from "@/util/apiEnpoints";
 import axiosConfig from "@/util/axiosConfig";
 import { TrendingDown, TrendingUp } from "lucide-react";
+import EmptyState from "../charts/EmptyState";
 
 const OverviewSection = () => {
   const [transactions, setTransactions] = useState([]);
 
-  useEffect(() => {
-    const fetchTx = async () => {
-      try {
-        const res = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
-        setTransactions(res.data || []);
-      } catch (err) {
-        console.error("Error fetching transactions:", err);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchTx = async () => {
+  //     try {
+  //       const res = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+  //       setTransactions(res.data || []);
+  //     } catch (err) {
+  //       console.error("Error fetching transactions:", err);
+  //     }
+  //   };
 
-    fetchTx();
-  }, []);
+  //   fetchTx();
+  // }, []);
+
 
   // TOTALS
   const totalIncome = transactions
@@ -68,6 +70,7 @@ const OverviewSection = () => {
   ];
 
   const COLORS = ["#34D399", "#F87171", "#60A5FA",];
+
 
   return (
     <div className="w-full bg-white p-6 rounded-xl shadow-lg">
@@ -127,12 +130,15 @@ const OverviewSection = () => {
         {/* LEFT: PIE CHART */}
         <div className="bg-white p-2 rounded-xl shadow-lg border border-purple-300 flex flex-col">
 
-          <h3 className="relative mb-20 mt-4 pl-4 text-lg font-semibold mb-4">Pie Chart Spread</h3>
+          <h3 className="relative pb-2 mt-4 pl-4 text-lg font-semibold">Pie Chart Spread</h3>
 
-          {pieData.length === 0 ? (
-            <p className="text-gray-500">No financial data available.</p>
+
+          {(totalIncome === 0 && totalExpense === 0 && balance === 0) ? (
+            <div className="h-full flex items-center justify-center">
+              <EmptyState message="No Transaction to be shown" type="chart" />
+            </div>
           ) : (
-            <div className="w-full h-94  bg-white flex items-center justify-center">
+            <div className="w-full h-94 mt-6 bg-white flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -160,69 +166,73 @@ const OverviewSection = () => {
                 </PieChart>
               </ResponsiveContainer>
             </div>
-
-
           )}
         </div>
 
         {/* RIGHT: RECENT TX LIST */}
         <div className="bg-white rounded-xl shadow-lg border border-blue-300 p-4">
+
           <h3 className="text-lg font-semibold mb-4">Recent Transactions</h3>
 
-          <ul className="space-y-3">
-            {recentTransactions.length === 0 && (
-              <li className="text-gray-500">No recent transactions.</li>
-            )}
+          {/* Show empty-state ONLY inside this card */}
+          {recentTransactions.length === 0 ? (
+            <div className="h-94 flex  items-center justify-center">
+              <EmptyState message="No recent transactions." type="list" />
+            </div>
+          ) : (
+            <ul className="space-y-3">
+              {recentTransactions.map((tx) => {
+                const isIncome = tx.type === "income";
 
-            {recentTransactions.map((tx) => {
-              const isIncome = tx.type === "income";
-
-              return (
-                <li
-                  key={tx.id}
-                  className="flex items-center justify-between p-4 rounded-xl
+                return (
+                  <li
+                    key={tx.id}
+                    className="flex items-center justify-between p-4 rounded-xl
                        bg-white border border-gray-200 shadow-sm hover:shadow-md
                        transition-all"
-                >
-                  {/* LEFT */}
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 flex items-center justify-center 
-                              bg-gray-100 rounded-full text-2xl shadow-sm">
-                      <span>{tx.icon}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <p className="text-gray-900 font-semibold text-sm">
-                        {tx.categoryName}
-                      </p>
-                      <p className="text-gray-500 text-xs">
-                        {new Date(tx.date).toLocaleDateString("en-GB", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* AMOUNT */}
-                  <div
-                    className={`px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm flex items-center gap-2 border 
-                ${isIncome
-                        ? "bg-green-100 text-green-700 border-green-300"
-                        : "bg-red-100 text-red-700 border-red-300"
-                      }`}
                   >
-                    {isIncome ? "+" : "-"} ₹{tx.amount}
-                    {isIncome ? (
-                      <TrendingUp size={16} className="text-green-700" />
-                    ) : (
-                      <TrendingDown size={16} className="text-red-700" />
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                    {/* LEFT */}
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 flex items-center justify-center 
+                            bg-gray-100 rounded-full text-2xl shadow-sm">
+                        <span>{tx.icon}</span>
+                      </div>
+
+                      <div className="flex flex-col">
+                        <p className="text-gray-900 font-semibold text-sm">
+                          {tx.categoryName}
+                        </p>
+                        <p className="text-gray-500 text-xs">
+                          {new Date(tx.date).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* AMOUNT */}
+                    <div
+                      className={`px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm flex items-center gap-2 border 
+                ${isIncome
+                          ? "bg-green-100 text-green-700 border-green-300"
+                          : "bg-red-100 text-red-700 border-red-300"
+                        }`}
+                    >
+                      {isIncome ? "+" : "-"} ₹{tx.amount}
+                      {isIncome ? (
+                        <TrendingUp size={16} className="text-green-700" />
+                      ) : (
+                        <TrendingDown size={16} className="text-red-700" />
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
         </div>
       </div>
 

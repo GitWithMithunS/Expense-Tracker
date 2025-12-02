@@ -305,7 +305,7 @@ const Navbar = ({ activeMenu }) => {
 
 
         {/* calender */}
-        {showCal && (
+        {showCal &&  (
           <CalendarPopup open={showCal} onClose={() => setShowCal(false)} />
         )}
 
