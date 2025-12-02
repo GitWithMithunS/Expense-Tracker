@@ -1,20 +1,55 @@
-import { useState } from "react";
-import { ChevronDownIcon, ChevronUpIcon, ChartPieIcon } from "@heroicons/react/24/outline";
+import { useState, useEffect } from "react";
+import axiosConfig from "../../util/axiosConfig";
+import { API_ENDPOINTS } from "../../util/apiEnpoints";
+import { PieChart, ChevronDown, ChevronUp } from "lucide-react";
 
 const BudgetStatus = () => {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const totalBudget = 20000;
-  const usedAmount = 12500;
+  const [totalBudget, setTotalBudget] = useState(0);
+  const [totalSpent, setTotalSpent] = useState(0);
+  const [categories, setCategories] = useState([]);
 
-  const categories = [
-    { category: "Food", percent: 38 },
-    { category: "Travel", percent: 15 },
-    { category: "Shopping", percent: 25 },
-    { category: "Bills", percent: 22 }
-  ];
+  useEffect(() => {
+    const fetchBudgetData = async () => {
+      try {
+        const res = await axiosConfig.get(API_ENDPOINTS.GET_BUDGET_DATA);
+        const data = res.data;
+        console.log("budget data loaded",res.data)
 
-  const percentUsed = Math.round((usedAmount / totalBudget) * 100);
+        setTotalBudget(data.totalBudget);
+        setTotalSpent(data.totalSpent);
+
+        const convertedCategories = (data.categories || []).map((cat) => {
+          const percent = Math.round((cat.spent / cat.limit) * 100);
+
+          return {
+            category: cat.category,
+            percent,
+          };
+        });
+
+        setCategories(convertedCategories);
+      } catch (error) {
+        console.error("Budget Status fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBudgetData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="w-full bg-white shadow-md rounded-xl p-8 text-center">
+        Loading budget status…
+      </div>
+    );
+  }
+
+  const percentUsed = Math.round((totalSpent / totalBudget) * 100);
 
   let color = "bg-green-500";
   if (percentUsed > 60 && percentUsed < 85) color = "bg-yellow-500";
@@ -25,7 +60,7 @@ const BudgetStatus = () => {
 
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-semibold tracking-wide flex items-center gap-2">
-          <ChartPieIcon className="h-6 w-6 text-indigo-600" />
+          <PieChart className="h-6 w-6 text-purple-600" />
           BUDGET STATUS
         </h3>
 
@@ -42,20 +77,21 @@ const BudgetStatus = () => {
       </div>
 
       <p className="text-gray-600 text-sm mt-3">
-        You've spent <b>₹{usedAmount}</b> out of <b>₹{totalBudget}</b>.
+        You've spent <b>₹{totalSpent.toLocaleString("en-IN")}</b> out of{" "}
+        <b>₹{totalBudget.toLocaleString("en-IN")}</b>.
       </p>
 
       <button
         onClick={() => setOpen(!open)}
-        className="mt-6 flex items-center gap-2 text-indigo-600 font-semibold hover:underline"
+        className="mt-6 flex items-center gap-2 text-purple-600 font-semibold hover:underline"
       >
         {open ? (
           <>
-            Hide category breakdown <ChevronUpIcon className="h-5 w-5" />
+            Hide category breakdown <ChevronUp className="h-5 w-5" />
           </>
         ) : (
           <>
-            Show category breakdown <ChevronDownIcon className="h-5 w-5" />
+            Show category breakdown <ChevronDown className="h-5 w-5" />
           </>
         )}
       </button>
@@ -71,7 +107,7 @@ const BudgetStatus = () => {
 
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
-                  className="bg-indigo-500 h-3 rounded-full transition-all"
+                  className="bg-purple-600 h-3 rounded-full transition-all"
                   style={{ width: `${cat.percent}%` }}
                 ></div>
               </div>

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import Dashboard from "../components/common/Dashboard";
 
-import axiosConfig from "../util/axiosConfig"; 
+import axiosConfig from "../util/axiosConfig";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
+import EmptyState from "@/components/charts/EmptyState";
 
 const Filter = () => {
   const [transactions, setTransactions] = useState([]);
@@ -21,35 +22,35 @@ const Filter = () => {
   const [dropdown, setDropdown] = useState(null);
 
   const filterButtons = [
-  { id: "paymentMethod", label: "PAYMENT METHOD" },
-  { id: "sortBy", label: "SORT" },
-  { id: "category", label: "CATEGORY" },
-  { id: "type", label: "TYPE" },            // NEW FILTER
-  { id: "date", label: "DATE RANGE" },
-];
+    { id: "paymentMethod", label: "PAYMENT METHOD" },
+    { id: "sortBy", label: "SORT" },
+    { id: "category", label: "CATEGORY" },
+    { id: "type", label: "TYPE" },            // NEW FILTER
+    { id: "date", label: "DATE RANGE" },
+  ];
 
 
   // ______________________________________
   // FETCH TRANSACTIONS (Mock if MOCK_MODE=true)
   // ______________________________________
-  const fetchTransactions = async () => {
-    try {
-      console.log("📌 Calling mock/real API:", API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+  // const fetchTransactions = async () => {
+  //   try {
+  //     console.log("📌 Calling mock/real API:", API_ENDPOINTS.GET_ALL_TRANSACTIONS);
 
-      const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+  //     const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
 
-      console.log("📥 Fetched Transactions:", response.data);
+  //     console.log("📥 Fetched Transactions:", response.data);
 
-      setTransactions(response.data);
-      setFilteredTransactions(response.data);
-    } catch (error) {
-      console.error("❌ Error fetching transactions:", error);
-    }
-  };
+  //     setTransactions(response.data);
+  //     setFilteredTransactions(response.data);
+  //   } catch (error) {
+  //     console.error("❌ Error fetching transactions:", error);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
+  // useEffect(() => {
+  //   fetchTransactions();
+  // }, []);
 
   // ______________________________________
   // APPLY FILTERS
@@ -120,40 +121,40 @@ const Filter = () => {
   };
 
   const getFilterLabel = (id) => {
-  switch (id) {
-    case "paymentMethod":
-      return filters.paymentMethod
-        ? `PAYMENT METHOD: ${filters.paymentMethod.toUpperCase()}`
-        : "PAYMENT METHOD";
+    switch (id) {
+      case "paymentMethod":
+        return filters.paymentMethod
+          ? `PAYMENT METHOD: ${filters.paymentMethod.toUpperCase()}`
+          : "PAYMENT METHOD";
 
-    case "sortBy":
-      if (!filters.sortBy) return "SORT";
-      const mapSort = {
-        "date-asc": "DATE ↑",
-        "date-desc": "DATE ↓",
-        "amount-asc": "AMOUNT ↑",
-        "amount-desc": "AMOUNT ↓"
-      };
-      return `SORT: ${mapSort[filters.sortBy]}`;
+      case "sortBy":
+        if (!filters.sortBy) return "SORT";
+        const mapSort = {
+          "date-asc": "DATE ↑",
+          "date-desc": "DATE ↓",
+          "amount-asc": "AMOUNT ↑",
+          "amount-desc": "AMOUNT ↓"
+        };
+        return `SORT: ${mapSort[filters.sortBy]}`;
 
-    case "category":
-      return filters.category
-        ? `CATEGORY: ${filters.category}`
-        : "CATEGORY";
+      case "category":
+        return filters.category
+          ? `CATEGORY: ${filters.category}`
+          : "CATEGORY";
 
-    case "date":
-      if (!filters.startDate && !filters.endDate) return "DATE RANGE";
-      return `DATE: ${filters.startDate || "_"} → ${filters.endDate || "_"}`;
+      case "date":
+        if (!filters.startDate && !filters.endDate) return "DATE RANGE";
+        return `DATE: ${filters.startDate || "_"} → ${filters.endDate || "_"}`;
 
-    case "type":
-      return filters.type
-        ? `TYPE: ${filters.type.toUpperCase()}`
-        : "TYPE";
+      case "type":
+        return filters.type
+          ? `TYPE: ${filters.type.toUpperCase()}`
+          : "TYPE";
 
-    default:
-      return item.label;
-  }
-};
+      default:
+        return item.label;
+    }
+  };
 
 
   // ______________________________________
@@ -284,55 +285,54 @@ const Filter = () => {
         </div>
 
         {/* TRANSACTION CARD GRID */}
-<div className="mt-6">
-  {filteredTransactions.length === 0 ? (
-    <p className="text-center text-gray-500">No transactions found</p>
-  ) : (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mt-6">
+          {filteredTransactions.length === 0 ? (
+            <EmptyState message="No transaction to filter." type="list" />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-      {filteredTransactions.map((t) => (
-        <div
-          key={t.id}
-          className="bg-white rounded-2xl shadow hover:shadow-lg p-5 transition border border-gray-100"
-        >
+              {filteredTransactions.map((t) => (
+                <div
+                  key={t.id}
+                  className="bg-white rounded-2xl shadow hover:shadow-lg p-5 transition border border-gray-100"
+                >
 
-          {/* TOP ROW → ICON + AMOUNT */}
-          <div className="flex justify-between items-center mb-3">
-            <div className="text-4xl">{t.icon}</div>
+                  {/* TOP ROW → ICON + AMOUNT */}
+                  <div className="flex justify-between items-center mb-3">
+                    <div className="text-4xl">{t.icon}</div>
 
-            <p
-              className={`text-xl font-bold ${
-                t.type === "income" ? "text-green-600" : "text-red-500"
-              }`}
-            >
-              {t.type === "income" ? "+ " : "- "}₹{t.amount}
-            </p>
-          </div>
+                    <p
+                      className={`text-xl font-bold ${t.type === "income" ? "text-green-600" : "text-red-500"
+                        }`}
+                    >
+                      {t.type === "income" ? "+ " : "- "}₹{t.amount}
+                    </p>
+                  </div>
 
-          {/* CATEGORY NAME */}
-          <p className="text-lg font-semibold text-gray-800">{t.categoryName}</p>
+                  {/* CATEGORY NAME */}
+                  <p className="text-lg font-semibold text-gray-800">{t.categoryName}</p>
 
-          {/* PAYMENT METHOD TAG */}
-          <span className="inline-block mt-2 px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
-            {t.paymentMethod.toUpperCase()}
-          </span>
+                  {/* PAYMENT METHOD TAG */}
+                  <span className="inline-block mt-2 px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
+                    {t.paymentMethod.toUpperCase()}
+                  </span>
 
-          {/* NOTES */}
-          {t.notes && (
-            <p className="text-sm text-gray-500 mt-3 italic">{t.notes}</p>
+                  {/* NOTES */}
+                  {t.notes && (
+                    <p className="text-sm text-gray-500 mt-3 italic">{t.notes}</p>
+                  )}
+
+                  {/* DATE BAR */}
+                  <div className="mt-4 bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-sm font-medium">
+                    {t.date}
+                  </div>
+
+                </div>
+              ))}
+
+            </div>
           )}
-
-          {/* DATE BAR */}
-          <div className="mt-4 bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-sm font-medium">
-            {t.date}
-          </div>
-
         </div>
-      ))}
-
-    </div>
-  )}
-</div>
 
       </div>
     </Dashboard>
