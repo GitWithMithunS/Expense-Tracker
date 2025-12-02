@@ -7,40 +7,59 @@ import bill2 from "../assets/bill2.jpeg";
 import bill3 from "../assets/bill3.jpeg";
 import bill4 from "../assets/bill4.jpeg";
 
+import EmptyState from "@/components/charts/EmptyState";
+import useUniversalFilter from "../components/common/FilterLogic";
+
 const Bills = () => {
   const { user } = useContext(AppContext);
+
   const [bills, setBills] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
 
+  // Initialize reusable filter hook
+  const {
+  filters,
+  filteredTransactions: filtered,
+  updateFilter,
+  clearFilters,
+} = useUniversalFilter(bills, {
+  enablePayment: false,
+  enableType: false,
+  enableSorting: false,
+  enableCategory: true,
+  enableDate: true,
+});
+
+
+  // Load mock data or API data
   useEffect(() => {
-    // Mock data following your DB schema, using `date` (ISO) and other fields
     const mockData = [
       {
         id: 1,
         fileUrl: bill1,
         description: "Electricity bill",
-        date: "2025-03-05T10:00:00Z",
+        date: "2025-03-05",
         category: "Electricity",
       },
       {
         id: 2,
         fileUrl: bill2,
         description: "Broadband invoice",
-        date: "2025-02-07T12:00:00Z",
+        date: "2025-02-07",
         category: "WiFi",
       },
       {
         id: 3,
         fileUrl: bill3,
-        description: "Netflix bills",
-        date: "2025-04-01T09:00:00Z",
+        description: "Netflix subscription",
+        date: "2025-04-01",
         category: "OTT",
       },
       {
         id: 4,
         fileUrl: bill4,
-        description: "Maintenance bills",
-        date: "2025-01-15T08:30:00Z",
+        description: "Maintenance bill",
+        date: "2025-01-15",
         category: "Maintenance",
       },
     ];
@@ -48,105 +67,138 @@ const Bills = () => {
     setBills(mockData);
   }, [user]);
 
-  
-  const formatDateUS = (isoString) => {
+  // Get category dropdown options
+  const categories = [...new Set(bills.map((b) => b.category))];
+
+  const formatDate = (date) => {
     try {
-      return new Date(isoString).toLocaleDateString("en-US", {
+      return new Date(date).toLocaleDateString("en-US", {
         day: "numeric",
         month: "short",
         year: "numeric",
       });
     } catch {
-      return isoString;
+      return date;
     }
+  };
+
+  const downloadFile = (url, filename) => {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
   };
 
   return (
     <Dashboard activeMenu="Bills">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6">My Bills</h2>
+      <h2 className="text-2xl font-semibold text-gray-800 mb-4">My Bills</h2>
 
-      {/* Grid of bills */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {bills.map((bill) => (
-          <div
-            key={bill.id}
-            role="button"
-            tabIndex={0}
-            onClick={() => setSelectedImage(bill.fileUrl)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setSelectedImage(bill.fileUrl);
-              }
-            }}
-            className="bg-white border border-gray-200 rounded-xl shadow-sm p-0 overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            aria-label={`Open bill ${bill.id}`}
-          >
-            <img
-              src={bill.fileUrl}
-              alt={`Bill ${bill.id}`}
-              className="w-full h-48 object-cover transition-transform hover:scale-105"
-              loading="lazy"
-            />
+      {/* FILTER BAR */}
+      <div className="mb-6 flex flex-wrap gap-4 items-center">
 
-            {/* Bill details */}
-            <div className="p-3 text-sm text-gray-700">
-              <p className="whitespace-normal break-words">
-                <span className="font-medium">Description: </span>
-                <span className="text-gray-600">{bill.description}</span>
-              </p>
+        {/* Start Date */}
+        <input
+          type="date"
+          value={filters.startDate}
+          onChange={(e) => updateFilter("startDate", e.target.value)}
+          className="px-3 py-2 border rounded-lg text-sm bg-white"
+        />
 
-              <p className="mt-1 whitespace-normal break-words">
-                <strong>Date:</strong>{" "}
-                {formatDateUS(bill.date)}
-              </p>
+        {/* End Date */}
+        <input
+          type="date"
+          value={filters.endDate}
+          onChange={(e) => updateFilter("endDate", e.target.value)}
+          className="px-3 py-2 border rounded-lg text-sm bg-white"
+        />
 
-              <p className="mt-1 whitespace-normal break-words">
-                <span className="font-medium">Category: </span>
-                <span className="text-gray-600">{bill.category}</span>
-              </p>
-            </div>
-          </div>
-        ))}
+        {/* Category */}
+        <select
+          value={filters.category}
+          onChange={(e) => updateFilter("category", e.target.value)}
+          className="px-3 py-2 border rounded-lg text-sm bg-white"
+        >
+          <option value="">All</option>
+          {categories.map((cat) => (
+            <option key={cat}>{cat}</option>
+          ))}
+        </select>
+
+        {/* Apply Filters */}
+        <button
+          onClick={() => {}}
+          className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-500 cursor-pointer"
+        >
+          Apply Filter
+        </button>
+
+        {/* Clear Filters */}
+        <button
+          onClick={clearFilters}
+          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300 cursor-pointer"
+        >
+          Clear
+        </button>
       </div>
 
-      {/* Lightbox popup — closes only on outside click or X; no ESC */}
+      {/* BILL GRID */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {filtered.length === 0 ? (
+          <div className="col-span-full text-center py-10">
+            <EmptyState message="You haven't uploaded any bills." type="list" />
+          </div>
+        ) : (
+          filtered.map((bill) => (
+            <div
+              key={bill.id}
+              className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden transition"
+            >
+              <div
+                onClick={() => setSelectedImage(bill.fileUrl)}
+                className="cursor-pointer"
+              >
+                <img
+                  src={bill.fileUrl}
+                  alt="Bill"
+                  className="w-full h-48 object-cover"
+                />
+              </div>
+
+              <div className="p-3 text-sm text-gray-700">
+                <p><strong>Description:</strong> {bill.description}</p>
+                <p className="mt-1"><strong>Date:</strong> {formatDate(bill.date)}</p>
+                <p className="mt-1"><strong>Category:</strong> {bill.category}</p>
+
+                <button
+                  onClick={() => downloadFile(bill.fileUrl, `${bill.description}.jpg`)}
+                  className="mt-3 w-full bg-purple-600 text-white py-1.5 rounded-lg text-sm hover:bg-purple-500"
+                >
+                  Download
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* IMAGE POPUP */}
       {selectedImage && (
         <div
-          className="fixed inset-0 z-[9999] bg-black/85 overflow-y-auto no-scrollbar"
-          onPointerDown={(e) => {
-            if (e.target === e.currentTarget) {
-              setSelectedImage(null);
-            }
-          }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setSelectedImage(null);
-            }
-          }}
+          className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center"
+          onClick={(e) => e.target === e.currentTarget && setSelectedImage(null)}
         >
-          <div
-            className="min-h-screen w-full flex justify-center items-start pt-10"
-            onClick={(e) => e.stopPropagation()}
+          <button
+            onClick={() => setSelectedImage(null)}
+            className="absolute top-4 right-4 bg-white/20 text-white rounded-full w-10 h-10 flex items-center justify-center"
           >
-            {/* Close button */}
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="fixed top-4 right-4 z-[10000] bg-white/10 hover:bg-white/20 text-white rounded-full w-10 h-10 flex items-center justify-center"
-              aria-label="Close"
-            >
-              ✕
-            </button>
+            ✕
+          </button>
 
-            {/* Image (fits without cropping) */}
-            <img
-              src={selectedImage}
-              alt="Selected Bill"
-              className="max-w-[95vw] h-auto object-contain"
-              style={{ display: "block", margin: "0 auto" }}
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
+          <img
+            src={selectedImage}
+            className="max-w-[95vw] max-h-[90vh] object-contain"
+            alt=""
+          />
         </div>
       )}
     </Dashboard>

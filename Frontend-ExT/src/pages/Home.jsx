@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 import Dashboard from "../components/common/Dashboard";
 import TransactionInfoCard from "@/components/common/TransactionInfoCard";
 import moment from "moment";
+import BudgetStatusCard from "@/components/home/BudgetStatusCard";
+import EmptyState from "@/components/charts/EmptyState";
 
 
 const Home = () => {
@@ -133,7 +135,7 @@ const Home = () => {
           <h2 className="text-lg font-semibold text-gray-700">Total Balance</h2>
 
           <p
-            className={`text-3xl font-bold mt-2 ${balance >= 0 ? "text-green-600" : "text-red-600"
+            className={`text-3xl font-bold mt-2 ${balance > 0 ? "text-green-600" : "text-red-600"
               }`}
           >
             ₹{balance.toLocaleString("en-IN")}
@@ -160,7 +162,7 @@ const Home = () => {
                 onClick={() => navigate("/income")}
                 className="flex items-center gap-2 px-6 py-2.5 bg-green-100 text-green-700 
                border border-green-300 rounded-lg shadow-sm hover:bg-green-200 
-               transition-all duration-200 active:scale-95"
+               transition-all duration-200 active:scale-95 cursor-pointer"
               >
                 <TrendingUp size={18} className="text-green-700" />
                 <span className="font-semibold">Add Income</span>
@@ -173,7 +175,9 @@ const Home = () => {
             <ul className="space-y-3 pr-2">
 
               {(!recentIncome || recentIncome.length === 0) ? (
-                <li className="text-gray-500">No income yet.</li>
+//                 <li className="text-gray-500">No income yet.</li>
+                <EmptyState message="Add your first income." type="list" />
+
               ) : (
                 recentIncome.map((income) => (
                   <TransactionInfoCard
@@ -210,7 +214,7 @@ const Home = () => {
                 onClick={() => navigate("/expense")}
                 className="flex items-center gap-2 px-6 py-2.5 bg-red-100 text-red-700
                  border border-red-300 rounded-lg shadow-sm hover:bg-red-200
-                 transition-all duration-200 active:scale-95"
+                 transition-all duration-200 active:scale-95 cursor-pointer"
               >
                 <TrendingDown size={18} className="text-red-700" />
                 <span className="font-semibold">Add Expense</span>
@@ -221,7 +225,9 @@ const Home = () => {
             <ul className="space-y-3 pr-2">
 
               {!recentExpense || recentExpense.length === 0 && (
-                <li className="text-gray-500">No expenses yet.</li>
+//                 <li className="text-gray-500">No expenses yet.</li>
+                <EmptyState message="Add your first expense." type="list" />
+
               )}
 
               {/* transaction listing */}
@@ -260,23 +266,10 @@ const Home = () => {
             <BudgetStatus />
           </div>
 
-          <div className="bg-white p-6 rounded-xl border shadow-sm">
-            <h3 className="text-xl font-semibold mb-3">Budget Manager</h3>
-            <p className="text-gray-600 mb-4">
-              Plan your monthly budget and divide it across categories.
-            </p>
-
-            <button
-              onClick={() => setOpenBudgetManager(true)}
-              className="px-5 py-3 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition"
-            >
-              Set Monthly Budget
-            </button>
-
-            {openBudgetManager && (
-              <BudgetManager onClose={() => setOpenBudgetManager(false)} />
-            )}
-          </div>
+          {/* <div className="bg-white p-6 rounded-xl border shadow-sm">
+            <BudgetStatusCard />
+          </div> */}
+          <BudgetStatusCard />
         </div>
 
       </div>
