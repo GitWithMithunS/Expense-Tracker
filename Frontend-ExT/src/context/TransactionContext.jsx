@@ -1,4 +1,4 @@
-import { createContext, useEffect, useReducer } from "react";
+import { createContext, useReducer, useEffect } from "react";
 import axiosConfig from "../util/axiosConfig";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
 
@@ -6,70 +6,70 @@ export const TransactionContext = createContext();
 
 const initialState = {
   balance: 0,
+
+  // Full lists
   incomes: [],
   expenses: [],
   transactions: [],
-  categories: [],   // will be filled from Categories Page
+
+  // Recent lists
+  recentIncomes: [],
+  recentExpenses: [],
+  recentTransactions: [],
+
+  categories: [],
 };
 
+
+
+// ===============================
+// REDUCER
+// ===============================
 function reducer(state, action) {
   switch (action.type) {
-    
+
     case "SET_CATEGORIES":
       return { ...state, categories: action.payload };
 
-    case "ADD_CATEGORY":
-      return { ...state, categories: [...state.categories, action.payload] };
-
-    case "UPDATE_CATEGORY":
+    case "SET_ALL_DATA":
       return {
         ...state,
-        categories: state.categories.map((cat) =>
-          cat.id === action.payload.id ? action.payload : cat
-        ),
-      };
-
-    case "DELETE_CATEGORY":
-      return {
-        ...state,
-        categories: state.categories.filter(
-          (cat) => cat.id !== action.payload
-        ),
+        incomes: action.payload.incomes,
+        expenses: action.payload.expenses,
+        transactions: action.payload.transactions,
+        recentIncomes: action.payload.recentIncomes,
+        recentExpenses: action.payload.recentExpenses,
+        recentTransactions: action.payload.recentTransactions,
+        balance: action.payload.balance,
       };
 
     case "ADD_INCOME": {
-      const updatedBalance = state.balance + Number(action.payload.amount);
-
-      const updatedIncomes = [action.payload, ...state.incomes].slice(0, 5);
-
-      const updatedTransactions = [
-        { ...action.payload, type: "income" },
-        ...state.transactions
-      ].slice(0, 5);
+      const newIncome = action.payload;
 
       return {
         ...state,
-        balance: updatedBalance,
-        incomes: updatedIncomes,
-        transactions: updatedTransactions,
+        incomes: [newIncome, ...state.incomes],
+        recentIncomes: [newIncome, ...state.recentIncomes].slice(0, 5),
+        recentTransactions: [
+          { ...newIncome, type: "INCOME" },
+          ...state.recentTransactions,
+        ].slice(0, 5),
+        balance: state.balance + Number(newIncome.amount),
       };
     }
 
     case "ADD_EXPENSE": {
-      const updatedBalance = state.balance - Number(action.payload.amount);
-
-      const updatedExpenses = [action.payload, ...state.expenses].slice(0, 5);
-
-      const updatedTransactions = [
-        { ...action.payload, type: "expense" },
-        ...state.transactions
-      ].slice(0, 5);
+      const newExpense = action.payload;
 
       return {
         ...state,
-        balance: updatedBalance,
-        expenses: updatedExpenses,
-        transactions: updatedTransactions,
+        expenses: [newExpense, ...state.expenses],
+        recentExpenses: [newExpense, ...state.recentExpenses].slice(0, 5),
+        recentTransactions: [
+          { ...newExpense, type: "EXPENSE" },
+          ...state.recentTransactions,
+        ].slice(0, 5),
+        balance: state.balance + Number(newExpense.amount), // amount is NEGATIVE, so adding reduces balance
       };
     }
 
@@ -78,41 +78,80 @@ function reducer(state, action) {
   }
 }
 
+// ===============================
+// PROVIDER
+// ===============================
 export default function TransactionProvider({ children }) {
-  
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  
-  // ---------------------------------------------
-  // GLOBAL FETCH FUNCTION (Called from anywhere)
-  // ---------------------------------------------
-  const fetchCategories = async () => {
+  // -------------------------------------------
+  // Fetch ALL transactions and categorize them
+  // -------------------------------------------
+  const fetchAllTransactions = async () => {
     try {
-      const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_CATEGORIES);
+      const res = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
 
+      const list = res.data?.data || [];
+      
+      console.log('from transaction context -> fetch all transactions: ' ,res.data);
+      // Sort newest first
+      const sorted = [...list].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      // Categorize
+      const incomes = sorted.filter((tx) => tx.amount >= 0);
+      const expenses = sorted.filter((tx) => tx.amount < 0);
+      
+      const balance = incomes.reduce((sum, i) => sum + i.amount, 0) +
+      expenses.reduce((sum, e) => sum + e.amount, 0);
+      
+      console.log('from transaction context -> income: ' , incomes , 'expense: ' , expenses , 'balance: ', balance);
       dispatch({
-        type: "SET_CATEGORIES",
-        payload: response.data,
+        type: "SET_ALL_DATA",
+        payload: {
+          incomes,
+          expenses,
+          transactions: sorted,
+          recentIncomes: incomes.slice(0, 5),
+          recentExpenses: expenses.slice(0, 5),
+          recentTransactions: sorted.slice(0, 5),
+          balance,
+        },
       });
 
-      console.log("Categories loaded globally ", response.data);
-
     } catch (err) {
-      console.log("Failed to load categories", err);
+      console.error("Failed to load all transactions", err);
     }
   };
 
-  //we will be adding income fetch and expense fetch also here itslef for the first time when user is authenticated
+  // -------------------------------------------
+  // Fetch categories
+  // -------------------------------------------
+  const fetchCategories = async () => {
+    try {
+      const res = await axiosConfig.get(API_ENDPOINTS.GET_ALL_CATEGORIES);
+      console.log('from transaction context -> categories ' ,res.data);
+      dispatch({ type: "SET_CATEGORIES", payload: res.data });
+    } catch (err) {
+      console.error("Failed to load categories", err);
+    }
+  };
 
-  // LOAD CATEGORIES WHEN APP STARTS
+  // First-time load
   useEffect(() => {
-    console.log('first call from transcation context');
+  //     const token = localStorage.getItem("token");
+  // if (!token) return; // do nothing when logged out
     fetchCategories();
+    fetchAllTransactions();
   }, []);
 
-
   return (
-    <TransactionContext.Provider value={{ state, dispatch }}>
+    <TransactionContext.Provider value={{
+      state,
+      dispatch,
+      fetchAllTransactions,
+    }}>
       {children}
     </TransactionContext.Provider>
   );

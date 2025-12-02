@@ -19,14 +19,16 @@ const Home = () => {
   const [openBudgetManager, setOpenBudgetManager] = useState(false);
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
   const { state } = useContext(TransactionContext);
 
   const [recentIncome, setRecentIncome] = useState([]);
   const [recentExpense, setRecentExpense] = useState([]);
-
   const [allTransactions, setAllTransactions] = useState([]);
+
+  //transaction context
+  // const {recentIncomes , recentExpenses} = useContext(TransactionContext);
 
   // COMPUTE TOTALS
   const totalIncome = allTransactions
@@ -45,45 +47,57 @@ const Home = () => {
   const daysRemaining = Math.max(1, totalDaysInMonth - today);
   const dailySpendLimit = balance > 0 ? balance / daysRemaining : 0;
 
-  console.log(state.categories);   //just a checker 
+
 
   useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
-        setAllTransactions(response.data);
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      }
-    };
-
-    fetchAll();
-  }, []);
+    setAllTransactions(state.recentTransactions);
+    setRecentIncome(state.recentIncomes);
+    setRecentExpense(state.recentExpenses);
+    console.log('transaction context state' , state);   //just a checker 
+  }, [state])
 
 
+  //set recent 5 transactions
   // useEffect(() => {
-  //   const fetchIncome = async () => {
+  //   const fetchAll = async () => {
   //     try {
   //       const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
-
-  //       const allTx = response.data;
-
-  //       // Filter income + sort by latest + take recent 5
-  //       const recent = allTx
-  //         .filter((tx) => tx.type === "income")
-  //         .sort((a, b) => new Date(b.date) - new Date(a.date))
-  //         .slice(0, 5);
-
-  //       setRecentIncome(recent);
-
+  //       setAllTransactions(response.data);
   //     } catch (error) {
-  //       console.error("Error fetching income:", error);
+  //       console.error("Error fetching transactions:", error);
   //     }
   //   };
 
+  //   fetchAll();
+  // }, []);
+
+
+  //get recent incomes
+  // useEffect(() => {
+  //   // const fetchIncome = async () => {
+  //   //   try {
+  //   //     const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
+
+  //   //     const allTx = response.data;
+
+  //   //     // Filter income + sort by latest + take recent 5
+  //   //     const recent = allTx
+  //   //       .filter((tx) => tx.type === "income")
+  //   //       .sort((a, b) => new Date(b.date) - new Date(a.date))
+  //   //       .slice(0, 5);
+
+  //   //     setRecentIncome(recent);
+
+  //   //   } catch (error) {
+  //   //     console.error("Error fetching income:", error);
+  //   //   }
+  //   // };
+  // setRecentIncome(recentIncome);
   //   fetchIncome();
   // }, []);
 
+
+  //get recent expenses
   // useEffect(() => {
   //   const fetchExpenses = async () => {
   //     try {
@@ -157,27 +171,29 @@ const Home = () => {
             </div>
 
 
-            {/* 💰 Income List */}
+            {/*  Income List */}
             <ul className="space-y-3 pr-2">
 
-              {recentIncome.length === 0 && (
+              {(!recentIncome || recentIncome.length === 0) ? (
+//                 <li className="text-gray-500">No income yet.</li>
                 <EmptyState message="Add your first income." type="list" />
+
+              ) : (
+                recentIncome.map((income) => (
+                  <TransactionInfoCard
+                    key={income.id}
+                    title={income.name}
+                    icon={income.icon}
+                    date={moment(income.createdAt).format("Do MMM YYYY")}
+                    amount={income.amount}
+                    page="home"
+                    type="income"
+                    categoryName={income.categoryName}
+                    onDelete={() => onDelete(income)}
+                  />
+                ))
               )}
 
-              {recentIncome.map((expense) => (
-                <TransactionInfoCard
-                  key={expense.id}
-                  title={expense.name}
-                  icon={expense.icon}
-                  date={moment(expense.date).format("Do MMM YYYY")}
-                  amount={expense.amount}
-                  page='home'
-                  type='income'
-                  categoryName={expense.categoryName}
-
-                  onDelete={() => onDelete(expense)}
-                />
-              ))}
 
             </ul>
 
@@ -208,13 +224,15 @@ const Home = () => {
             {/*  Expense List */}
             <ul className="space-y-3 pr-2">
 
-              {recentExpense.length === 0 && (
+              {!recentExpense || recentExpense.length === 0 && (
+//                 <li className="text-gray-500">No expenses yet.</li>
                 <EmptyState message="Add your first expense." type="list" />
+
               )}
 
               {/* transaction listing */}
 
-              {recentExpense.map((expense) => (
+              {recentExpense && recentExpense.map((expense) => (
                 <TransactionInfoCard
                   key={expense.id}
                   title={expense.name}

@@ -7,7 +7,7 @@ const AddCategoryForm = ({ onSubmit, onClose, initialCategoryData, isEditing }) 
   const [category, setCategory] = useState({
     name: "",
     type: "income",
-    icon: "",
+    emoji: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ const AddCategoryForm = ({ onSubmit, onClose, initialCategoryData, isEditing }) 
       console.log("Prefilling form:", initialCategoryData);
       setCategory(initialCategoryData);
     } else {
-      setCategory({ name: "", type: "income", icon: "" });
+      setCategory({ name: "", type: "income", emoji: "" });
     }
   }, [isEditing, initialCategoryData]);
 
@@ -50,9 +50,9 @@ const AddCategoryForm = ({ onSubmit, onClose, initialCategoryData, isEditing }) 
       {/* Emoji Picker */}
       <div className="flex items-center gap-4 ">
         <EmojiPickerComponent
-          selectedEmoji={category.icon}
+          selectedEmoji={category.emoji}
           className="bg-green-500"
-          onSelect={(emoji) => handleChange("icon", emoji)}
+          onSelect={(emoji) => handleChange("emoji", emoji)}
         />
         <span className="text-sm text-gray-700">Pick Icon</span>
       </div>

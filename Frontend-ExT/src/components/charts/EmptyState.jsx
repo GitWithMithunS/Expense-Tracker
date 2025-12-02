@@ -11,7 +11,6 @@ const EmptyState = ({ message, type }) => {
                 }
             </div>
             
-            {/* <div className="text-6xl mb-4">📉</div> */}
 
             <p className="text-gray-600 font-medium mb-4">{message}</p>
         </div>

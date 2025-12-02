@@ -14,7 +14,7 @@ import EmptyState from "../charts/EmptyState";
 
 const OverviewSection = () => {
   const [transactions, setTransactions] = useState([]);
-
+  const {state} = useContext(TransactionContext);
   // useEffect(() => {
   //   const fetchTx = async () => {
   //     try {
@@ -28,6 +28,9 @@ const OverviewSection = () => {
   //   fetchTx();
   // }, []);
 
+  useEffect(() => {
+    setTransactions(state.transactions);
+  }, [state])
 
   // TOTALS
   const totalIncome = transactions
