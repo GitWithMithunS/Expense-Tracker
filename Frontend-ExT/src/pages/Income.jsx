@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Dashboard from '../components/common/Dashboard'
 import { API_ENDPOINTS } from '../util/apiEnpoints';
 import axiosConfig from '../util/axiosConfig';
@@ -20,6 +20,7 @@ import {
   exportToCSV,
   exportToExcel,
 } from "../util/excelUtils";
+import { TransactionContext } from '@/context/TransactionContext';
 
 
 
@@ -31,55 +32,117 @@ const Income = () => {
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
   const [openDeleteAlert, setOpenDeleteAlert] = useState({ show: false, data: null });
 
-  // Fetch income list
-  const fetchIncomeDetails = async () => {
-    try {
-      const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_INCOME);
-      setIncomeData(response.data);
-    } catch (err) {
-      showErrorToast("Failed to load income");
-      console.log(err.response?.data?.message || 'Failed fetching income details');
-    }
-  };
+  //transaction context
+  const { state ,dispatch } = useContext(TransactionContext);
 
-  // Fetch categories
-  const fetchIncomeCategories = async () => {
-    try {
-      const response = await axiosConfig.get(API_ENDPOINTS.CATEGORY_BY_TYPE("income"));
-      console.log("from fetch all category" , response.data)
-      setCategories(response.data);
-    } catch (err) {
-      showErrorToast("Failed to load categories");
-      console.log(err.response?.data?.message || 'Failed fetching income categories');
-    }
-  };
-
+  // Load data from global context
   useEffect(() => {
-    fetchIncomeDetails();
-    fetchIncomeCategories();
-  }, []);
+    setIncomeData(state.incomes);
+    setCategories(state.categories.filter(c => c.type === "INCOME"));
+  }, [state]);
 
+  // // Fetch income list
+  // const fetchIncomeDetails = async () => {
+  //   try {
+  //     const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_INCOME);
+  //     setIncomeData(response.data);
+  //   } catch (err) {
+  //     showErrorToast("Failed to load income");
+  //     console.log(err.response?.data?.message || 'Failed fetching income details');
+  //   }
+  // };
+
+  // // Fetch categories
+  // const fetchIncomeCategories = async () => {
+  //   try {
+  //     const response = await axiosConfig.get(API_ENDPOINTS.CATEGORY_BY_TYPE("income"));
+  //     console.log("from fetch all category" , response.data)
+  //     setCategories(response.data);
+  //   } catch (err) {
+  //     showErrorToast("Failed to load categories");
+  //     console.log(err.response?.data?.message || 'Failed fetching income categories');
+  //   }
+  // };
+  // useEffect(() => {
+  //   fetchIncomeDetails();
+  //   fetchIncomeCategories();
+  // }, []);
+
+  // const handleAddIncome = async (data) => {
+  //   try {
+  //     await axiosConfig.post(API_ENDPOINTS.ADD_INCOME, data);
+  //     await fetchIncomeDetails();
+  //     showSuccessToast("Income added");
+  //   } catch (err) {
+  //     showErrorToast("Failed to add income");
+  //     console.log(err.response?.data?.message || 'Failed adding income in backend');
+  //   }
+  // };
+  // handle add income 
   const handleAddIncome = async (data) => {
     try {
-      await axiosConfig.post(API_ENDPOINTS.ADD_INCOME, data);
-      await fetchIncomeDetails();
-      showSuccessToast("Income added");
+      const payload = {
+        amount: Number(data.amount),
+        description: data.description,
+        categoryId: data.categoryId
+      };
+
+      const res = await axiosConfig.post(API_ENDPOINTS.ADD_TRANSACTION, payload);
+
+      const newTx = res.data?.data; // backend returns created transaction
+
+      if (!newTx) {
+        showErrorToast("Invalid response from server! Had some issue adding ur income. PLz try again");
+        return;
+      }
+      console.log('new income added from handleaddincome' , newTx);
+
+      // Update global context without refetching
+      dispatch({
+        type: "ADD_INCOME",
+        payload: newTx
+      });
+
+      showSuccessToast("Income Added!");
+      console.log('incomedata from income page' , incomeData);
+
+      // refresh global state  
+      //instead of calling fecth all transaction for every little cahnge we have used context redcer and are manually updating the state of transaction context and backend seperatly
+      // fetchAllTransactions();
+
     } catch (err) {
+      console.log(err);
       showErrorToast("Failed to add income");
-      console.log(err.response?.data?.message || 'Failed adding income in backend');
     }
   };
 
-  const handleDeleteIncome = async (income) => {
-    try {
-      await axiosConfig.delete(API_ENDPOINTS.DELETE_INCOME(income.id));
-      await fetchIncomeDetails();
-      showSuccessToast("Income deleted");
-    } catch (err) {
-      showErrorToast("Failed to delete income");
-      console.log(err.response?.data?.message || 'Failed to  delete income in backend');
-    }
-  };
+  // const handleDeleteIncome = async (income) => {
+  //   try {
+  //     await axiosConfig.delete(API_ENDPOINTS.DELETE_INCOME(income.id));
+  //     await fetchIncomeDetails();
+  //     showSuccessToast("Income deleted");
+  //   } catch (err) {
+  //     showErrorToast("Failed to delete income");
+  //     console.log(err.response?.data?.message || 'Failed to  delete income in backend');
+  //   }
+  // };
+const handleDeleteIncome = async (income) => {
+  try {
+    await axiosConfig.delete(`/transactions/${income.id}`);
+
+    // Update global state without full reload
+    dispatch({
+      type: "DELETE_TRANSACTION",
+      payload: income.id
+    });
+
+    showSuccessToast("Income deleted");
+
+  } catch (err) {
+    console.log(err);
+    showErrorToast("Failed to delete income");
+  }
+};
 
 
 
@@ -147,7 +210,7 @@ const Income = () => {
         {/* line chart */}
         <LineChartComponent
           data={incomeData}
-          onAdd ={() => setOpenAddIncomeModal(true)}
+          onAdd={() => setOpenAddIncomeModal(true)}
           type='income'
         />
 

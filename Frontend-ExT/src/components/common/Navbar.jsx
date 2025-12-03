@@ -6,17 +6,7 @@ import Calendar from './Calendar';
 import { sendSupportEmail } from '@/util/EmailJs';
 
 // Icons
-import {
-  LogOut,
-  Menu,
-  User,
-  X,
-  Bell,
-  CalendarDays,
-  CheckCircle,
-  Trash2,
-  HelpCircle
-} from 'lucide-react';
+import {LogOut,Menu,User,X,Bell,CalendarDays,CheckCircle,Trash2,HelpCircle } from 'lucide-react';
 
 import Sidebar from './Sidebar';
 import logo from '../../assets/logo.png';
@@ -27,6 +17,7 @@ import Model from './Model';
 import ContactUsForm from '../support/ContactUsForm';
 import { showErrorToast, showSuccessToast, showWarningToast } from './CustomToast';
 
+
 const Navbar = ({ activeMenu }) => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -36,7 +27,6 @@ const Navbar = ({ activeMenu }) => {
   const [loading, setLoading] = useState(false);
 
   const [priority, setPriority] = useState("Low");
-
 
 
   const dropdownRef = useRef(null);
@@ -155,13 +145,7 @@ const Navbar = ({ activeMenu }) => {
     navigate('/dashboard');
   }
 
-
-
-
-
   const unreadCount = notifList.filter(n => !n.read).length;
-
-
 
 
   return (
@@ -188,8 +172,6 @@ const Navbar = ({ activeMenu }) => {
         </div>
 
 
-
-
         {/* RIGHT SIDE — NOTIFS, CALENDAR, PROFILE */}
         <div className="flex items-center gap-4">
 
@@ -205,7 +187,6 @@ const Navbar = ({ activeMenu }) => {
           >
             <CalendarDays className="w-5 h-5 text-purple-500" />
           </button>
-
 
 
           {/*  PROFILE DROPDOWN */}
@@ -257,7 +238,6 @@ const Navbar = ({ activeMenu }) => {
                   <LogOut className="w-4 h-4 text-purple-500" />
                   Logout
                 </button>
-
               </div>
             )}
           </div>
@@ -271,13 +251,6 @@ const Navbar = ({ activeMenu }) => {
             <Sidebar activeMenu={activeMenu} />
           </div>
         )}
-
-
-
-
-      
-
-
 
       </div>
 
@@ -304,10 +277,10 @@ const Navbar = ({ activeMenu }) => {
       )}
 
 
-        {/* calender */}
-        {showCal && (
-          <CalendarPopup open={showCal} onClose={() => setShowCal(false)} />
-        )}
+      {/* calender */}
+      {showCal && (
+        <CalendarPopup open={showCal} onClose={() => setShowCal(false)} />
+      )}
 
     </>
   );

@@ -1,4 +1,4 @@
-import { createContext, useReducer, useEffect } from "react";
+import { createContext, useReducer, useEffect, useState } from "react";
 import axiosConfig from "../util/axiosConfig";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
 
@@ -7,12 +7,10 @@ export const TransactionContext = createContext();
 const initialState = {
   balance: 0,
 
-  // Full lists
   incomes: [],
   expenses: [],
   transactions: [],
 
-  // Recent lists
   recentIncomes: [],
   recentExpenses: [],
   recentTransactions: [],
@@ -22,12 +20,21 @@ const initialState = {
 
 
 
-// ===============================
+// Helper: Normalize backend transaction → frontend format
+const normalizeTransaction = (tx) => ({
+  id: tx.id,
+  amount: Math.abs(tx.amount),
+  date: tx.createdAt,   
+  name: tx.title || tx.categoryName, 
+  icon: tx.categoryEmoji, 
+  categoryName: tx.categoryName,
+  type: tx.amount >= 0 ? "income" : "expense"
+});
+
+
 // REDUCER
-// ===============================
 function reducer(state, action) {
   switch (action.type) {
-
     case "SET_CATEGORIES":
       return { ...state, categories: action.payload };
 
@@ -44,32 +51,40 @@ function reducer(state, action) {
       };
 
     case "ADD_INCOME": {
-      const newIncome = action.payload;
+      const tx = normalizeTransaction(action.payload);
 
       return {
         ...state,
-        incomes: [newIncome, ...state.incomes],
-        recentIncomes: [newIncome, ...state.recentIncomes].slice(0, 5),
-        recentTransactions: [
-          { ...newIncome, type: "INCOME" },
-          ...state.recentTransactions,
-        ].slice(0, 5),
-        balance: state.balance + Number(newIncome.amount),
+        incomes: [tx, ...state.incomes],
+        recentIncomes: [tx, ...state.recentIncomes].slice(0, 5),
+        recentTransactions: [tx, ...state.recentTransactions].slice(0, 5),
+        balance: state.balance + tx.amount,
       };
     }
 
     case "ADD_EXPENSE": {
-      const newExpense = action.payload;
+      const tx = normalizeTransaction(action.payload);
 
       return {
         ...state,
-        expenses: [newExpense, ...state.expenses],
-        recentExpenses: [newExpense, ...state.recentExpenses].slice(0, 5),
-        recentTransactions: [
-          { ...newExpense, type: "EXPENSE" },
-          ...state.recentTransactions,
-        ].slice(0, 5),
-        balance: state.balance + Number(newExpense.amount), // amount is NEGATIVE, so adding reduces balance
+        expenses: [tx, ...state.expenses],
+        recentExpenses: [tx, ...state.recentExpenses].slice(0, 5),
+        recentTransactions: [tx, ...state.recentTransactions].slice(0, 5),
+        balance: state.balance + tx.amount,
+      };
+    }
+
+    case "DELETE_TRANSACTION": {
+      return {
+        ...state,
+        incomes: state.incomes.filter((t) => t.id !== action.payload),
+        expenses: state.expenses.filter((t) => t.id !== action.payload),
+        transactions: state.transactions.filter((t) => t.id !== action.payload),
+        recentTransactions: state.recentTransactions.filter(
+          (t) => t.id !== action.payload
+        ),
+        recentIncomes: state.recentIncomes.filter((t) => t.id !== action.payload),
+        recentExpenses: state.recentExpenses.filter((t) => t.id !== action.payload),
       };
     }
 
@@ -78,35 +93,38 @@ function reducer(state, action) {
   }
 }
 
-// ===============================
+
+
 // PROVIDER
-// ===============================
 export default function TransactionProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [notification , setNotifications] = useState([]);
 
-  // -------------------------------------------
-  // Fetch ALL transactions and categorize them
-  // -------------------------------------------
+
+  // ----------------------------------------------------
+  // Fetch ALL transactions → Normalize → Store globally
+  // ----------------------------------------------------
   const fetchAllTransactions = async () => {
     try {
       const res = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
 
       const list = res.data?.data || [];
-      
-      console.log('from transaction context -> fetch all transactions: ' ,res.data);
+
+      // Normalize backend fields
+      const normalized = list.map(normalizeTransaction);
+
       // Sort newest first
-      const sorted = [...list].sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      const sorted = [...normalized].sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
       );
 
-      // Categorize
-      const incomes = sorted.filter((tx) => tx.amount >= 0);
-      const expenses = sorted.filter((tx) => tx.amount < 0);
-      
-      const balance = incomes.reduce((sum, i) => sum + i.amount, 0) +
-      expenses.reduce((sum, e) => sum + e.amount, 0);
-      
-      console.log('from transaction context -> income: ' , incomes , 'expense: ' , expenses , 'balance: ', balance);
+      const incomes = sorted.filter((tx) => tx.type === "income");
+      const expenses = sorted.filter((tx) => tx.type === "expense");
+
+      const balance =
+        incomes.reduce((sum, i) => sum + i.amount, 0) +
+        expenses.reduce((sum, e) => sum + e.amount, 0);
+
       dispatch({
         type: "SET_ALL_DATA",
         payload: {
@@ -119,39 +137,49 @@ export default function TransactionProvider({ children }) {
           balance,
         },
       });
-
     } catch (err) {
-      console.error("Failed to load all transactions", err);
+      console.error("Failed to load transactions", err);
     }
   };
 
-  // -------------------------------------------
-  // Fetch categories
-  // -------------------------------------------
+
+  // ----------------------------------------------------
+  // Fetch Categories ONLY once
+  // ----------------------------------------------------
   const fetchCategories = async () => {
     try {
       const res = await axiosConfig.get(API_ENDPOINTS.GET_ALL_CATEGORIES);
-      console.log('from transaction context -> categories ' ,res.data);
       dispatch({ type: "SET_CATEGORIES", payload: res.data });
     } catch (err) {
       console.error("Failed to load categories", err);
     }
   };
 
-  // First-time load
+//  // FETCH NOTIFICATIONS (API)
+  // const fetchNotifications = async () => {
+  //   try {
+  //     const res = await axiosConfig.get("/notifications");
+  //     setNotifications(res.data.data);   // backend gives {status, message, data: []}
+  //   } catch (err) {
+  //     console.error("Failed to fetch notifications", err);
+  //   }
+  // };
+
+  // Initial Load
   useEffect(() => {
-  //     const token = localStorage.getItem("token");
-  // if (!token) return; // do nothing when logged out
     fetchCategories();
     fetchAllTransactions();
+    // fetchNotifications();
   }, []);
 
   return (
-    <TransactionContext.Provider value={{
-      state,
-      dispatch,
-      fetchAllTransactions,
-    }}>
+    <TransactionContext.Provider
+      value={{
+        state,
+        dispatch,
+        fetchAllTransactions,
+      }}
+    >
       {children}
     </TransactionContext.Provider>
   );

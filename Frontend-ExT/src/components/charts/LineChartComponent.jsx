@@ -1,5 +1,5 @@
 import moment from "moment";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer
@@ -19,6 +19,32 @@ const LineChartComponent = ({ data, type = "income", onAdd }) => {
   const emptyMsg = type === "income"
     ? "No income chart data available. Add your first income."
     : "No expense chart data available. Add your first expense.";
+
+
+
+  const processedData = useMemo(() => {
+    const grouped = {};
+          console.log('income data from line chart page' , data);
+
+
+    data.forEach((item) => {
+      // Convert createdAt to YYYY-MM-DD format using moment
+      const date = moment(item.date).format("YYYY-MM-DD");
+
+      if (!grouped[date]) {
+        grouped[date] = { date, amount: 0 };
+      }
+
+      grouped[date].amount += Number(item.amount);
+    });
+
+    // return array of {date, amount}
+    return Object.values(grouped).sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
+  }, [data]);
+
+
 
   if (!data.length) {
     return (
@@ -57,7 +83,7 @@ const LineChartComponent = ({ data, type = "income", onAdd }) => {
       {/* CHART */}
       <div className="h-60 sm:h-72 md:h-80 w-full overflow-x-auto">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
+          <LineChart data={processedData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#ddd" />
             <XAxis
               dataKey="date"

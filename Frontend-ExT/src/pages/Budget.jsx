@@ -5,6 +5,7 @@ import { API_ENDPOINTS } from "../util/apiEnpoints";
 import { TrendingUp, TrendingDown, Calendar, Plus } from "lucide-react";
 import AddBudgetMasterForm from "../components/home/AddBudgetForm";
 import Model from "@/components/common/Model";
+import EmptyState from "@/components/charts/EmptyState";
 
 const Budget = () => {
     // ----------------------------------------
@@ -26,8 +27,8 @@ const Budget = () => {
 
     const upcomingMonths = generateUpcomingMonths();
     const [selectedMonth, setSelectedMonth] = useState(upcomingMonths[0]);
-    const [selectedType, setSelectedType] = useState(null);
     const [subscriptions, setSubscriptions] = useState([]);
+    const [categoryBudgets, setCategoryBudgets] = useState([]);
 
     // ----------------------------------------
     // API STATES
@@ -54,21 +55,25 @@ const Budget = () => {
     // ----------------------------------------
     // Fetch all data
     // ----------------------------------------
-    useEffect(() => {
-        const fetchAll = async () => {
-            try {
-                const budgetRes = await axiosConfig.get(API_ENDPOINTS.GET_BUDGET_DATA);
-                const goalsRes = await axiosConfig.get(API_ENDPOINTS.GET_GOALS);
+    // useEffect(() => {
+    //     const fetchAll = async () => {
+    //         try {
+    //             const budgetRes = await axiosConfig.get(API_ENDPOINTS.GET_BUDGET_DATA);
+    //             console.log("API response", budgetRes.data.categories);
 
-                setBudgets(budgetRes.data || []);
-                setGoals(goalsRes.data || []);
-            } catch (err) {
-                console.error("Budget fetch error:", err);
-            }
-        };
+    //             setBudgets([budgetRes.data]);
+    //             setGoals(budgetRes.data.goals || []);
+    //             setSubscriptions(budgetRes.data.subscriptions || []);
+    //             console.log("Subscriptions from API:", budgetRes.data.subscriptions);
+    //             setCategoryBudgets(budgetRes.data.categories || []);
+    //             console.log("Categories fetched", budgetRes.data.categories)
+    //         } catch (err) {
+    //             console.error("Budget fetch error:", err);
+    //         }
+    //     };
 
-        fetchAll();
-    }, []);
+    //     fetchAll();
+    // }, []);
 
     // ----------------------------------------
     // Current month budget
@@ -78,10 +83,12 @@ const Budget = () => {
         [budgets, selectedMonth]
     );
 
+
     const hasBudget = Boolean(currentBudget);
 
     const totalBudget = currentBudget?.totalBudget || 0;
-    const categories = currentBudget?.categories || [];
+    const categories = categoryBudgets;
+
 
     const categorySpent = currentBudget?.spentByCategory || {};
 
@@ -212,7 +219,7 @@ const Budget = () => {
                     <h2 className="text-lg font-semibold mb-4">{formatMonth(selectedMonth)} Overview</h2>
 
                     {!hasBudget ? (
-                        <p className="text-gray-500">No budget set for this month.</p>
+                        <EmptyState message=" Add your budget." type="list" />
                     ) : (
                         <>
                             {/* Total Budget */}
@@ -246,13 +253,13 @@ const Budget = () => {
 
                             <div className="space-y-4">
                                 {categories.map((cat) => {
-                                    const spent = categorySpent[cat.category] || 0;
+                                    const spent = cat.spent ?? 0;
                                     const percent = Math.min((spent / cat.limit) * 100, 100);
 
                                     return (
-                                        <div key={cat.categoryName + "-" + cat.limit}>
+                                        <div key={cat.categories + "-" + cat.limit}>
                                             <div className="flex justify-between text-sm mb-1">
-                                                <span className="font-medium">{cat.category}</span>
+                                                <span className="font-medium">{cat.categories}</span>
                                                 <span className="text-gray-600">
                                                     ₹{spent} / ₹{cat.limit}
                                                 </span>
@@ -261,10 +268,10 @@ const Budget = () => {
                                             <div className="w-full h-2 bg-gray-200 rounded-full">
                                                 <div
                                                     className={`h-full rounded-full ${percent > 90
-                                                            ? "bg-red-500"
-                                                            : percent > 50
-                                                                ? "bg-yellow-500"
-                                                                : "bg-green-500"
+                                                        ? "bg-red-500"
+                                                        : percent > 50
+                                                            ? "bg-yellow-500"
+                                                            : "bg-green-500"
                                                         }`}
                                                     style={{ width: `${percent}%` }}
                                                 ></div>
@@ -272,6 +279,7 @@ const Budget = () => {
                                         </div>
                                     );
                                 })}
+
                             </div>
                         </>
                     )}
@@ -285,7 +293,7 @@ const Budget = () => {
                     <h2 className="text-lg font-semibold mb-4">Saving Goals (Active this month)</h2>
 
                     {activeGoals.length === 0 ? (
-                        <p className="text-gray-500">No active goals for this month.</p>
+                        <EmptyState message="Add your monthly goals." type="list" />
                     ) : (
                         <div className="grid md:grid-cols-2 gap-6">
                             {activeGoals.map((goal) => {
@@ -296,21 +304,21 @@ const Budget = () => {
 
                                 return (
                                     <div key={goal.id} className="p-4 rounded-lg border shadow-sm bg-white">
-                                        <h3 className="font-semibold text-gray-800">{goal.title}</h3>
+                                        <h3 className="font-semibold text-gray-800">{goal.goalName}</h3>
 
                                         <p className="text-sm text-gray-500 mt-1">
-                                            Target: ₹{goal.targetAmount.toLocaleString("en-IN")}
+                                            Target: ₹{goal.target.toLocaleString("en-IN")}
                                         </p>
 
                                         <div className="mt-3 bg-gray-200 h-2 rounded-full">
                                             <div
                                                 className="bg-green-500 h-full rounded-full"
-                                                style={{ width: `${progress}%` }}
+                                                style={{ width: `${Math.min((goal.saved / goal.target) * 100, 100)}%` }}
                                             ></div>
                                         </div>
 
                                         <p className="text-sm font-medium text-green-700 mt-2">
-                                            ₹{goal.currentAmount.toLocaleString("en-IN")} saved
+                                            ₹{goal.saved.toLocaleString("en-IN")} saved
                                         </p>
                                     </div>
                                 );
@@ -327,7 +335,7 @@ const Budget = () => {
                     <h2 className="text-lg font-semibold mb-4">Subscriptions</h2>
 
                     {filteredSubscriptions.length === 0 ? (
-                        <p className="text-gray-500">No subscriptions added.</p>
+                        <EmptyState message="Add your subscriptions." type="list" />
                     ) : (
                         <div className="space-y-4">
                             {filteredSubscriptions.map((sub, index) => (
@@ -367,13 +375,13 @@ const Budget = () => {
                     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
                         <div className="bg-white w-full max-w-2xl p-8 rounded-xl shadow-lg">
 
-                                <AddBudgetMasterForm
-                                    selectedMonth={selectedMonth}
-                                    onClose={() => setShowAddBudget(false)}
-                                    onSaveBudget={handleSaveBudget}
-                                    onSaveGoal={handleSaveGoal}
-                                    onSaveSubscription={handleSaveSubscription}
-                                />
+                            <AddBudgetMasterForm
+                                selectedMonth={selectedMonth}
+                                onClose={() => setShowAddBudget(false)}
+                                onSaveBudget={handleSaveBudget}
+                                onSaveGoal={handleSaveGoal}
+                                onSaveSubscription={handleSaveSubscription}
+                            />
                         </div>
                     </div>
                 )}

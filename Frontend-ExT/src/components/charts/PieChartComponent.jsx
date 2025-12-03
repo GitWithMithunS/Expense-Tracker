@@ -37,25 +37,46 @@ const PieChartComponent = ({ data, categories, type = "income" }) => {
     );
   }
 
-  const chartData = useMemo(() => {
-    const map = {};
+  // const chartData = useMemo(() => {
+  //   const map = {};
 
-    data.forEach((item) => {
-      const cat = categories.find((c) => c.id === item.categoryId);
-      if (!cat) return;
+  //   data.forEach((item) => {
+  //     const cat = categories.find((c) => c.id === item.categoryId);
+  //     if (!cat) return;
 
-      if (!map[cat.name]) {
-        map[cat.name] = {
-          name: `${cat.icon} ${cat.name}`,
-          value: 0,
-        };
-      }
+  //     if (!map[cat.name]) {
+  //       map[cat.name] = {
+  //         name: `${cat.icon} ${cat.name}`,
+  //         value: 0,
+  //       };
+  //     }
 
-      map[cat.name].value += item.amount;
-    });
+  //     map[cat.name].value += item.amount;
+  //   });
 
-    return Object.values(map);
-  }, [data, categories]);
+  //   return Object.values(map);
+  // }, [data, categories]);
+const chartData = useMemo(() => {
+  const map = {};
+
+  data.forEach((item) => {
+    const cat = categories.find((c) => c.name === item.categoryName);
+    if (!cat) return;
+
+    if (!map[cat.name]) {
+      map[cat.name] = {
+        name: `${cat.emoji || cat.icon || ""} ${cat.name}`,
+        value: 0
+      };
+    }
+
+    // income = positive, expense = negative → convert to positive for chart
+    map[cat.name].value += Math.abs(item.amount);
+  });
+
+  return Object.values(map);
+}, [data, categories]);
+
 
   return (
     <div className="bg-white p-5 rounded-xl shadow-md border border-gray-200 w-full">
