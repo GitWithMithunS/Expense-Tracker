@@ -143,7 +143,7 @@ const Bills = () => {
 
       {/* BILL GRID */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {filtered.length === 0 ? (
+        {!filtered || filtered.length === 0 ? (
           <div className="col-span-full text-center py-10">
             <EmptyState message="You haven't uploaded any bills." type="list" />
           </div>

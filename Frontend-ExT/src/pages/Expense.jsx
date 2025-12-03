@@ -20,6 +20,7 @@ import {
   exportToExcel,
 } from "../util/excelUtils";
 import { TransactionContext } from "@/context/TransactionContext";
+import { AppContextProvider } from "@/context/AppContext";
 
 const Expense = () => {
   const [expenseData, setExpenseData] = useState([]);
@@ -30,91 +31,149 @@ const Expense = () => {
     show: false,
     data: null,
   });
-  const {expenses } = useContext(TransactionContext);
+
+  const {state , dispatch} = useContext(TransactionContext);
+
   // setExpenseData(expenses);
 
   /* --------------------------------------------
-    FETCH ALL EXPENSES
+      LOAD DATA FROM GLOBAL CONTEXT
   -------------------------------------------- */
-  const fetchExpenseDetails = async () => {
-    console.log(" Fetching expense details...");
-    try {
-      const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_EXPENSE);
-      console.log("✔ Expense list fetched:", response.data);
-      setExpenseData(response.data);
-    } catch (err) {
-      showErrorToast("Failed to load expenses");
-      console.log(
-        "Expense fetch error:",
-        err.response?.data?.message || err.message
-      );
-    }
-  };
-
-  /* --------------------------------------------
-    FETCH CATEGORIES FOR EXPENSE
-  -------------------------------------------- */
-  const fetchExpenseCategories = async () => {
-    console.log("Fetching expense categories...");
-    try {
-      const response = await axiosConfig.get(
-        API_ENDPOINTS.CATEGORY_BY_TYPE("expense")
-      );
-      console.log("✔ Expense categories fetched:", response.data);
-      setCategories(response.data);
-    } catch (err) {
-      showErrorToast("Failed to load categories");
-      console.log(
-        " Expense category fetch error:",
-        err.response?.data?.message || err.message
-      );
-    }
-  };
-
-
-  // initial loading once the page is rendered for the first time
   useEffect(() => {
-    fetchExpenseDetails();
-    fetchExpenseCategories();
-  }, []);
+    setExpenseData(state.expenses);
+    setCategories(state.categories.filter((c) => c.type === "EXPENSE"));
+  }, [state]);
 
   /* --------------------------------------------
-    ADD EXPENSE
+      ADD EXPENSE
   -------------------------------------------- */
   const handleAddExpense = async (data) => {
-    console.log(" Adding new expense:", data);
     try {
-      await axiosConfig.post(API_ENDPOINTS.ADD_EXPENSE, data);
-      console.log("✔ Expense added successfully");
-      await fetchExpenseDetails();
-      showSuccessToast("Expense added");
+      const payload = {
+        amount: Number(data.amount),
+        description: data.description,
+        categoryId: data.categoryId,
+      };
+
+      const res = await axiosConfig.post(API_ENDPOINTS.ADD_TRANSACTION, payload);
+      const newExpense = res.data?.data;
+
+      if (!newExpense) {
+        showErrorToast("Something went wrong while adding expense");
+        return;
+      }
+
+      dispatch({
+        type: "ADD_EXPENSE",
+        payload: newExpense,
+      });
+
+      showSuccessToast("Expense Added!");
     } catch (err) {
+      console.log(err);
       showErrorToast("Failed to add expense");
-      console.log(
-        " Add expense error:",
-        err.response?.data?.message || err.message
-      );
     }
   };
 
   /* --------------------------------------------
-    DELETE EXPENSE
+      DELETE EXPENSE
   -------------------------------------------- */
   const handleDeleteExpense = async (expense) => {
-    console.log("🗑 Deleting expense:", expense);
     try {
-      await axiosConfig.delete(API_ENDPOINTS.DELETE_EXPENSE(expense.id));
-      console.log("✔ Expense deleted");
-      await fetchExpenseDetails();
+      await axiosConfig.delete(`/transactions/${expense.id}`);
+
+      dispatch({
+        type: "DELETE_TRANSACTION",
+        payload: expense.id,
+      });
+
       showSuccessToast("Expense deleted");
     } catch (err) {
+      console.log(err);
       showErrorToast("Failed to delete expense");
-      console.log(
-        " Delete expense error:",
-        err.response?.data?.message || err.message
-      );
     }
   };
+
+  // /* --------------------------------------------
+  //   FETCH ALL EXPENSES
+  // -------------------------------------------- */
+  // const fetchExpenseDetails = async () => {
+  //   console.log(" Fetching expense details...");
+  //   try {
+  //     const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_EXPENSE);
+  //     console.log("✔ Expense list fetched:", response.data);
+  //     setExpenseData(response.data);
+  //   } catch (err) {
+  //     showErrorToast("Failed to load expenses");
+  //     console.log(
+  //       "Expense fetch error:",
+  //       err.response?.data?.message || err.message
+  //     );
+  //   }
+  // };
+
+  // /* --------------------------------------------
+  //   FETCH CATEGORIES FOR EXPENSE
+  // -------------------------------------------- */
+  // const fetchExpenseCategories = async () => {
+  //   console.log("Fetching expense categories...");
+  //   try {
+  //     const response = await axiosConfig.get(
+  //       API_ENDPOINTS.CATEGORY_BY_TYPE("expense")
+  //     );
+  //     console.log("✔ Expense categories fetched:", response.data);
+  //     setCategories(response.data);
+  //   } catch (err) {
+  //     showErrorToast("Failed to load categories");
+  //     console.log(
+  //       " Expense category fetch error:",
+  //       err.response?.data?.message || err.message
+  //     );
+  //   }
+  // };
+  // // initial loading once the page is rendered for the first time
+  // useEffect(() => {
+  //   fetchExpenseDetails();
+  //   fetchExpenseCategories();
+  // // }, []);
+
+  // /* --------------------------------------------
+  //   ADD EXPENSE
+  // -------------------------------------------- */
+  // const handleAddExpense = async (data) => {
+  //   console.log(" Adding new expense:", data);
+  //   try {
+  //     await axiosConfig.post(API_ENDPOINTS.ADD_EXPENSE, data);
+  //     console.log("✔ Expense added successfully");
+  //     await fetchExpenseDetails();
+  //     showSuccessToast("Expense added");
+  //   } catch (err) {
+  //     showErrorToast("Failed to add expense");
+  //     console.log(
+  //       " Add expense error:",
+  //       err.response?.data?.message || err.message
+  //     );
+  //   }
+  // };
+
+  // /* --------------------------------------------
+  //   DELETE EXPENSE
+  // -------------------------------------------- */
+  // const handleDeleteExpense = async (expense) => {
+  //   console.log("🗑 Deleting expense:", expense);
+  //   try {
+  //     await axiosConfig.delete(API_ENDPOINTS.DELETE_EXPENSE(expense.id));
+  //     console.log("✔ Expense deleted");
+  //     await fetchExpenseDetails();
+  //     showSuccessToast("Expense deleted");
+  //   } catch (err) {
+  //     showErrorToast("Failed to delete expense");
+  //     console.log(
+  //       " Delete expense error:",
+  //       err.response?.data?.message || err.message
+  //     );
+  //   }
+  // };
 
 
   // DOWNLOAD: EXCEL / CSV / PDF
@@ -188,7 +247,7 @@ const Expense = () => {
         {/* BAR + PIE */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 auto-rows-[1fr]">
           <BarChartComponent data={expenseData} type="expense" />
-          {/* <PieChartComponent data={expenseData} categories={categories} type="expense" /> */}
+          <PieChartComponent data={expenseData} categories={categories} type="expense" />
         </div>
 
         {/* EXPENSE LIST */}

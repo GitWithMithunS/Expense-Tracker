@@ -1,48 +1,103 @@
-import React, { useState, useEffect } from "react";
+// ---------------- FILTER PAGE ----------------
+
+import React, { useState, useEffect, useContext } from "react";
 import Dashboard from "../components/common/Dashboard";
 import axiosConfig from "../util/axiosConfig";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
 import EmptyState from "@/components/charts/EmptyState";
-import { SlidersHorizontal, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, ChevronDown, TrendingUpDownIcon, TrendingUpIcon, TrendingUp, TrendingDownIcon } from "lucide-react";
 
-import  useUniversalFilter  from "../components/common/FilterLogic";
+import useUniversalFilter from "../components/common/FilterLogic";
+import { TransactionContext } from "@/context/TransactionContext";
+import moment from "moment";
 
 const Filter = () => {
   const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // Load transactions
-  useEffect(() => {
-    const load = async () => {
-      const res = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
-      setTransactions(res.data || []);
-    };
-    load();
-  }, []);
+  // Load categories from global context
+  const { state } = useContext(TransactionContext);
+  const categories = state.categories || [];
 
+  // filter UI hook
   const {
     filters,
-    filteredTransactions,
     dropdown,
     filterButtons,
     toggleDropdown,
     updateFilter,
     clearFilters,
-    getFilterLabel
-  } = useUniversalFilter(transactions);
+    getFilterLabel,
+  } = useUniversalFilter();
+
+  // ---------------------------------------
+  // BUILD QUERY PARAMS
+  // ---------------------------------------
+  const buildQuery = () => {
+    const params = {};
+
+    if (filters.type) params.type = filters.type.toUpperCase();
+
+    if (filters.categoryId) params.categoryId = filters.categoryId;
+
+    if (filters.startDate) params.start = filters.startDate;
+    if (filters.endDate) params.end = filters.endDate;
+
+    // Amount filtering
+    if (filters.minAmount) params.min = filters.minAmount;
+    if (filters.maxAmount) params.max = filters.maxAmount;
+
+    // Sorting
+    if (filters.sortBy) {
+      if (filters.sortBy.includes("asc")) params.sort = "asc";
+      if (filters.sortBy.includes("desc")) params.sort = "desc";
+    }
+
+    return params;
+  };
+
+  // ---------------------------------------
+  // FETCH FILTERED RESULTS
+  // ---------------------------------------
+  const fetchFilteredData = async () => {
+    try {
+      setLoading(true);
+
+      const query = buildQuery();
+
+      const res = await axiosConfig.get(API_ENDPOINTS.FILTER_TRANSACTIONS, {
+        params: query,
+      });
+
+      const list = res.data?.data?.data || [];
+      setTransactions(list);
+    } catch (err) {
+      console.error("Filter error", err);
+      setTransactions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // API Trigger
+  useEffect(() => {
+    fetchFilteredData();
+  }, [filters]);
 
   return (
     <Dashboard activeMenu="Filter">
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
 
         {/* FILTER BAR */}
-        <div className="flex items-center gap-4 bg-white shadow rounded-xl p-4">
+        <div className="flex flex-wrap items-center gap-4 bg-white shadow rounded-xl p-4">
 
-          <div className="p-3 bg-grey rounded-lg shadow-sm ">
+          <div className="p-3 rounded-lg shadow-sm bg-gray-100">
             <SlidersHorizontal className="text-gray-600" />
           </div>
 
+          {/* Filter Buttons */}
           {filterButtons.map((item) => (
-            <div key={item.id} className="relative ">
+            <div key={item.id} className="relative">
               <button
                 onClick={() => toggleDropdown(item.id)}
                 className="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg shadow-sm hover:shadow-md cursor-pointer"
@@ -51,67 +106,112 @@ const Filter = () => {
                 <ChevronDown size={16} />
               </button>
 
+              {/* Dropdowns */}
               {dropdown === item.id && (
                 <div className="absolute top-12 left-0 bg-white border shadow-lg rounded-lg p-4 w-56 z-20">
-                  {/* PAYMENT METHOD */}
-                  {item.id === "paymentMethod" &&
-                    ["cash", "card", "upi", "netbanking"].map((pm) => (
-                      <p
-                        key={pm}
-                        className="cursor-pointer p-2 hover:bg-gray-100 rounded"
-                        onClick={() => updateFilter("paymentMethod", pm)}
-                      >
-                        {pm.toUpperCase()}
-                      </p>
-                    ))}
-
-                  {/* SORT */}
-                  {item.id === "sortBy" && (
-                    <>
-                      <p onClick={() => updateFilter("sortBy", "date-asc")} className="dropdown-opt cursor-pointer">
-                        Date (Old → New)
-                      </p>
-                      <p onClick={() => updateFilter("sortBy", "date-desc")} className="dropdown-opt cursor-pointer">
-                        Date (New → Old)
-                      </p>
-                      <p onClick={() => updateFilter("sortBy", "amount-asc")} className="dropdown-opt cursor-pointer">
-                        Amount (Low → High)
-                      </p>
-                      <p onClick={() => updateFilter("sortBy", "amount-desc")} className="dropdown-opt cursor-pointer">
-                        Amount (High → Low)
-                      </p>
-                    </>
-                  )}
 
                   {/* TYPE */}
                   {item.id === "type" && (
                     <>
-                      <p onClick={() => updateFilter("type", "income")} className="cursor-pointer p-2 hover:bg-gray-100 rounded">
+                      <p className="p-2 hover:bg-gray-100 cursor-pointer"
+                         onClick={() => updateFilter("type", "income")}>
                         Income
                       </p>
-                      <p onClick={() => updateFilter("type", "expense")} className="cursor-pointer p-2 hover:bg-gray-100 rounded">
+                      <p className="p-2 hover:bg-gray-100 cursor-pointer"
+                         onClick={() => updateFilter("type", "expense")}>
                         Expense
                       </p>
                     </>
                   )}
 
-                  {/* DATE */}
+                  {/* CATEGORY */}
+                  {item.id === "category" && (
+                    <>
+                      {categories.map((cat) => (
+                        <p
+                          key={cat.id}
+                          className="cursor-pointer p-2 hover:bg-gray-100 rounded"
+                          onClick={() =>
+                            updateFilter("categoryId", cat.id)
+                          }
+                        >
+                          {cat.icon} {cat.name}
+                        </p>
+                      ))}
+                    </>
+                  )}
+
+                  {/* DATE RANGE */}
                   {item.id === "date" && (
-                    <div>
+                    <>
                       <label className="text-xs text-gray-500">Start Date</label>
                       <input
                         type="date"
                         className="border w-full rounded px-3 py-2 mb-3"
-                        onChange={(e) => updateFilter("startDate", e.target.value)}
+                        onChange={(e) =>
+                          updateFilter("startDate", e.target.value)
+                        }
                       />
+
                       <label className="text-xs text-gray-500">End Date</label>
                       <input
                         type="date"
                         className="border w-full rounded px-3 py-2"
-                        onChange={(e) => updateFilter("endDate", e.target.value)}
+                        onChange={(e) =>
+                          updateFilter("endDate", e.target.value)
+                        }
                       />
-                    </div>
+                    </>
                   )}
+
+                  {/* SORT */}
+                  {item.id === "sortBy" && (
+                    <>
+                      <p className="p-2 hover:bg-gray-100 cursor-pointer"
+                         onClick={() => updateFilter("sortBy", "date-asc")}>
+                        Date (Old → New)
+                      </p>
+
+                      <p className="p-2 hover:bg-gray-100 cursor-pointer"
+                         onClick={() => updateFilter("sortBy", "date-desc")}>
+                        Date (New → Old)
+                      </p>
+
+                      <p className="p-2 hover:bg-gray-100 cursor-pointer"
+                         onClick={() => updateFilter("sortBy", "amount-asc")}>
+                        Amount (Low → High)
+                      </p>
+
+                      <p className="p-2 hover:bg-gray-100 cursor-pointer"
+                         onClick={() => updateFilter("sortBy", "amount-desc")}>
+                        Amount (High → Low)
+                      </p>
+                    </>
+                  )}
+
+                  {/* AMOUNT RANGE */}
+                  {item.id === "amount" && (
+                    <>
+                      <label className="text-xs text-gray-500">Min Amount</label>
+                      <input
+                        type="number"
+                        className="border w-full rounded px-3 py-2 mb-3"
+                        onChange={(e) =>
+                          updateFilter("minAmount", e.target.value)
+                        }
+                      />
+
+                      <label className="text-xs text-gray-500">Max Amount</label>
+                      <input
+                        type="number"
+                        className="border w-full rounded px-3 py-2"
+                        onChange={(e) =>
+                          updateFilter("maxAmount", e.target.value)
+                        }
+                      />
+                    </>
+                  )}
+
                 </div>
               )}
             </div>
@@ -119,38 +219,47 @@ const Filter = () => {
 
           <button
             onClick={clearFilters}
-            className="ml-auto px-4 py-2 text-white bg-purple-600 hover:bg-purple-500 rounded-lg text-sm cursor-pointer"
+            className="ml-auto px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg"
           >
             Clear All
           </button>
-
         </div>
 
-        {/* RESULT GRID */}
+        {/* RESULTS */}
         <div className="mt-6">
-          {filteredTransactions.length === 0 ? (
-            <EmptyState message="No transaction to filter." type="list" />
+          {loading ? (
+            <p className="text-gray-500 text-center">Loading...</p>
+          ) : transactions.length === 0 ? (
+            <EmptyState message="No transactions found." type="list" />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredTransactions.map((t) => (
+              {transactions.map((t) => (
                 <div key={t.id} className="bg-white rounded-2xl shadow p-5 border">
                   <div className="flex justify-between items-center mb-3">
-                    <div className="text-4xl">{t.icon}</div>
+                    <div className="text-4xl">{t.categoryEmoji}</div>
                     <p
                       className={`text-xl font-bold ${
-                        t.type === "income" ? "text-green-600" : "text-red-500"
+                        t.categoryType === "INCOME"
+                          ? "text-green-600"
+                          : "text-red-500"
                       }`}
                     >
-                      {t.type === "income" ? "+ " : "- "}₹{t.amount}
+                      <div className="flex gap-1">
+
+                      {t.categoryType === "INCOME" ? "+ " : "- "}
+                      ₹{Math.abs(t.amount)}
+                      {t.categoryType === "INCOME" ? <TrendingUpIcon/> : <TrendingDownIcon/>}
+                      </div>
                     </p>
                   </div>
-                  <p className="text-lg font-semibold text-gray-800">{t.categoryName}</p>
-                  <span className="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full mt-2 inline-block">
-                    {t.paymentMethod.toUpperCase()}
-                  </span>
-                  {t.notes && <p className="text-sm text-gray-500 mt-3">{t.notes}</p>}
-                  <div className="mt-4 bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-sm">
-                    {t.date}
+
+                  <p className="text-lg font-semibold text-gray-800">
+                    {t.categoryName}
+                  </p>
+
+                  <div className="mt-4 text-sm bg-blue-50 px-4 py-2 rounded-xl">
+                    {/* {t.createdAt} */}
+                    {moment(t.createdAt).format("Do MMM YYYY")}
                   </div>
                 </div>
               ))}

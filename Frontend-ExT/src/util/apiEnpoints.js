@@ -56,13 +56,17 @@ export const API_ENDPOINTS = {
   // ---------------- TRANSACTIONS ----------------
   ADD_TRANSACTION: "/transactions", // POST
   GET_ALL_TRANSACTIONS: "/transactions", // if needed (not in demo but exists in backend)
-  FILTER_TRANSACTIONS: (type) => `/transactions/filter?type=${type}`, // GET
+  // FILTER_TRANSACTIONS: (type) => `/transactions/filter?type=${type}`, // GET
+  FILTER_TRANSACTIONS: "/transactions/filter", // <-- FIXED  
   MONTHLY_SUMMARY: (year) => `/transactions/summary/monthly?year=${year}`,
   CATEGORY_SUMMARY: "/transactions/summary/by-category",
+
 
   // ---------------- NOTIFICATIONS ----------------
   GET_NOTIFICATIONS: "/notifications", // GET
   MARK_ALL_READ: "/notifications/read-all", // PATCH
+  DELETE_NOTIFICATIONS: (id) => `/notifications/${id}`,  //delete
+  DELETE_ALL_NOTIFICATIONS: '/notifications/delete-all',
 
   // ---------------- SUBSCRIPTIONS ----------------
   GET_DEFAULT_PLANS: "/subscriptions/plans/default", // GET

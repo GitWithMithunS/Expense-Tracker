@@ -53,7 +53,7 @@ const Home = () => {
     setAllTransactions(state.recentTransactions);
     setRecentIncome(state.recentIncomes);
     setRecentExpense(state.recentExpenses);
-    console.log('transaction context state' , state);   //just a checker 
+    console.log('transaction context state', state);   //just a checker 
   }, [state])
 
 
@@ -175,9 +175,8 @@ const Home = () => {
             <ul className="space-y-3 pr-2">
 
               {(!recentIncome || recentIncome.length === 0) ? (
-//                 <li className="text-gray-500">No income yet.</li>
+                // <li className="text-gray-500">No income yet.</li>
                 <EmptyState message="Add your first income." type="list" />
-
               ) : (
                 recentIncome.map((income) => (
                   <TransactionInfoCard
@@ -225,9 +224,8 @@ const Home = () => {
             <ul className="space-y-3 pr-2">
 
               {!recentExpense || recentExpense.length === 0 && (
-//                 <li className="text-gray-500">No expenses yet.</li>
                 <EmptyState message="Add your first expense." type="list" />
-
+                // <li className="text-gray-500">No expenses yet.</li>
               )}
 
               {/* transaction listing */}
