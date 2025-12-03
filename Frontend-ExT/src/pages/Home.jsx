@@ -53,7 +53,7 @@ const Home = () => {
     setAllTransactions(state.recentTransactions);
     setRecentIncome(state.recentIncomes);
     setRecentExpense(state.recentExpenses);
-    console.log('transaction context state' , state);   //just a checker 
+    console.log('transaction context state', state);   //just a checker 
   }, [state])
 
 
@@ -224,7 +224,7 @@ const Home = () => {
             <ul className="space-y-3 pr-2">
 
               {!recentExpense || recentExpense.length === 0 && (
-<EmptyState message="Add your first expense." type="list" />
+                <EmptyState message="Add your first expense." type="list" />
                 // <li className="text-gray-500">No expenses yet.</li>
               )}
 
