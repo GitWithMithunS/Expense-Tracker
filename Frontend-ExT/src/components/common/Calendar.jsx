@@ -49,7 +49,7 @@ export default function CalendarPage({ onClose }) {
     [year, monthIndex]
   );
 
-  /* 🔥 FILTER TRANSACTIONS FOR CURRENT MONTH */
+  /* FILTER TRANSACTIONS FOR CURRENT MONTH */
   useEffect(() => {
     if (!state.transactions?.length) return;
 

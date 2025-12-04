@@ -117,11 +117,11 @@ const Filter = () => {
                   {item.id === "type" && (
                     <>
                       <p className="p-2 hover:bg-gray-100 cursor-pointer"
-                         onClick={() => updateFilter("type", "income")}>
+                        onClick={() => updateFilter("type", "income")}>
                         Income
                       </p>
                       <p className="p-2 hover:bg-gray-100 cursor-pointer"
-                         onClick={() => updateFilter("type", "expense")}>
+                        onClick={() => updateFilter("type", "expense")}>
                         Expense
                       </p>
                     </>
@@ -171,22 +171,22 @@ const Filter = () => {
                   {item.id === "sortBy" && (
                     <>
                       <p className="p-2 hover:bg-gray-100 cursor-pointer"
-                         onClick={() => updateFilter("sortBy", "date-asc")}>
+                        onClick={() => updateFilter("sortBy", "date-asc")}>
                         Date (Old → New)
                       </p>
 
                       <p className="p-2 hover:bg-gray-100 cursor-pointer"
-                         onClick={() => updateFilter("sortBy", "date-desc")}>
+                        onClick={() => updateFilter("sortBy", "date-desc")}>
                         Date (New → Old)
                       </p>
 
                       <p className="p-2 hover:bg-gray-100 cursor-pointer"
-                         onClick={() => updateFilter("sortBy", "amount-asc")}>
+                        onClick={() => updateFilter("sortBy", "amount-asc")}>
                         Amount (Low → High)
                       </p>
 
                       <p className="p-2 hover:bg-gray-100 cursor-pointer"
-                         onClick={() => updateFilter("sortBy", "amount-desc")}>
+                        onClick={() => updateFilter("sortBy", "amount-desc")}>
                         Amount (High → Low)
                       </p>
                     </>
@@ -230,30 +230,30 @@ const Filter = () => {
 
         {/* RESULTS */}
         {/* RESULTS */}
-<div className="mt-6 bg-white p-4 rounded-2xl shadow border">
+        <div className="mt-6 bg-white p-6 rounded-2xl shadow border-gray-100">
 
-  {loading ? (
-    <p className="text-gray-500 text-center py-10">Loading...</p>
-  ) : transactions.length === 0 ? (
-    <EmptyState message="No transactions found." type="list" />
-  ) : (
-    <div className="space-y-4">
-      {transactions.map((t) => (
-        <TransactionInfoCard
-          key={t.id}
-          icon={t.categoryEmoji}
-          title={t.categoryName}
-          date={moment(t.createdAt).format("Do MMM YYYY")}
-          amount={Math.abs(t.amount)}
-          type={t.categoryType === "INCOME" ? "income" : "expense"}
-          categoryName={t.categoryName}
-          page="filter"
-          onDelete={() => handleDelete(t.id)}   // optional delete handler
-        />
-      ))}
-    </div>
-  )}
-</div>
+          {loading ? (
+            <p className="text-gray-500 text-center py-10">Loading...</p>
+          ) : transactions.length === 0 ? (
+            <EmptyState message="No transactions found." type="list" />
+          ) : (
+            <div className="space-y-4">
+              {transactions.map((t) => (
+                <TransactionInfoCard
+                  key={t.id}
+                  icon={t.categoryEmoji}
+                  title={t.categoryName}
+                  date={moment(t.createdAt).format("Do MMM YYYY")}
+                  amount={Math.abs(t.amount)}
+                  type={t.categoryType === "INCOME" ? "income" : "expense"}
+                  categoryName={t.categoryName}
+                  page="filter"
+                  onDelete={() => handleDelete(t.id)}   // optional delete handler
+                />
+              ))}
+            </div>
+          )}
+        </div>
 
 
       </div>

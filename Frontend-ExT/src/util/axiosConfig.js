@@ -42,6 +42,25 @@ axiosConfig.interceptors.request.use(
     return Promise.reject((error));
   });
 
+// axiosConfig.interceptors.request.use(
+//   (config) => {
+//     const token = localStorage.getItem("token");
+//     const userId = localStorage.getItem("userId");
+
+//     if (token) {
+//       config.headers.Authorization = `Bearer ${token}`;
+//     }
+
+//     if (userId) {
+//       config.headers["X-User-Id"] = userId;
+//     }
+
+//     return config;
+//   },
+//   (error) => Promise.reject(error)
+// );
+
+
 
 //axios interceptor
 axiosConfig.interceptors.response.use(
@@ -67,7 +86,7 @@ axiosConfig.interceptors.response.use(
   })
 
 
-// export default axiosConfig;
+export default axiosConfig;
 
 
 
@@ -432,4 +451,4 @@ if (MOCK_MODE) {
 
 
 
-export default axiosConfig;
+// export default axiosConfig;

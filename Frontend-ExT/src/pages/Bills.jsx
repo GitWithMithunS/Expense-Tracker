@@ -2,13 +2,11 @@ import React, { useEffect, useState, useContext } from "react";
 import Dashboard from "../components/common/Dashboard";
 import AppContext from "../context/AppContext";
 
-import bill1 from "../assets/bill1.png";
-import bill2 from "../assets/bill2.jpeg";
-import bill3 from "../assets/bill3.jpeg";
-import bill4 from "../assets/bill4.jpeg";
-
 import EmptyState from "@/components/charts/EmptyState";
 import useUniversalFilter from "../components/common/FilterLogic";
+
+import axiosConfig from "@/util/axiosConfig";
+import { API_ENDPOINTS } from "@/util/apiEnpoints";
 
 const Bills = () => {
   const { user } = useContext(AppContext);
@@ -16,60 +14,67 @@ const Bills = () => {
   const [bills, setBills] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  // Initialize reusable filter hook
+  
+function formatUrl(url) {
+    // Replace 's3://' with 'https://'
+    let formattedUrl = url.replace(/^s3:\/\//, 'https://');
+
+    // Replace spaces with '+'
+    formattedUrl = formattedUrl.replace(/\s+/g, '+');
+
+    return formattedUrl;
+}
+
+
+  // Filter system
   const {
-  filters,
-  filteredTransactions: filtered,
-  updateFilter,
-  clearFilters,
-} = useUniversalFilter(bills, {
-  enablePayment: false,
-  enableType: false,
-  enableSorting: false,
-  enableCategory: true,
-  enableDate: true,
-});
+    filters,
+    filteredTransactions: filtered,
+    updateFilter,
+    clearFilters,
+  } = useUniversalFilter(bills, {
+    enablePayment: false,
+    enableType: false,
+    enableSorting: false,
+    enableCategory: true,
+    enableDate: true,
+  });
 
-
-  // Load mock data or API data
+  // --------------------------
+  // FETCH BILLS (CORRECT VERSION)
+  // --------------------------
   useEffect(() => {
-    const mockData = [
-      {
-        id: 1,
-        fileUrl: bill1,
-        description: "Electricity bill",
-        date: "2025-03-05",
-        category: "Electricity",
-      },
-      {
-        id: 2,
-        fileUrl: bill2,
-        description: "Broadband invoice",
-        date: "2025-02-07",
-        category: "WiFi",
-      },
-      {
-        id: 3,
-        fileUrl: bill3,
-        description: "Netflix subscription",
-        date: "2025-04-01",
-        category: "OTT",
-      },
-      {
-        id: 4,
-        fileUrl: bill4,
-        description: "Maintenance bill",
-        date: "2025-01-15",
-        category: "Maintenance",
-      },
-    ];
+    if (!user) return;
 
-    setBills(mockData);
+    const fetchBills = async () => {
+      try {
+        const res = await axiosConfig.get(API_ENDPOINTS.LIST_BILLS);
+
+        console.log("Raw bills from API:", res.data);
+
+        const formatted = res.data.map((bill) => ({
+          id: bill.id,
+          description: bill.description,
+          date: bill.date,
+          category: bill.categoryName || "Misc", // adjust based on backend model
+          fileUrl: `${API_ENDPOINTS.DOWNLOAD_BILL(bill.id)}`,
+        }));
+
+        console.log("Formatted bills:", formatted);
+
+        setBills(formatted);
+      } catch (error) {
+        console.error("Failed to load bills:", error);
+      }
+    };
+
+    fetchBills();
   }, [user]);
 
-  // Get category dropdown options
+  // Category list for dropdown
   const categories = [...new Set(bills.map((b) => b.category))];
 
+  // Convert stored YYYY-MM-DD to readable
   const formatDate = (date) => {
     try {
       return new Date(date).toLocaleDateString("en-US", {
@@ -82,20 +87,12 @@ const Bills = () => {
     }
   };
 
-  const downloadFile = (url, filename) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.click();
-  };
-
   return (
     <Dashboard activeMenu="Bills">
       <h2 className="text-2xl font-semibold text-gray-800 mb-4">My Bills</h2>
 
       {/* FILTER BAR */}
       <div className="mb-6 flex flex-wrap gap-4 items-center">
-
         {/* Start Date */}
         <input
           type="date"
@@ -124,18 +121,13 @@ const Bills = () => {
           ))}
         </select>
 
-        {/* Apply Filters */}
-        <button
-          onClick={() => {}}
-          className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-500 cursor-pointer"
-        >
+        <button className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm">
           Apply Filter
         </button>
 
-        {/* Clear Filters */}
         <button
           onClick={clearFilters}
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300 cursor-pointer"
+          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm"
         >
           Clear
         </button>
@@ -143,22 +135,26 @@ const Bills = () => {
 
       {/* BILL GRID */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {!filtered || filtered.length === 0 ? (
+        {!bills || bills.length === 0 ? (
           <div className="col-span-full text-center py-10">
-            <EmptyState message="You haven't uploaded any bills." type="list" />
+            <EmptyState message="You haven't uploaded any bills yet." type="list" />
           </div>
         ) : (
-          filtered.map((bill) => (
+          bills.map((bill) => (
             <div
               key={bill.id}
-              className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden transition"
+              className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
             >
               <div
-                onClick={() => setSelectedImage(bill.fileUrl)}
+                onClick={() => setSelectedImage(formatUrl(bill.fileUrl))}
                 className="cursor-pointer"
               >
                 <img
-                  src={bill.fileUrl}
+                  src={formatUrl(bill.fileUrl)}
+                  onError={(e) => {
+                    e.target.src =
+                      "https://via.placeholder.com/300x200?text=Image+Not+Available";
+                  }}
                   alt="Bill"
                   className="w-full h-48 object-cover"
                 />
@@ -170,8 +166,8 @@ const Bills = () => {
                 <p className="mt-1"><strong>Category:</strong> {bill.category}</p>
 
                 <button
-                  onClick={() => downloadFile(bill.fileUrl, `${bill.description}.jpg`)}
-                  className="mt-3 w-full bg-purple-600 text-white py-1.5 rounded-lg text-sm hover:bg-purple-500"
+                  onClick={() => window.open(bill.fileUrl, "_blank")}
+                  className="mt-3 w-full bg-purple-600 text-white py-1.5 rounded-lg text-sm"
                 >
                   Download
                 </button>
@@ -181,7 +177,7 @@ const Bills = () => {
         )}
       </div>
 
-      {/* IMAGE POPUP */}
+      {/* IMAGE PREVIEW MODAL */}
       {selectedImage && (
         <div
           className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center"
