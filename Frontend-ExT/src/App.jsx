@@ -13,7 +13,7 @@ import CalendarPage from './pages/CalendarPage'
 import Budget from './pages/Budget'
 import LandingPage from './pages/Landing'
  
-// 🔒 Protected Route Component
+//Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/login" replace />;
@@ -29,7 +29,7 @@ const App = () => {
           <Route path='/login' element={<Login />} />
           <Route path='/signup' element={<Signup />} />
  
-          {/* Protected Routes */}
+          Protected Routes
           <Route path='/dashboard' element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path='/income' element={<ProtectedRoute><Income /></ProtectedRoute>} />
           <Route path='/expense' element={<ProtectedRoute><Expense /></ProtectedRoute>} />

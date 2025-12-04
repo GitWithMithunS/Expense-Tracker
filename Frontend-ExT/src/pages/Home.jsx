@@ -53,7 +53,7 @@ const Home = () => {
     setAllTransactions(state.recentTransactions);
     setRecentIncome(state.recentIncomes);
     setRecentExpense(state.recentExpenses);
-    console.log('transaction context state', state);   //just a checker 
+    // console.log('transaction context state', state);   //just a checker 
   }, [state])
 
 

@@ -10,6 +10,7 @@ import { SlidersHorizontal, ChevronDown, TrendingUpDownIcon, TrendingUpIcon, Tre
 import useUniversalFilter from "../components/common/FilterLogic";
 import { TransactionContext } from "@/context/TransactionContext";
 import moment from "moment";
+import TransactionInfoCard from "@/components/common/TransactionInfoCard";
 
 const Filter = () => {
   const [transactions, setTransactions] = useState([]);
@@ -52,6 +53,8 @@ const Filter = () => {
       if (filters.sortBy.includes("asc")) params.sort = "asc";
       if (filters.sortBy.includes("desc")) params.sort = "desc";
     }
+    filters.page = 10;
+    filters.size = 100;
 
     return params;
   };
@@ -114,11 +117,11 @@ const Filter = () => {
                   {item.id === "type" && (
                     <>
                       <p className="p-2 hover:bg-gray-100 cursor-pointer"
-                         onClick={() => updateFilter("type", "income")}>
+                        onClick={() => updateFilter("type", "income")}>
                         Income
                       </p>
                       <p className="p-2 hover:bg-gray-100 cursor-pointer"
-                         onClick={() => updateFilter("type", "expense")}>
+                        onClick={() => updateFilter("type", "expense")}>
                         Expense
                       </p>
                     </>
@@ -168,22 +171,22 @@ const Filter = () => {
                   {item.id === "sortBy" && (
                     <>
                       <p className="p-2 hover:bg-gray-100 cursor-pointer"
-                         onClick={() => updateFilter("sortBy", "date-asc")}>
+                        onClick={() => updateFilter("sortBy", "date-asc")}>
                         Date (Old → New)
                       </p>
 
                       <p className="p-2 hover:bg-gray-100 cursor-pointer"
-                         onClick={() => updateFilter("sortBy", "date-desc")}>
+                        onClick={() => updateFilter("sortBy", "date-desc")}>
                         Date (New → Old)
                       </p>
 
                       <p className="p-2 hover:bg-gray-100 cursor-pointer"
-                         onClick={() => updateFilter("sortBy", "amount-asc")}>
+                        onClick={() => updateFilter("sortBy", "amount-asc")}>
                         Amount (Low → High)
                       </p>
 
                       <p className="p-2 hover:bg-gray-100 cursor-pointer"
-                         onClick={() => updateFilter("sortBy", "amount-desc")}>
+                        onClick={() => updateFilter("sortBy", "amount-desc")}>
                         Amount (High → Low)
                       </p>
                     </>
@@ -226,46 +229,32 @@ const Filter = () => {
         </div>
 
         {/* RESULTS */}
-        <div className="mt-6">
+        {/* RESULTS */}
+        <div className="mt-6 bg-white p-6 rounded-2xl shadow border-gray-100">
+
           {loading ? (
-            <p className="text-gray-500 text-center">Loading...</p>
+            <p className="text-gray-500 text-center py-10">Loading...</p>
           ) : transactions.length === 0 ? (
             <EmptyState message="No transactions found." type="list" />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-4">
               {transactions.map((t) => (
-                <div key={t.id} className="bg-white rounded-2xl shadow p-5 border">
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="text-4xl">{t.categoryEmoji}</div>
-                    <div
-                      className={`text-xl font-bold ${
-                        t.categoryType === "INCOME"
-                          ? "text-green-600"
-                          : "text-red-500"
-                      }`}
-                    >
-                      <div className="flex gap-1">
-
-                      {t.categoryType === "INCOME" ? "+ " : "- "}
-                      ₹{Math.abs(t.amount)}
-                      {t.categoryType === "INCOME" ? <TrendingUpIcon/> : <TrendingDownIcon/>}
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-lg font-semibold text-gray-800">
-                    {t.categoryName}
-                  </p>
-
-                  <div className="mt-4 text-sm bg-blue-50 px-4 py-2 rounded-xl">
-                    {/* {t.createdAt} */}
-                    {moment(t.createdAt).format("Do MMM YYYY")}
-                  </div>
-                </div>
+                <TransactionInfoCard
+                  key={t.id}
+                  icon={t.categoryEmoji}
+                  title={t.categoryName}
+                  date={moment(t.createdAt).format("Do MMM YYYY")}
+                  amount={Math.abs(t.amount)}
+                  type={t.categoryType === "INCOME" ? "income" : "expense"}
+                  categoryName={t.categoryName}
+                  page="filter"
+                  onDelete={() => handleDelete(t.id)}   // optional delete handler
+                />
               ))}
             </div>
           )}
         </div>
+
 
       </div>
     </Dashboard>

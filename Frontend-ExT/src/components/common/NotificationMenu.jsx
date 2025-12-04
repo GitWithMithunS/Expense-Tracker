@@ -23,7 +23,7 @@ const NotificationMenu = () => {
     try {
       setLoading(true);
       const res = await axiosConfig.get(API_ENDPOINTS.GET_NOTIFICATIONS);
-      
+
       setNotifications(res.data.data.reverse() || []);
     } catch (err) {
       showErrorToast("Failed to load notifications");
@@ -76,7 +76,7 @@ const NotificationMenu = () => {
     try {
       await axiosConfig.delete(API_ENDPOINTS.DELETE_NOTIFICATIONS(id));
       setNotifications(prev => prev.filter(n => n.id !== id));
-      showSuccessToast("Deleted Successfully");
+      showSuccessToast("Notification Deleted Successfully");
     } catch (err) {
       console.log("some error occured while deleting notification from notification servcie" , err);
       showErrorToast("Delete notfication failed");

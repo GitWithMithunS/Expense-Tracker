@@ -1,6 +1,7 @@
-import { createContext, useReducer, useEffect, useState } from "react";
+import { createContext, useReducer, useEffect, useState, useContext } from "react";
 import axiosConfig from "../util/axiosConfig";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
+import AppContext from "./AppContext";
 
 export const TransactionContext = createContext();
 
@@ -24,9 +25,9 @@ const initialState = {
 const normalizeTransaction = (tx) => ({
   id: tx.id,
   amount: Math.abs(tx.amount),
-  date: tx.createdAt,   
-  name: tx.title || tx.categoryName, 
-  icon: tx.categoryEmoji, 
+  date: tx.createdAt,
+  name: tx.title || tx.categoryName,
+  icon: tx.categoryEmoji,
   categoryName: tx.categoryName,
   type: tx.amount >= 0 ? "income" : "expense"
 });
@@ -88,7 +89,7 @@ function reducer(state, action) {
       };
     }
 
-        case "RESET":
+    case "RESET":
       return initialState;
 
     default:
@@ -101,7 +102,9 @@ function reducer(state, action) {
 // PROVIDER
 export default function TransactionProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [notification , setNotifications] = useState([]);
+  const [notification, setNotifications] = useState([]);
+
+  const {user} = useContext(AppContext);
 
 
   // ----------------------------------------------------
@@ -156,7 +159,7 @@ export default function TransactionProvider({ children }) {
     }
   };
 
-//  // FETCH NOTIFICATIONS (API)
+  //  // FETCH NOTIFICATIONS (API)
   // const fetchNotifications = async () => {
   //   try {
   //     const res = await axiosConfig.get("/notifications");
@@ -168,10 +171,18 @@ export default function TransactionProvider({ children }) {
 
   // Initial Load
   useEffect(() => {
+    if (!localStorage.getItem('token')) {
+      return;
+    }
+
     fetchCategories();
     fetchAllTransactions();
     // fetchNotifications();
-  }, []);
+  }, [user]);
+
+  useEffect(() => {
+    console.log("Updated transaction state value:", state);
+  }, [state]);
 
   return (
     <TransactionContext.Provider
