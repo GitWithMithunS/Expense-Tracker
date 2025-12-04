@@ -10,6 +10,7 @@ import { SlidersHorizontal, ChevronDown, TrendingUpDownIcon, TrendingUpIcon, Tre
 import useUniversalFilter from "../components/common/FilterLogic";
 import { TransactionContext } from "@/context/TransactionContext";
 import moment from "moment";
+import TransactionInfoCard from "@/components/common/TransactionInfoCard";
 
 const Filter = () => {
   const [transactions, setTransactions] = useState([]);
@@ -52,6 +53,8 @@ const Filter = () => {
       if (filters.sortBy.includes("asc")) params.sort = "asc";
       if (filters.sortBy.includes("desc")) params.sort = "desc";
     }
+    filters.page = 10;
+    filters.size = 100;
 
     return params;
   };
@@ -226,46 +229,32 @@ const Filter = () => {
         </div>
 
         {/* RESULTS */}
-        <div className="mt-6">
-          {loading ? (
-            <p className="text-gray-500 text-center">Loading...</p>
-          ) : transactions.length === 0 ? (
-            <EmptyState message="No transactions found." type="list" />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {transactions.map((t) => (
-                <div key={t.id} className="bg-white rounded-2xl shadow p-5 border">
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="text-4xl">{t.categoryEmoji}</div>
-                    <p
-                      className={`text-xl font-bold ${
-                        t.categoryType === "INCOME"
-                          ? "text-green-600"
-                          : "text-red-500"
-                      }`}
-                    >
-                      <div className="flex gap-1">
+        {/* RESULTS */}
+<div className="mt-6 bg-white p-4 rounded-2xl shadow border">
 
-                      {t.categoryType === "INCOME" ? "+ " : "- "}
-                      ₹{Math.abs(t.amount)}
-                      {t.categoryType === "INCOME" ? <TrendingUpIcon/> : <TrendingDownIcon/>}
-                      </div>
-                    </p>
-                  </div>
+  {loading ? (
+    <p className="text-gray-500 text-center py-10">Loading...</p>
+  ) : transactions.length === 0 ? (
+    <EmptyState message="No transactions found." type="list" />
+  ) : (
+    <div className="space-y-4">
+      {transactions.map((t) => (
+        <TransactionInfoCard
+          key={t.id}
+          icon={t.categoryEmoji}
+          title={t.categoryName}
+          date={moment(t.createdAt).format("Do MMM YYYY")}
+          amount={Math.abs(t.amount)}
+          type={t.categoryType === "INCOME" ? "income" : "expense"}
+          categoryName={t.categoryName}
+          page="filter"
+          onDelete={() => handleDelete(t.id)}   // optional delete handler
+        />
+      ))}
+    </div>
+  )}
+</div>
 
-                  <p className="text-lg font-semibold text-gray-800">
-                    {t.categoryName}
-                  </p>
-
-                  <div className="mt-4 text-sm bg-blue-50 px-4 py-2 rounded-xl">
-                    {/* {t.createdAt} */}
-                    {moment(t.createdAt).format("Do MMM YYYY")}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
 
       </div>
     </Dashboard>

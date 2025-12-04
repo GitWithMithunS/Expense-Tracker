@@ -51,8 +51,9 @@ const Expense = () => {
     try {
       const payload = {
         amount: Number(data.amount),
-        description: data.description,
+        description: data.name,
         categoryId: data.categoryId,
+        createdAt: data.date,
       };
 
       const res = await axiosConfig.post(API_ENDPOINTS.ADD_TRANSACTION, payload);

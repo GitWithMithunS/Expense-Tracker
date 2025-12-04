@@ -1,8 +1,10 @@
 import { createContext, useReducer, useEffect, useState } from "react";
 import axiosConfig from "../util/axiosConfig";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
+import { useNavigate } from "react-router-dom";
 
 export const TransactionContext = createContext();
+
 
 const initialState = {
   balance: 0,
@@ -24,9 +26,9 @@ const initialState = {
 const normalizeTransaction = (tx) => ({
   id: tx.id,
   amount: Math.abs(tx.amount),
-  date: tx.createdAt,   
-  name: tx.title || tx.categoryName, 
-  icon: tx.categoryEmoji, 
+  date: tx.createdAt,
+  name: tx.title || tx.categoryName,
+  icon: tx.categoryEmoji,
   categoryName: tx.categoryName,
   type: tx.amount >= 0 ? "income" : "expense"
 });
@@ -88,6 +90,10 @@ function reducer(state, action) {
       };
     }
 
+    case "RESET":
+      return initialState;
+
+
     default:
       return state;
   }
@@ -98,7 +104,7 @@ function reducer(state, action) {
 // PROVIDER
 export default function TransactionProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [notification , setNotifications] = useState([]);
+  const [notification, setNotifications] = useState([]);
 
 
   // ----------------------------------------------------
@@ -109,6 +115,9 @@ export default function TransactionProvider({ children }) {
       const res = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
 
       const list = res.data?.data || [];
+
+      console.log('from fecth transaction context before normalization', res);
+
 
       // Normalize backend fields
       const normalized = list.map(normalizeTransaction);
@@ -136,7 +145,9 @@ export default function TransactionProvider({ children }) {
           recentTransactions: sorted.slice(0, 5),
           balance,
         },
+
       });
+      console.log('from fecth transaction context', incomes);
     } catch (err) {
       console.error("Failed to load transactions", err);
     }
@@ -155,7 +166,7 @@ export default function TransactionProvider({ children }) {
     }
   };
 
-//  // FETCH NOTIFICATIONS (API)
+  //  // FETCH NOTIFICATIONS (API)
   // const fetchNotifications = async () => {
   //   try {
   //     const res = await axiosConfig.get("/notifications");
@@ -167,10 +178,20 @@ export default function TransactionProvider({ children }) {
 
   // Initial Load
   useEffect(() => {
+    if (!localStorage.getItem('token')) {
+      // navigate('/login');
+      return;
+    }
     fetchCategories();
     fetchAllTransactions();
     // fetchNotifications();
   }, []);
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    dispatch({ type: "RESET" });
+  };
+
 
   return (
     <TransactionContext.Provider
@@ -178,6 +199,7 @@ export default function TransactionProvider({ children }) {
         state,
         dispatch,
         fetchAllTransactions,
+        logout,
       }}
     >
       {children}
