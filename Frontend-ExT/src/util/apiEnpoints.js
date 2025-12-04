@@ -68,13 +68,20 @@ export const API_ENDPOINTS = {
   DELETE_NOTIFICATIONS: (id) => `/notifications/${id}`,  //delete
   DELETE_ALL_NOTIFICATIONS: '/notifications/delete-all',
 
+  // // ---------------- SUBSCRIPTIONS ----------------
+  // GET_DEFAULT_PLANS: "/subscriptions/plans/default", // GET
+  // ADD_SUBSCRIPTION: "/subscriptions/add", // POST
   // ---------------- SUBSCRIPTIONS ----------------
-  GET_DEFAULT_PLANS: "/subscriptions/plans/default", // GET
-  ADD_SUBSCRIPTION: "/subscriptions/add", // POST
+  GET_DEFAULT_PLANS: "/subscriptions/plans/default",
+  ADD_SUBSCRIPTION: "/subscriptions/add",
+  GET_USER_SUBSCRIPTIONS: "/subscriptions/user",
+  DELETE_SUBSCRIPTION: (id) => `/subscriptions/${id}`,
+  
+
 
   // ---------------- VAULT (Bills Upload/Download/Delete) ----------------
   UPLOAD_BILL: "/api/v1/vault/upload", // POST (multipart/form-data)
-  LIST_BILLS: "/api/v1/vault/list", // GET
+  LIST_BILLS: "/api/v1/bills", // GET
   DOWNLOAD_BILL: (id) => `/api/v1/vault/files/${id}`, // GET (binary)
   DELETE_BILL: (id) => `/api/v1/vault/${id}`, // DELETE
 };

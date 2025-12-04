@@ -237,7 +237,7 @@ const Filter = () => {
                 <div key={t.id} className="bg-white rounded-2xl shadow p-5 border">
                   <div className="flex justify-between items-center mb-3">
                     <div className="text-4xl">{t.categoryEmoji}</div>
-                    <p
+                    <div
                       className={`text-xl font-bold ${
                         t.categoryType === "INCOME"
                           ? "text-green-600"
@@ -250,7 +250,7 @@ const Filter = () => {
                       ₹{Math.abs(t.amount)}
                       {t.categoryType === "INCOME" ? <TrendingUpIcon/> : <TrendingDownIcon/>}
                       </div>
-                    </p>
+                    </div>
                   </div>
 
                   <p className="text-lg font-semibold text-gray-800">

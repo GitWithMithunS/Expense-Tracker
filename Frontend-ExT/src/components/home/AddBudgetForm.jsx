@@ -397,118 +397,185 @@ const AddSavingGoalForm = ({ onSave, onClose }) => {
 
 
 
-
 /* --------------------------------------------------------- */
 /* ---------------------- SUBSCRIPTION FORM ---------------- */
 /* --------------------------------------------------------- */
 
-const AddSubscriptionForm = ({ selectedMonth, onSave, onClose }) => {
-  const [name, setName] = useState("");
+const AddSubscriptionForm = ({ selectedMonth, onSave, onClose, defaultPlans = [] }) => {
+  // ---------------------------
+  // FORM STATES
+  // ---------------------------
+  const [platformName, setPlatformName] = useState("");
+  const [planName, setPlanName] = useState("");
+  const [billingCycle, setBillingCycle] = useState("");
   const [amount, setAmount] = useState("");
-  const [renewalType, setRenewalType] = useState("monthly");
   const [startMonth, setStartMonth] = useState(selectedMonth);
-  const [endMonth, setEndMonth] = useState("");
+  const [userSelectedPlatform, setUserSelectedPlatform] = useState("");
 
+  // ---------------------------
+  // GROUP PLANS BY PLATFORM
+  // ---------------------------
+  const platformGroups = [...new Set(defaultPlans.map((p) => p.platform))];
+
+  const filteredPlans = defaultPlans.filter(
+    (p) => p.platform === userSelectedPlatform
+  );
+
+  // ---------------------------
+  // AUTO APPLY PLAN DETAILS
+  // ---------------------------
+  const handlePlanSelect = (plan) => {
+    setPlanName(plan.plan);
+    setAmount(plan.amount);
+    setBillingCycle(plan.cycle);
+    setPlatformName(plan.platform);
+  };
+
+  // ---------------------------
+  // SUBMIT HANDLER
+  // Backend expects:
+  // { amount, platformName, billingCycle, planName }
+  // ---------------------------
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const subscription = {
-      name,
+    if (!platformName || !planName || !billingCycle || !amount) {
+      alert("Please complete all fields.");
+      return;
+    }
+
+    const payload = {
+      platformName,
+      planName,
+      billingCycle,
       amount: Number(amount),
-      renewalType,
-      startMonth,
-      endMonth: endMonth === "" ? null : endMonth
     };
 
-    onSave(subscription);
+    onSave(payload); // calls backend POST /subscriptions/add
     onClose();
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
 
-  <h2 className="text-xl font-semibold text-gray-800">Subscription</h2>
+      <h2 className="text-xl font-semibold text-gray-800 mb-2">Add Subscription</h2>
 
-  {/* Subscription Name */}
-  <div className="flex flex-col gap-1">
-    <label className="text-sm font-medium text-gray-700">Subscription Name</label>
-    <input
-      type="text"
-      placeholder="Netflix, Amazon Prime, etc."
-      className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 outline-none"
-      value={name}
-      onChange={(e) => setName(e.target.value)}
-    />
-  </div>
+      {/* PLATFORM SELECT */}
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-gray-600">Platform</label>
 
-  {/* Amount */}
-  <div className="flex flex-col gap-1">
-    <label className="text-sm font-medium text-gray-700">Amount</label>
-    <input
-      type="number"
-      className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 outline-none"
-      value={amount}
-      onChange={(e) => setAmount(e.target.value)}
-    />
-  </div>
+        <select
+          className="p-3 border rounded-lg shadow-sm"
+          value={userSelectedPlatform}
+          onChange={(e) => {
+            setUserSelectedPlatform(e.target.value);
+            setPlatformName(e.target.value);
+            setPlanName("");
+            setAmount("");
+            setBillingCycle("");
+          }}
+        >
+          <option value="">Select Platform</option>
+          {platformGroups.map((platform) => (
+            <option key={platform} value={platform}>
+              {platform}
+            </option>
+          ))}
+        </select>
+      </div>
 
-  {/* Renewal Type */}
-  <div className="flex flex-col gap-1">
-    <label className="text-sm font-medium text-gray-700">Renewal Type</label>
-    <select
-      className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 outline-none"
-      value={renewalType}
-      onChange={(e) => setRenewalType(e.target.value)}
-    >
-      <option value="monthly">Monthly</option>
-      <option value="weekly">Weekly</option>
-      <option value="yearly">Yearly</option>
-    </select>
-  </div>
+      {/* PLAN SELECT */}
+      {userSelectedPlatform && (
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-600">Choose Plan</label>
 
-  {/* Start Month */}
-  <div className="flex flex-col gap-1">
-    <label className="text-sm font-medium text-gray-700">Start Month</label>
-    <input
-      type="month"
-      className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 outline-none"
-      value={startMonth}
-      onChange={(e) => setStartMonth(e.target.value)}
-    />
-  </div>
+          <div className="space-y-2">
+            {filteredPlans.map((plan, index) => (
+              <div
+                key={index}
+                onClick={() => handlePlanSelect(plan)}
+                className={`p-3 border rounded-lg cursor-pointer hover:bg-purple-50 ${
+                  planName === plan.plan ? "border-purple-600 bg-purple-50" : ""
+                }`}
+              >
+                <p className="font-semibold">{plan.plan}</p>
+                <p className="text-sm text-gray-600">
+                  ₹{plan.amount} — {plan.cycle}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-  {/* End Month */}
-  <div className="flex flex-col gap-1">
-    <label className="text-sm font-medium text-gray-700">
-      End Month (Optional)
-    </label>
-    <input
-      type="month"
-      className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 outline-none"
-      value={endMonth}
-      onChange={(e) => setEndMonth(e.target.value)}
-    />
-    <p className="text-xs text-gray-500">Leave empty for auto-renew</p>
-  </div>
+      {/* MANUAL FIELDS (Auto-filled for default plans, but editable) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-  {/* Buttons */}
-  <div className="flex justify-end items-center gap-4 pt-4">
-    <button
-      type="button"
-      className="px-5 py-2 rounded-lg border text-gray-700 hover:bg-gray-100 shadow-sm"
-      onClick={onClose}
-    >
-      Cancel
-    </button>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Plan Name</label>
+          <input
+            type="text"
+            className="p-3 border rounded-lg shadow-sm"
+            value={planName}
+            onChange={(e) => setPlanName(e.target.value)}
+            placeholder="Basic, Standard, Duo etc."
+          />
+        </div>
 
-    <button
-      type="submit"
-      className="px-6 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 shadow-sm"
-    >
-      Save Subscription
-    </button>
-  </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Billing Cycle</label>
+          <select
+            className="p-3 border rounded-lg shadow-sm"
+            value={billingCycle}
+            onChange={(e) => setBillingCycle(e.target.value)}
+          >
+            <option value="">Select</option>
+            <option value="MONTHLY">Monthly</option>
+            <option value="YEARLY">Yearly</option>
+            <option value="WEEKLY">Weekly</option>
+          </select>
+        </div>
 
-</form>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Amount (₹)</label>
+          <input
+            type="number"
+            className="p-3 border rounded-lg shadow-sm"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="0"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Start Month</label>
+          <input
+            type="month"
+            className="p-3 border rounded-lg shadow-sm"
+            value={startMonth}
+            onChange={(e) => setStartMonth(e.target.value)}
+          />
+        </div>
+
+      </div>
+
+      {/* BUTTONS */}
+      <div className="flex justify-end gap-4 mt-6">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-5 py-2 rounded-lg border text-gray-700 hover:bg-gray-100"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          className="px-6 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700"
+        >
+          Save Subscription
+        </button>
+      </div>
+    </form>
   );
 };

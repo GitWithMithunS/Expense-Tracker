@@ -114,12 +114,12 @@ export default function CalendarPopup({ open = false, onClose = () => { } }) {
       try {
         const txRes = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
         console.log(txRes);
-        const subRes = await axiosConfig.get(API_ENDPOINTS.GET_BUDGET_DATA);
+        const subRes = await axiosConfig.get(API_ENDPOINTS.GET_ALL_CATEGORIES);
         console.log(subRes);
 
         // Normalize transactions
         const normalizedTx =
-          (txRes?.data || []).map((t) => ({
+          (txRes? txRes.data : []).map((t) => ({
             id: t.id,
             date: t.date,
             type: t.type,               // income / expense

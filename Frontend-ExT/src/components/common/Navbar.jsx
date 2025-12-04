@@ -40,6 +40,7 @@ const Navbar = ({ activeMenu }) => {
   // Logout
   const handleLogout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
     localStorage.clear();
     setShowDropdown(false);
     navigate('/login');

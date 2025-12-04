@@ -88,6 +88,9 @@ function reducer(state, action) {
       };
     }
 
+        case "RESET":
+      return initialState;
+
     default:
       return state;
   }
@@ -143,9 +146,7 @@ export default function TransactionProvider({ children }) {
   };
 
 
-  // ----------------------------------------------------
   // Fetch Categories ONLY once
-  // ----------------------------------------------------
   const fetchCategories = async () => {
     try {
       const res = await axiosConfig.get(API_ENDPOINTS.GET_ALL_CATEGORIES);

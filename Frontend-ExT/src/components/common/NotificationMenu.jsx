@@ -23,8 +23,8 @@ const NotificationMenu = () => {
     try {
       setLoading(true);
       const res = await axiosConfig.get(API_ENDPOINTS.GET_NOTIFICATIONS);
-
-      setNotifications(res.data.data || []);
+      
+      setNotifications(res.data.data.reverse() || []);
     } catch (err) {
       showErrorToast("Failed to load notifications");
       console.log(err);
