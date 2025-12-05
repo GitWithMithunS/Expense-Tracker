@@ -9,7 +9,6 @@ import Income from './pages/Income'
 import Home from './pages/Home'
 import { Toaster } from 'react-hot-toast'
 import Bills from './pages/Bills'
-import CalendarPage from './pages/CalendarPage'
 import Budget from './pages/Budget'
 import LandingPage from './pages/Landing'
 
