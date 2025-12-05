@@ -65,6 +65,8 @@ const Login = () => {
 
       // Update context
       const loggedInUser = { email, userId, token };
+      console.log('login successful, loggedInUser ');
+      
       setUser(loggedInUser);
 
       showSuccessToast("Login successful");

@@ -11,13 +11,13 @@ import { Toaster } from 'react-hot-toast'
 import Bills from './pages/Bills'
 import Budget from './pages/Budget'
 import LandingPage from './pages/Landing'
-
-// 🔒 Protected Route Component
+ 
+//Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/login" replace />;
 };
-
+ 
 const App = () => {
   return (
     <>
@@ -27,8 +27,8 @@ const App = () => {
           <Route path='/' element={<LandingPage />} />
           <Route path='/login' element={<Login />} />
           <Route path='/signup' element={<Signup />} />
-
-          {/* Protected Routes */}
+ 
+          Protected Routes
           <Route path='/dashboard' element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path='/income' element={<ProtectedRoute><Income /></ProtectedRoute>} />
           <Route path='/expense' element={<ProtectedRoute><Expense /></ProtectedRoute>} />
@@ -43,5 +43,5 @@ const App = () => {
     </>
   )
 }
-
+ 
 export default App;

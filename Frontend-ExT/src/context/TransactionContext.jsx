@@ -1,10 +1,9 @@
-import { createContext, useReducer, useEffect, useState } from "react";
+import { createContext, useReducer, useEffect, useState, useContext } from "react";
 import axiosConfig from "../util/axiosConfig";
 import { API_ENDPOINTS } from "../util/apiEnpoints";
-import { useNavigate } from "react-router-dom";
+import AppContext from "./AppContext";
 
 export const TransactionContext = createContext();
-
 
 const initialState = {
   balance: 0,
@@ -93,7 +92,6 @@ function reducer(state, action) {
     case "RESET":
       return initialState;
 
-
     default:
       return state;
   }
@@ -106,6 +104,8 @@ export default function TransactionProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [notification, setNotifications] = useState([]);
 
+  const {user} = useContext(AppContext);
+
 
   // ----------------------------------------------------
   // Fetch ALL transactions → Normalize → Store globally
@@ -115,9 +115,6 @@ export default function TransactionProvider({ children }) {
       const res = await axiosConfig.get(API_ENDPOINTS.GET_ALL_TRANSACTIONS);
 
       const list = res.data?.data || [];
-
-      console.log('from fecth transaction context before normalization', res);
-
 
       // Normalize backend fields
       const normalized = list.map(normalizeTransaction);
@@ -145,18 +142,14 @@ export default function TransactionProvider({ children }) {
           recentTransactions: sorted.slice(0, 5),
           balance,
         },
-
       });
-      console.log('from fecth transaction context', incomes);
     } catch (err) {
       console.error("Failed to load transactions", err);
     }
   };
 
 
-  // ----------------------------------------------------
   // Fetch Categories ONLY once
-  // ----------------------------------------------------
   const fetchCategories = async () => {
     try {
       const res = await axiosConfig.get(API_ENDPOINTS.GET_ALL_CATEGORIES);
@@ -179,19 +172,17 @@ export default function TransactionProvider({ children }) {
   // Initial Load
   useEffect(() => {
     if (!localStorage.getItem('token')) {
-      // navigate('/login');
       return;
     }
+
     fetchCategories();
     fetchAllTransactions();
     // fetchNotifications();
-  }, []);
+  }, [user]);
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    dispatch({ type: "RESET" });
-  };
-
+  useEffect(() => {
+    console.log("Updated transaction state value:", state);
+  }, [state]);
 
   return (
     <TransactionContext.Provider
@@ -199,7 +190,6 @@ export default function TransactionProvider({ children }) {
         state,
         dispatch,
         fetchAllTransactions,
-        logout,
       }}
     >
       {children}

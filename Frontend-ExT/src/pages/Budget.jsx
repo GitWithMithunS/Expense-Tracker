@@ -1,12 +1,18 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Dashboard from "../../src/components/common/Dashboard";
+
+import axiosConfig from "../util/axiosConfig";
+import { API_ENDPOINTS } from "../util/apiEnpoints";
+import { TrendingUp, TrendingDown, Calendar, Plus } from "lucide-react";
+import AddBudgetMasterForm from "../components/home/AddBudgetForm";
+import Model from "@/components/common/Model";
+import EmptyState from "@/components/charts/EmptyState";
 import BudgetHeader from "@/components/Budget/BudgetPage/BudgetHeader";
 import BudgetSummary from "@/components/Budget/BudgetPage/BudgetSummary";
 import CategoryBreakdown from "@/components/Budget/BudgetPage/CategoryBreakdown";
-import GoalsList from "@/components/Budget/BudgetPage/GoalsList";
 import SubscriptionsList from "@/components/Budget/BudgetPage/SubscriptionsList";
+import GoalsList from "@/components/Budget/BudgetPage/GoalsList";
 import AddBudgetModal from "@/components/Budget/BudgetPage/AddBudgetModal";
-import AddBudgetButton from "@/components/Budget/BudgetPage/AddBudgetButton";
 
 const Budget = () => {
     // ----------------------------------------
@@ -65,6 +71,10 @@ const Budget = () => {
     const hasBudget = Boolean(currentBudget);
 
     const totalBudget = currentBudget?.totalBudget || 0;
+    const categories = categoryBudgets;
+
+
+    const categorySpent = currentBudget?.spentByCategory || {};
 
     // ----------------------------------------
     // Savings Goals Filter – Show goals active in selected month
@@ -124,46 +134,41 @@ const Budget = () => {
     // UI STARTS HERE
     // ----------------------------------------
     return (
-        <Dashboard activeMenu="Budget">
-            <div className="p-6 space-y-10">
+    <Dashboard activeMenu="Budget">
+      <div className="p-6 space-y-10">
+        
+        <BudgetHeader
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+          upcomingMonths={upcomingMonths}
+          formatMonth={formatMonth}
+        />
 
-                <BudgetHeader
-                    selectedMonth={selectedMonth}
-                    setSelectedMonth={setSelectedMonth}
-                    upcomingMonths={upcomingMonths}
-                    formatMonth={formatMonth}
-                />
+        <BudgetSummary
+          hasBudget={hasBudget}
+          selectedMonth={selectedMonth}
+          totalBudget={totalBudget}
+          currentBudget={currentBudget}
+          formatMonth={formatMonth}
+        />
 
-                <AddBudgetButton
-                    hasBudget={hasBudget}
-                    onClick={() => setShowAddBudget(true)}
-                />
+        {hasBudget && <CategoryBreakdown categories={categoryBudgets} />}
 
-                <BudgetSummary
-                    hasBudget={hasBudget}
-                    selectedMonth={selectedMonth}
-                    totalBudget={totalBudget}
-                    currentBudget={currentBudget}
-                    formatMonth={formatMonth}
-                />
+        <GoalsList activeGoals={activeGoals} />
 
-                {hasBudget && <CategoryBreakdown categories={categoryBudgets} />}
+        <SubscriptionsList filteredSubscriptions={filteredSubscriptions} />
 
-                <GoalsList activeGoals={activeGoals} />
-
-                <SubscriptionsList filteredSubscriptions={filteredSubscriptions} />
-
-                <AddBudgetModal
-                    show={showAddBudget}
-                    selectedMonth={selectedMonth}
-                    onClose={() => setShowAddBudget(false)}
-                    onSaveBudget={handleSaveBudget}
-                    onSaveGoal={handleSaveGoal}
-                    onSaveSubscription={handleSaveSubscription}
-                />
-            </div>
-        </Dashboard>
-    );
+        <AddBudgetModal
+          show={showAddBudget}
+          selectedMonth={selectedMonth}
+          onClose={() => setShowAddBudget(false)}
+          onSaveBudget={handleSaveBudget}
+          onSaveGoal={handleSaveGoal}
+          onSaveSubscription={handleSaveSubscription}
+        />
+      </div>
+    </Dashboard>
+  );
 };
 
 export default Budget;

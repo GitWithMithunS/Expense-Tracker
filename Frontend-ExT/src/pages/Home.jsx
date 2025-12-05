@@ -22,7 +22,8 @@ const Home = () => {
     setAllTransactions(state.recentTransactions);
     setRecentIncome(state.recentIncomes);
     setRecentExpense(state.recentExpenses);
-  }, [state]);
+    // console.log('transaction context state', state);   //just a checker 
+  }, [state])
 
   // TOTALS
   const totalIncome = allTransactions

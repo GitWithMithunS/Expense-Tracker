@@ -32,16 +32,28 @@ const Navbar = ({ activeMenu }) => {
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
 
-  const { user } = useContext(AppContext);
-  const { state } = useContext(TransactionContext);
+  const { user , setUser , logoutUser } = useContext(AppContext);
+  const { state , dispatch } = useContext(TransactionContext);
   const navigate = useNavigate();
   const [showCal, setShowCal] = useState(false);   //calender state
 
   // Logout
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    localStorage.clear();
+    console.log('loging-out user...');
+    console.log('user context' ,user);
+    console.log('transaction context' , state);
+
+    console.log()
     setShowDropdown(false);
+
+    //calra user data in appcontext
+    logoutUser();
+    //clear transaction state data in context
+    dispatch({
+      type : 'RESET',
+    })
+
+    console.log('user logedout successfully');    
     navigate('/login');
   };
 
@@ -142,6 +154,7 @@ const Navbar = ({ activeMenu }) => {
   };
 
   const handlelogoclick = () => {
+    if(!localStorage.getItem('token')) navigate('/login');
     navigate('/dashboard');
   }
 

@@ -7,12 +7,28 @@ import useUniversalFilter from "@/components/Filter/FilterLogic";
 import AppContext from "@/context/AppContext";
 import React, { useState, useEffect, useContext } from "react";
 
+import axiosConfig from "@/util/axiosConfig";
+import { API_ENDPOINTS } from "@/util/apiEnpoints";
+
 const Bills = () => {
   const { user } = useContext(AppContext);
 
   const [bills, setBills] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
 
+  
+function formatUrl(url) {
+    // Replace 's3://' with 'https://'
+    let formattedUrl = url.replace(/^s3:\/\//, 'https://');
+
+    // Replace spaces with '+'
+    formattedUrl = formattedUrl.replace(/\s+/g, '+');
+
+    return formattedUrl;
+}
+
+
+  // Filter system
   const {
     filters,
     filteredTransactions: filtered,
@@ -43,18 +59,10 @@ const Bills = () => {
     { id: "date", label: "DATE RANGE" },
   ];
 
-  const downloadFile = (url, filename) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.click();
-  };
-
   return (
     <Dashboard activeMenu="Bills">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">My Bills</h2>
-
       {/* REUSABLE FILTER BAR */}
+      <div className="p-4 sm:p-6">
       <FilterBar
         filterButtons={billFilterButtons}
         dropdown={dropdown}
@@ -69,7 +77,7 @@ const Bills = () => {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {!filtered.length ? (
           <div className="col-span-full text-center py-10">
-            <EmptyState message="You haven't uploaded any bills." type="list" />
+            <EmptyState message="You haven't uploaded any bills yet." type="list" />
           </div>
         ) : (
           filtered.map((bill) => (
@@ -85,7 +93,9 @@ const Bills = () => {
       </div>
 
       <BillImageModal image={selectedImage} onClose={() => setSelectedImage(null)} />
+        </div>
     </Dashboard>
+    
   );
 };
 

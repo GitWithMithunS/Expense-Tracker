@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import EmojiPickerComponent from "../common/EmojiPickerComponent";
-import { Loader } from "lucide-react";
+import { Loader, ImageUp } from "lucide-react";
 import { showWarningToast } from "../common/CustomToast";
+import axiosConfig from "@/util/axiosConfig";
+import { API_ENDPOINTS } from "@/util/apiEnpoints";
 
 const AddExpenseForm = ({
   onSubmit,
@@ -10,7 +12,6 @@ const AddExpenseForm = ({
   isEditing,
   expenseCategories,
 }) => {
-
   const [expense, setExpense] = useState({
     name: "",
     amount: "",
@@ -19,10 +20,50 @@ const AddExpenseForm = ({
     icon: "",
   });
 
+  const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // hidden file input ref
+  const fileInputRef = useRef(null);
 
   const handleChange = (key, value) => {
     setExpense((prev) => ({ ...prev, [key]: value }));
+  };
+
+
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setImageFile(file);
+      console.log("Selected file:", file);
+
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("billDescription", expense.name || "No Description");
+    formData.append("date", expense.date || "");     // backend handles blank date
+    formData.append("categoryId", expense.categoryId || 0);
+
+    const res = await axiosConfig.post("/api/v1/bills/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "X-User-Id": 1, //  replace with real user ID later
+      },
+    });
+    // const res = await axiosConfig.post(API_ENDPOINTS.UPLOAD_BILL , formData);
+
+    console.log("UPLOAD SUCCESS:", res.data);
+  } catch (error) {
+    console.error("UPLOAD ERROR:", error);
+  }
+};
+
+
+  // open file dialog
+  const triggerFileOpen = () => {
+    fileInputRef.current?.click();
   };
 
   // Prefill data when editing
@@ -68,7 +109,13 @@ const AddExpenseForm = ({
 
     try {
       setLoading(true);
-      await onSubmit(expense);
+
+      const payload = {
+        ...expense,
+        imageFile, // attach uploaded file
+      };
+
+      await onSubmit(payload);
       setLoading(false);
       onClose?.();
     } catch (error) {
@@ -80,15 +127,43 @@ const AddExpenseForm = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
 
-      {/* ICON PICKER */}
-      <div className="flex items-center gap-4">
-        <EmojiPickerComponent
-          selectedEmoji={expense.icon}
-          className="bg-red-500"
-          onSelect={(emoji) => handleChange("icon", emoji)}
+      {/* ICON PICKER + UPLOAD BUTTON */}
+      <div className="flex items-center justify-between w-full">
+        
+        {/* left side emoji picker */}
+        <div className="flex items-center gap-3">
+          <EmojiPickerComponent
+            selectedEmoji={expense.icon}
+            onSelect={(emoji) => handleChange("icon", emoji)}
+          />
+          <span className="text-sm text-gray-700">Pick Icon</span>
+        </div>
+
+        {/* right side upload button */}
+        <button
+          type="button"
+          onClick={triggerFileOpen}
+          className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition"
+        >
+          <ImageUp className="w-5 h-5 text-purple-600" />
+        </button>
+
+        {/* hidden file input */}
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          onChange={handleFileUpload}
+          className="hidden"
         />
-        <span className="text-sm text-gray-700">Pick Icon</span>
       </div>
+
+      {/* show selected file name */}
+      {imageFile && (
+        <p className="text-xs text-green-600 mt-1">
+          Attached: {imageFile.name}
+        </p>
+      )}
 
       {/* NAME */}
       <div>
@@ -164,6 +239,7 @@ const AddExpenseForm = ({
           ? "Update Expense"
           : "Add Expense"}
       </button>
+
     </form>
   );
 };
