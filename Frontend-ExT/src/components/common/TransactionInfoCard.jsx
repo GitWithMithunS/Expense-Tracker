@@ -9,6 +9,7 @@ const TransactionInfoCard = ({
     type,
     onDelete,
     categoryName,
+    description,
     page
 
 }) => {
@@ -29,7 +30,7 @@ const TransactionInfoCard = ({
 
     const formattedAmount = amount.toLocaleString("en-IN");
 
-    const deleteStyle = page === 'home' ? "opacity-0  transition-opacity text-gray-500 hover:text-yellow-600 ml-auto mr-2" :
+    const deleteStyle = (page === 'home' || page === 'filter') ? "opacity-0  transition-opacity text-gray-500 hover:text-yellow-600 ml-auto mr-2" :
         "opacity-0 group-hover:opacity-100 transition-opacity text-gray-500 hover:text-red-600 ml-auto mr-2"
 
 
@@ -81,12 +82,15 @@ const TransactionInfoCard = ({
                 </div>
 
                 {/* Delete Button */}
+                {/* {
+                    (page === 'income' || page === 'expense') && */}
                 <button
-                    onClick={() => onDelete()}
-                    className={deleteStyle}
+                onClick={() => onDelete()}
+                className={deleteStyle}
                 >
                     <Trash size={18} />
                 </button>
+                {/* } */}
 
                 {/* Amount */}
                 <div
