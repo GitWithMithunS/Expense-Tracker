@@ -80,16 +80,16 @@ const Income = () => {
   // };
   // handle add income 
   const handleAddIncome = async (data) => {
-    console.log('before i add the income ',data);
     try {
       const payload = {
+        // amount: Number(data.amount),
+        // description: data.description,
+        // categoryId: data.categoryId
         amount: Number(data.amount),
         description: data.name,
         categoryId: data.categoryId,
         createdAt: data.date,
       };
-
-      console.log('payload ebfoer sending' ,payload);
 
       const res = await axiosConfig.post(API_ENDPOINTS.ADD_TRANSACTION, payload);
 

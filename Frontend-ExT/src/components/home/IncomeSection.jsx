@@ -4,6 +4,7 @@ import { TrendingUp } from "lucide-react";
 import moment from "moment";
 
 export default function IncomeSection({ recentIncome, navigate }) {
+
   return (
     <div className="bg-white rounded-xl shadow-lg border flex flex-col overflow-hidden p-4 border-green-300">
 

@@ -9,7 +9,6 @@ const TransactionInfoCard = ({
     type,
     onDelete,
     categoryName,
-    description,
     page
 
 }) => {
@@ -77,7 +76,7 @@ const TransactionInfoCard = ({
 
                 {/* Details */}
                 <div className="flex flex-col">
-                    <p className="text-gray-800 font-semibold text-sm ">{ (page==='home') ? categoryName : title}</p>
+                    <p className="text-gray-800 font-semibold text-sm ">{  title}</p>
                     <p className="text-gray-500 mt-0.5 text-xs">{date}</p>
                 </div>
 
